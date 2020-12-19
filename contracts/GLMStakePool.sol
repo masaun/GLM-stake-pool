@@ -12,6 +12,12 @@ contract GLMStakePool {
         GLMToken = _GLMToken;
     }
 
-    function something() public returns (bool) {}
+    /***
+     * @notice - Create a pair (LP token) between the GLM tokens and another ERC20 tokens
+     *         - e.g). GLM/ETH, GLM/DAI, GLM/USDC
+     **/
+    function createLPToken() public returns (bool) {
+        /// Add liquidity and pair
+    }
 
 }
