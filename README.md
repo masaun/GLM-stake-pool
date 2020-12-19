@@ -14,6 +14,15 @@
 
 ***
 
+## 【Remarks】
+- Version
+  - Solidity (Solc): v0.5.16
+  - @openzeppelin/contracts: v2.5.1
+
+&nbsp;
+
+***
+
 ## 【Setup】
 ### ① Install modules
 ```
