@@ -10,6 +10,6 @@ const _networkId = web3.eth.net.getId();
 const _migrationAgent = process.env.WALLET_ADDRESS_2;
 const _chainId = web3.eth.getChainId();
 
-module.exports = function(deployer) {
-    deployer.deploy(NewGolemNetworkToken, _migrationAgent, _chainId);
+module.exports = async function(deployer) {
+    await deployer.deploy(NewGolemNetworkToken, _migrationAgent, _chainId);
 };
