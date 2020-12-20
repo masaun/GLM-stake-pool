@@ -54,6 +54,10 @@ contract GLMStakePool {
     function createPairWithETH() public returns (bool) {}
 
 
+    ///----------------------------
+    /// Add liquidity with ERC20
+    ///----------------------------
+
     /***
      * @notice - Add Liquidity for a pair (LP token) between the GLM tokens and another ERC20 tokens by using Uniswap-V2
      *         - e.g). GLM/ETH, GLM/DAI, GLM/USDC
@@ -63,6 +67,10 @@ contract GLMStakePool {
         uint GLMTokenAmountDesired,
         uint ERC20AmountDesired
     ) public returns (bool) {
+        /// Transfer each sourse tokens from a user
+        GLMToken.transferFrom(msg.sender, address(this), GLMTokenAmountDesired);
+        erc20.transferFrom(msg.sender, address(this), ERC20AmountDesired);
+
         /// Check whether a pair contract exists or not
         address pairAddress = uniswapV2Factory.getPair(GLM_TOKEN, address(erc20)); 
         require (pairAddress > address(0), "This pair contract has not existed yet");
@@ -111,6 +119,6 @@ contract GLMStakePool {
 
         return (GLMTokenAmount, ERC20Amount, liquidity);
     }
-    
+
 
 }
