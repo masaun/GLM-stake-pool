@@ -32,14 +32,14 @@ contract GLMStakePool {
     address UNISWAP_V2_FACTORY;
     address UNISWAP_V2_ROUTOR_02;
 
-    constructor(NewGolemNetworkToken _GLMToken, IWETH _wETH, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
+    constructor(NewGolemNetworkToken _GLMToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
         GLMToken = _GLMToken;
-        wETH = _wETH;
+        wETH = IWETH(uniswapV2Router02.WETH());
         uniswapV2Factory = _uniswapV2Factory;
         uniswapV2Router02 = _uniswapV2Router02;
 
         GLM_TOKEN = address(_GLMToken);
-        WETH_TOKEN = address(_wETH);
+        WETH_TOKEN = address(uniswapV2Router02.WETH());
         UNISWAP_V2_FACTORY = address(_uniswapV2Factory);
         UNISWAP_V2_ROUTOR_02 = address(_uniswapV2Router02);
     }
