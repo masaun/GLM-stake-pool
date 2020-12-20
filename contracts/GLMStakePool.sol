@@ -85,7 +85,7 @@ contract GLMStakePool {
                                                                           ERC20AmountDesired);
     }
 
-    function _addLiquidityWithERC20(
+    function _addLiquidityWithERC20(   /// [Note]: This internal method is added for avoiding "Stack too deep" 
         IERC20 erc20,
         uint GLMTokenAmountDesired,
         uint ERC20AmountDesired
@@ -94,9 +94,9 @@ contract GLMStakePool {
         uint ERC20Amount;
         uint liquidity;
 
-        /// [Todo]: Calculate each amountMin
-        uint GLMTokenMin;
-        uint ERC20AmountMin;
+        /// Define each minimum amounts (range of slippage)
+        uint GLMTokenMin = GLMTokenAmountDesired.sub(1 * 1e18); 
+        uint ERC20AmountMin = ERC20AmountDesired.sub(1 * 1e18);
 
         address to = msg.sender;
         uint deadline = now.add(10 minutes);
