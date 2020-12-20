@@ -95,11 +95,11 @@ contract GLMStakePool {
         uint liquidity;
 
         /// Define each minimum amounts (range of slippage)
-        uint GLMTokenMin = GLMTokenAmountDesired.sub(1 * 1e18); 
-        uint ERC20AmountMin = ERC20AmountDesired.sub(1 * 1e18);
+        uint GLMTokenMin = GLMTokenAmountDesired.sub(1 * 1e18);  /// Slippage is allowed until -1 GLM desired
+        uint ERC20AmountMin = ERC20AmountDesired.sub(1 * 1e18);  /// Slippage is allowed until -1 DAI desired 
 
         address to = msg.sender;
-        uint deadline = now.add(10 minutes);
+        uint deadline = now.add(15 seconds);
         (GLMTokenAmount, ERC20Amount, liquidity) = uniswapV2Router02.addLiquidity(GLM_TOKEN,
                                                                                   address(erc20),
                                                                                   GLMTokenAmountDesired,
