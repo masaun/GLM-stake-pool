@@ -218,10 +218,6 @@ contract GLMStakePool {
         address PAIR = address(_pair);
         IUniswapV2Pair pair = IUniswapV2Pair(PAIR);
 
-        /// [Todo]: Check whether LP tokens amount withdrawn of a staker who call this method exceed maximum staked amount of user
-        uint maxLPTokenAmount;
-        require (lpTokenAmountWithdrawn <= maxLPTokenAmount, "LP tokens amount withdrawn of a staker who call this method exceeds maximum LP tokens amount staked of a staker");
-
         /// Burn GLM Pool Token
         //poolToken.burn(msg.sender, lpTokenAmountWithdrawn);
 
