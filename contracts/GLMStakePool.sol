@@ -168,7 +168,8 @@ contract GLMStakePool {
         uint liquidity;
         (GLMTokenAmount, ETHAmount, liquidity) = _addLiquidityWithETH(GLMTokenAmountDesired, ETHAmountDesired);
 
-        /// [Todo]: Refund leftover ETH to user
+        /// [Todo]: Refund leftover ETH to a staker (Need to identify how much leftover ETH of a staker) 
+        //msg.sender.call.value(address(this).balance)("");
     }
 
     function _addLiquidityWithETH(   /// [Note]: This internal method is added for avoiding "Stack too deep" 
