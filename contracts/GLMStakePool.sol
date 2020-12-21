@@ -5,6 +5,9 @@ pragma experimental ABIEncoderV2;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
+/// GLM Pool Token
+import { GLMPoolToken } from "./GLMPoolToken.sol";
+
 /// Golem
 import { NewGolemNetworkToken } from "./golem/GNT2/NewGolemNetworkToken.sol";
 
@@ -22,22 +25,26 @@ import { IUniswapV2ERC20 } from "./uniswap-v2/uniswap-v2-core/interfaces/IUniswa
 contract GLMStakePool {
     using SafeMath for uint;
 
+    GLMPoolToken public poolToken;
     NewGolemNetworkToken public GLMToken;
     IWETH public wETH;
     IUniswapV2Factory public uniswapV2Factory;
     IUniswapV2Router02 public uniswapV2Router02;
 
     address GLM_TOKEN;
+    address GLM_POOL_TOKEN;
     address WETH_TOKEN;
     address UNISWAP_V2_FACTORY;
     address UNISWAP_V2_ROUTOR_02;
 
-    constructor(NewGolemNetworkToken _GLMToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
+    constructor(GLMPoolToken _GLMPoolToken, NewGolemNetworkToken _GLMToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
+        poolToken = _GLMPoolToken;
         GLMToken = _GLMToken;
         wETH = IWETH(uniswapV2Router02.WETH());
         uniswapV2Factory = _uniswapV2Factory;
         uniswapV2Router02 = _uniswapV2Router02;
 
+        GLM_POOL_TOKEN = address(_GLMPoolToken);
         GLM_TOKEN = address(_GLMToken);
         WETH_TOKEN = address(uniswapV2Router02.WETH());
         UNISWAP_V2_FACTORY = address(_uniswapV2Factory);
