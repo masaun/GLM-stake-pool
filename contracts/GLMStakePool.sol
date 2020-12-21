@@ -167,6 +167,9 @@ contract GLMStakePool {
         uint ETHAmount;
         uint liquidity;
         (GLMTokenAmount, ETHAmount, liquidity) = _addLiquidityWithETH(GLMTokenAmountDesired, ETHAmountDesired);
+
+        /// [Todo]: Refund leftover ETH to a staker (Need to identify how much leftover ETH of a staker) 
+        //msg.sender.call.value(address(this).balance)("");
     }
 
     function _addLiquidityWithETH(   /// [Note]: This internal method is added for avoiding "Stack too deep" 
@@ -193,6 +196,26 @@ contract GLMStakePool {
         return (GLMTokenAmount, ETHAmount, liquidity);
     }
 
-    
+
+    ///---------------------------------------------------
+    /// Withdraw LP tokens with earned rewards
+    ///---------------------------------------------------
+
+    /***
+     * @notice - Withdraw LP tokens with earned rewards
+     * @dev - Caller is a staker (msg.sender)
+     **/
+    function withdrawLPTokenWithReward(IUniswapV2Pair _pair, uint lpTokenAmountWithdrawn) public returns (bool) {
+        address pair = address(_pair);
+        IUniswapV2ERC20 uniswapV2ERC20 = IUniswapV2ERC20(pair);
+
+        /// [Todo]: Check whether LP tokens amount withdrawn of a staker who call this method exceed maximum staked amount of user
+        uint maxLPTokenAmount;
+        require (lpTokenAmountWithdrawn <= maxLPTokenAmount, "LP tokens amount withdrawn of a staker who call this method exceeds maximum LP tokens amount staked of a staker");
+
+        /// Transfer LPToken to a staker who call this method
+        uniswapV2ERC20.transfer(msg.sender, lpTokenAmountWithdrawn);
+    }
+
 
 }
