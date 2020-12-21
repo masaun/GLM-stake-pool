@@ -19,7 +19,6 @@ import { UniswapV2Library } from "./uniswap-v2/uniswap-v2-periphery/libraries/Un
 import { IUniswapV2Factory } from "./uniswap-v2/uniswap-v2-core/interfaces/IUniswapV2Factory.sol";
 import { IUniswapV2Router02 } from "./uniswap-v2/uniswap-v2-periphery/interfaces/IUniswapV2Router02.sol";
 import { IUniswapV2Pair } from "./uniswap-v2/uniswap-v2-core/interfaces/IUniswapV2Pair.sol";
-import { IUniswapV2ERC20 } from "./uniswap-v2/uniswap-v2-core/interfaces/IUniswapV2ERC20.sol";
 
 
 contract GLMStakePool {
@@ -217,14 +216,17 @@ contract GLMStakePool {
      **/
     function withdrawLPTokenWithReward(IUniswapV2Pair _pair, uint lpTokenAmountWithdrawn) public returns (bool) {
         address pair = address(_pair);
-        IUniswapV2ERC20 uniswapV2ERC20 = IUniswapV2ERC20(pair);
+        IUniswapV2Pair uniswapV2Pair = IUniswapV2Pair(pair);
 
         /// [Todo]: Check whether LP tokens amount withdrawn of a staker who call this method exceed maximum staked amount of user
         uint maxLPTokenAmount;
         require (lpTokenAmountWithdrawn <= maxLPTokenAmount, "LP tokens amount withdrawn of a staker who call this method exceeds maximum LP tokens amount staked of a staker");
 
+        /// Burn GLM Pool Token
+        poolToken.burn(msg.sender, lpTokenAmountWithdrawn);
+
         /// Transfer LPToken to a staker who call this method
-        uniswapV2ERC20.transfer(msg.sender, lpTokenAmountWithdrawn);
+        uniswapV2Pair.transfer(msg.sender, lpTokenAmountWithdrawn);
     }
 
 
