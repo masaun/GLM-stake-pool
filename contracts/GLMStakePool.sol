@@ -205,12 +205,13 @@ contract GLMStakePool {
      * @notice - Withdraw LP tokens with earned rewards
      * @dev - Caller is a staker (msg.sender)
      **/
-    function withdrawLPTokenWithReward(IUniswapV2Pair _pair) public returns (bool) {
+    function withdrawLPTokenWithReward(IUniswapV2Pair _pair, uint lpTokenAmountWithdrawn) public returns (bool) {
         address pair = address(_pair);
         IUniswapV2ERC20 uniswapV2ERC20 = IUniswapV2ERC20(pair);
 
-        /// [Todo]: Identify LP tokens amount withdrawn of a staker who call this method
-        uint lpTokenAmountWithdrawn;
+        /// [Todo]: Check whether LP tokens amount withdrawn of a staker who call this method exceed maximum staked amount of user
+        uint maxLPTokenAmount;
+        require (lpTokenAmountWithdrawn <= maxLPTokenAmount, "LP tokens amount withdrawn of a staker who call this method exceeds maximum LP tokens amount staked of a staker");
 
         /// Transfer LPToken to a staker who call this method
         uniswapV2ERC20.transfer(msg.sender, lpTokenAmountWithdrawn);
