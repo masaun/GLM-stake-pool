@@ -45,6 +45,10 @@ contract GLMStakePool {
     }
 
 
+    ///---------------------------------------------------
+    /// Create a pair address (of LP tokens)
+    ///---------------------------------------------------
+
     /***
      * @notice - Create a pair (LP token) between the GLM tokens and another ERC20 tokens
      *         - e.g). GLM/DAI, GLM/USDC
@@ -58,12 +62,15 @@ contract GLMStakePool {
     /***
      * @notice - Create a pair (LP token) between the GLM tokens and ETH (GLM/ETH)
      **/
-    function createPairWithETH() public returns (bool) {}
+    function createPairWithETH() public returns (IUniswapV2Pair pair) {
+        address pair = uniswapV2Factory.createPair(GLM_TOKEN, WETH_TOKEN);  /// [Note]: WETH is treated as ETH 
+        return IUniswapV2Pair(pair);    
+    }
 
 
-    ///----------------------------
-    /// Add liquidity with ERC20
-    ///----------------------------
+    ///---------------------------------------------------
+    /// Add liquidity with ERC20 (for getting LP tokens)
+    ///---------------------------------------------------
 
     /***
      * @notice - Add Liquidity for a pair (LP token) between the GLM tokens and another ERC20 tokens
@@ -128,9 +135,9 @@ contract GLMStakePool {
     }
 
 
-    ///----------------------------
-    /// Add liquidity with ETH
-    ///----------------------------  
+    ///-------------------------------------------------
+    /// Add liquidity with ETH (for getting LP tokens)
+    ///-------------------------------------------------
 
     /***
      * @notice - Add Liquidity for a pair (LP token) between the GLM tokens and ETH 
@@ -143,7 +150,8 @@ contract GLMStakePool {
         GLMToken.transferFrom(msg.sender, address(this), GLMTokenAmountDesired);
         uint ETHAmountDesired = msg.value;
 
-        /// [Todo]: Convert ETH (msg.value) to WETH (ERC20)
+        /// Convert ETH (msg.value) to WETH (ERC20) 
+        /// [Note]: Converted amountETH is equal to "msg.value"
         wETH.deposit();
 
         /// Approve each tokens for UniswapV2Routor02
