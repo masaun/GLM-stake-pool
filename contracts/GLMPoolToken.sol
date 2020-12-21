@@ -13,7 +13,7 @@ contract GLMPoolToken is ERC20Detailed, ERC20Mintable, ERC20Burnable {
     constructor() public ERC20Detailed("GLM Pool Token", "GLMP", 18) {}
 
     function mint(address to, uint mintAmount) public returns (bool) {
-        _mint(to, mintAmount);
+        mint(to, mintAmount);
     }
 
 }

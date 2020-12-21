@@ -115,9 +115,8 @@ contract GLMStakePool {
                                                                           GLMTokenAmountDesired,
                                                                           ERC20AmountDesired);
 
-        /// Transfer amount that is equal to staked LP tokens into a staker
-        uint stakedLPTokenAmount;
-        poolToken.mint(msg.sender, stakedLPTokenAmount);
+        /// Mint amount that is equal to staked LP tokens to a staker
+        poolToken.mint(msg.sender, liquidity);
     }
 
     function _addLiquidityWithERC20(   /// [Note]: This internal method is added for avoiding "Stack too deep" 
