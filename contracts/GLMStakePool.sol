@@ -68,15 +68,17 @@ contract GLMStakePool {
     }
 
 
-    ///---------------------------------------------------
-    /// Add liquidity with ERC20 (for getting LP tokens)
-    ///---------------------------------------------------
+    ///------------------------------------------------------------------------------
+    /// Stake GLM tokens with ERC20 tokens (Stake LP tokens of GLM/ERC20 into pool)
+    ///------------------------------------------------------------------------------
 
     /***
-     * @notice - Add Liquidity for a pair (LP token) between the GLM tokens and another ERC20 tokens
+     * @notice - Stake GLM tokens with ERC20 tokens (Stake LP tokens of GLM/ERC20 into pool)
+     *         - include "Add Liquidity" for a pair (LP token) between the GLM tokens and another ERC20 tokens
      *         - e.g). GLM/DAI, GLM/USDC, etc...
      **/
-    function addLiquidityWithERC20(
+    function stakeGLMWithERC20(
+    //function addLiquidityWithERC20(
         IERC20 erc20,
         uint GLMTokenAmountDesired,
         uint ERC20AmountDesired
@@ -135,15 +137,17 @@ contract GLMStakePool {
     }
 
 
-    ///-------------------------------------------------
-    /// Add liquidity with ETH (for getting LP tokens)
-    ///-------------------------------------------------
+    ///-------------------------------------------------------------------
+    /// Stake GLM tokens with ETH (Stake LP tokens of GLM/ETH into pool)
+    ///-------------------------------------------------------------------
 
     /***
-     * @notice - Add Liquidity for a pair (LP token) between the GLM tokens and ETH 
+     * @notice - Stake GLM tokens with ETH (Stake LP tokens of GLM/ETH into pool)
+     *         - include "Add Liquidity" for a pair (LP token) between the GLM tokens and ETH 
      *         - e.g). GLM/ETH
      **/
-    function addLiquidityWithETH(
+    function stakeGLMWithETH(
+    //function addLiquidityWithETH(
         uint GLMTokenAmountDesired
     ) public payable returns (bool) {
         /// Transfer GLM tokens and ETH from a user
@@ -162,7 +166,7 @@ contract GLMStakePool {
         uint GLMTokenAmount;
         uint ETHAmount;
         uint liquidity;
-        (GLMTokenAmount, ETHAmount, liquidity) = _addLiquidityWithETH(GLMTokenAmountDesired, ETHAmountDesired);        
+        (GLMTokenAmount, ETHAmount, liquidity) = _addLiquidityWithETH(GLMTokenAmountDesired, ETHAmountDesired);
     }
 
     function _addLiquidityWithETH(   /// [Note]: This internal method is added for avoiding "Stack too deep" 
@@ -188,5 +192,7 @@ contract GLMStakePool {
 
         return (GLMTokenAmount, ETHAmount, liquidity);
     }
+
+    
 
 }
