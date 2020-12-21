@@ -40,8 +40,25 @@ contract GLMStakePool {
         address staker; 
         uint32 blockTimestamp;  /// Block number when a user was staked
     }
-    mapping (uint => CheckPoint) checkPoints;
-    
+    mapping (uint => CheckPoint) checkPoints;  /// [Key]: stake ID
+
+    // Info of each user.
+    struct UserInfo {
+        uint256 amount;     // How many LP tokens the user has provided.
+        uint256 rewardDebt; // Reward debt. See explanation below.
+    }
+    // Info of each user that stakes LP tokens.
+    mapping (uint256 => mapping (address => UserInfo)) public userInfo;
+
+    // Info of each pool.
+    struct PoolInfo {
+        IERC20 lpToken;           // Address of LP token contract.
+        uint256 allocPoint;       // How many allocation points assigned to this pool. SUSHIs to distribute per block.
+        uint256 lastRewardBlock;  // Last block number that SUSHIs distribution occurs.
+        uint256 accSushiPerShare; // Accumulated SUSHIs per share, times 1e12. See below.
+    }
+    PoolInfo[] public poolInfo;
+
 
     constructor(GLMPoolToken _GLMPoolToken, NewGolemNetworkToken _GLMToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
         poolToken = _GLMPoolToken;
@@ -231,7 +248,7 @@ contract GLMStakePool {
         IUniswapV2Pair pair = IUniswapV2Pair(PAIR);
 
         /// Caluculate earned rewards amount (Unit is "GLMP" (GLM Pool Token))
-        uint earnedRewardsAmount;   /// [Todo]: Add the calculation logic
+        uint earnedRewardsAmount;   /// [Todo]: Add the calculation logic <-- This is fees calculation of UniswapV2
         uint totalLPTokenAmountWithdrawn = lpTokenAmountWithdrawn.add(earnedRewardsAmount);
 
         /// Burn GLM Pool Token and Transfer LPToken to a staker who call this method
