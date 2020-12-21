@@ -215,19 +215,34 @@ contract GLMStakePool {
      * @dev - Caller is a staker (msg.sender)
      **/
     function withdrawLPTokenWithReward(IUniswapV2Pair _pair, uint lpTokenAmountWithdrawn) public returns (bool) {
-        address pair = address(_pair);
-        IUniswapV2Pair uniswapV2Pair = IUniswapV2Pair(pair);
+        address PAIR = address(_pair);
+        IUniswapV2Pair pair = IUniswapV2Pair(PAIR);
 
         /// [Todo]: Check whether LP tokens amount withdrawn of a staker who call this method exceed maximum staked amount of user
         uint maxLPTokenAmount;
         require (lpTokenAmountWithdrawn <= maxLPTokenAmount, "LP tokens amount withdrawn of a staker who call this method exceeds maximum LP tokens amount staked of a staker");
 
         /// Burn GLM Pool Token
-        poolToken.burn(msg.sender, lpTokenAmountWithdrawn);
+        //poolToken.burn(msg.sender, lpTokenAmountWithdrawn);
 
         /// Transfer LPToken to a staker who call this method
-        uniswapV2Pair.transfer(msg.sender, lpTokenAmountWithdrawn);
+        //uniswapV2Pair.transfer(msg.sender, lpTokenAmountWithdrawn);
+
+        /// Burn GLM Pool Token and Transfer LPToken to a staker who call this method
+        _redeem(msg.sender, pair, lpTokenAmountWithdrawn);
     }
+
+    function _redeem(address staker, IUniswapV2Pair _pair, uint lpTokenAmountWithdrawn) internal returns (bool) {
+        address PAIR = address(_pair);
+        IUniswapV2Pair pair = IUniswapV2Pair(PAIR);
+
+        /// Burn GLM Pool Token
+        poolToken.burn(staker, lpTokenAmountWithdrawn);
+
+        /// Transfer LPToken to a staker who call this method
+        pair.transfer(staker, lpTokenAmountWithdrawn);        
+    }
+    
 
 
 }
