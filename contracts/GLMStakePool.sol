@@ -218,25 +218,23 @@ contract GLMStakePool {
         address PAIR = address(_pair);
         IUniswapV2Pair pair = IUniswapV2Pair(PAIR);
 
-        /// Burn GLM Pool Token
-        //poolToken.burn(msg.sender, lpTokenAmountWithdrawn);
-
-        /// Transfer LPToken to a staker who call this method
-        //uniswapV2Pair.transfer(msg.sender, lpTokenAmountWithdrawn);
+        /// Caluculate earned rewards amount (Unit is "GLMP" (GLM Pool Token))
+        uint earnedRewardsAmount;   /// [Todo]: Add the calculation logic
+        uint totalLPTokenAmountWithdrawn = lpTokenAmountWithdrawn.add(earnedRewardsAmount);
 
         /// Burn GLM Pool Token and Transfer LPToken to a staker who call this method
-        _redeem(msg.sender, pair, lpTokenAmountWithdrawn);
+        _redeem(msg.sender, pair, totalLPTokenAmountWithdrawn);
     }
 
-    function _redeem(address staker, IUniswapV2Pair _pair, uint lpTokenAmountWithdrawn) internal returns (bool) {
+    function _redeem(address staker, IUniswapV2Pair _pair, uint totalLPTokenAmountWithdrawn) internal returns (bool) {
         address PAIR = address(_pair);
         IUniswapV2Pair pair = IUniswapV2Pair(PAIR);
 
         /// Burn GLM Pool Token
-        poolToken.burn(staker, lpTokenAmountWithdrawn);
+        poolToken.burn(staker, totalLPTokenAmountWithdrawn);
 
         /// Transfer LPToken to a staker who call this method
-        pair.transfer(staker, lpTokenAmountWithdrawn);        
+        pair.transfer(staker, totalLPTokenAmountWithdrawn);        
     }
     
 
