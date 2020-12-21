@@ -148,6 +148,7 @@ contract GLMStakePool {
 
         /// Approve each tokens for UniswapV2Routor02
         GLMToken.approve(UNISWAP_V2_ROUTOR_02, GLMTokenAmountDesired);
+        wETH.approve(UNISWAP_V2_ROUTOR_02, ETHAmountDesired);
 
         /// Add liquidity and pair
         uint GLMTokenAmount;
