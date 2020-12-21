@@ -8,6 +8,9 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 /// Golem
 import { NewGolemNetworkToken } from "./golem/GNT2/NewGolemNetworkToken.sol";
 
+/// WETH
+import { IWETH } from "./uniswap-v2/uniswap-v2-periphery/interfaces/IWETH.sol";
+
 /// Uniswap-v2
 import { UniswapV2Library } from "./uniswap-v2/uniswap-v2-periphery/libraries/UniswapV2Library.sol";
 import { IUniswapV2Factory } from "./uniswap-v2/uniswap-v2-core/interfaces/IUniswapV2Factory.sol";
@@ -20,19 +23,23 @@ contract GLMStakePool {
     using SafeMath for uint;
 
     NewGolemNetworkToken public GLMToken;
+    IWETH public wETH;
     IUniswapV2Factory public uniswapV2Factory;
     IUniswapV2Router02 public uniswapV2Router02;
 
     address GLM_TOKEN;
+    address WETH_TOKEN;
     address UNISWAP_V2_FACTORY;
     address UNISWAP_V2_ROUTOR_02;
 
     constructor(NewGolemNetworkToken _GLMToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
         GLMToken = _GLMToken;
+        wETH = IWETH(uniswapV2Router02.WETH());
         uniswapV2Factory = _uniswapV2Factory;
         uniswapV2Router02 = _uniswapV2Router02;
 
         GLM_TOKEN = address(_GLMToken);
+        WETH_TOKEN = address(uniswapV2Router02.WETH());
         UNISWAP_V2_FACTORY = address(_uniswapV2Factory);
         UNISWAP_V2_ROUTOR_02 = address(_uniswapV2Router02);
     }
@@ -59,8 +66,8 @@ contract GLMStakePool {
     ///----------------------------
 
     /***
-     * @notice - Add Liquidity for a pair (LP token) between the GLM tokens and another ERC20 tokens by using Uniswap-V2
-     *         - e.g). GLM/ETH, GLM/DAI, GLM/USDC
+     * @notice - Add Liquidity for a pair (LP token) between the GLM tokens and another ERC20 tokens
+     *         - e.g). GLM/DAI, GLM/USDC, etc...
      **/
     function addLiquidityWithERC20(
         IERC20 erc20,
@@ -120,5 +127,58 @@ contract GLMStakePool {
         return (GLMTokenAmount, ERC20Amount, liquidity);
     }
 
+
+    ///----------------------------
+    /// Add liquidity with ETH
+    ///----------------------------  
+
+    /***
+     * @notice - Add Liquidity for a pair (LP token) between the GLM tokens and ETH 
+     *         - e.g). GLM/ETH
+     **/
+    function addLiquidityWithETH(
+        uint GLMTokenAmountDesired
+    ) public payable returns (bool) {
+        /// Transfer GLM tokens and ETH from a user
+        GLMToken.transferFrom(msg.sender, address(this), GLMTokenAmountDesired);
+        uint ETHAmountDesired = msg.value;
+
+        /// [Todo]: Convert ETH (msg.value) to WETH (ERC20)
+        wETH.deposit();
+
+        /// Approve each tokens for UniswapV2Routor02
+        GLMToken.approve(UNISWAP_V2_ROUTOR_02, GLMTokenAmountDesired);
+        //wETH.approve(UNISWAP_V2_ROUTOR_02, ETHAmountDesired);
+
+        /// Add liquidity and pair
+        uint GLMTokenAmount;
+        uint ETHAmount;
+        uint liquidity;
+        (GLMTokenAmount, ETHAmount, liquidity) = _addLiquidityWithETH(GLMTokenAmountDesired, ETHAmountDesired);        
+    }
+
+    function _addLiquidityWithETH(   /// [Note]: This internal method is added for avoiding "Stack too deep" 
+        uint GLMTokenAmountDesired,
+        uint ETHAmountDesired
+    ) internal returns (uint _GLMTokenAmount, uint _ETHAmount, uint _liquidity) {
+        uint GLMTokenAmount;
+        uint ETHAmount;
+        uint liquidity;
+
+        /// Define each minimum amounts (range of slippage)
+        uint GLMTokenMin = GLMTokenAmountDesired.sub(1 * 1e18);  /// Slippage is allowed until -1 GLM desired
+        uint ETHAmountMin = ETHAmountDesired.sub(1 * 1e18);      /// Slippage is allowed until -1 DAI desired 
+
+        address to = msg.sender;
+        uint deadline = now.add(15 seconds);
+        (GLMTokenAmount, ETHAmount, liquidity) = uniswapV2Router02.addLiquidityETH(GLM_TOKEN,
+                                                                                   GLMTokenAmountDesired,
+                                                                                   GLMTokenMin,
+                                                                                   ETHAmountMin,
+                                                                                   to,
+                                                                                   deadline);
+
+        return (GLMTokenAmount, ETHAmount, liquidity);
+    }
 
 }
