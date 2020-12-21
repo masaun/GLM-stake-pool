@@ -36,6 +36,13 @@ contract GLMStakePool {
     address UNISWAP_V2_FACTORY;
     address UNISWAP_V2_ROUTOR_02;
 
+    struct CheckPoint {    /// [Key]: stake ID
+        address staker; 
+        uint32 blockTimestamp;  /// Block number when a user was staked
+    }
+    mapping (uint => CheckPoint) checkPoints;
+    
+
     constructor(GLMPoolToken _GLMPoolToken, NewGolemNetworkToken _GLMToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
         poolToken = _GLMPoolToken;
         GLMToken = _GLMToken;
@@ -116,6 +123,11 @@ contract GLMStakePool {
 
         /// Mint amount that is equal to staked LP tokens to a staker
         poolToken.mint(msg.sender, liquidity);
+
+        /// Save stake data
+        CheckPoint storage checkPoint = checkPoints[newStakeId];
+        checkPoint.staker = msg.sender;
+        checkPoint.blockTimestamp = now;
     }
 
     function _addLiquidityWithERC20(   /// [Note]: This internal method is added for avoiding "Stack too deep" 
