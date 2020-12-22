@@ -120,9 +120,9 @@ contract GLMStakePool is GLMStakePoolStorages {
         poolToken.mint(msg.sender, liquidity);
 
         /// Save stake data
-        CheckPoint storage checkPoint = checkPoints[newStakeId];
-        checkPoint.staker = msg.sender;
-        checkPoint.blockTimestamp = now;
+        // CheckPoint storage checkPoint = checkPoints[newStakeId];
+        // checkPoint.staker = msg.sender;
+        // checkPoint.blockTimestamp = now;
     }
 
     function _addLiquidityWithERC20(   /// [Note]: This internal method is added for avoiding "Stack too deep" 
@@ -221,29 +221,80 @@ contract GLMStakePool is GLMStakePoolStorages {
      * @notice - Withdraw LP tokens with earned rewards
      * @dev - Caller is a staker (msg.sender)
      **/
-    function withdrawLPTokenWithReward(IUniswapV2Pair _pair, uint lpTokenAmountWithdrawn) public returns (bool) {
+    function withdrawWithReward(IUniswapV2Pair _pair, uint lpTokenAmountWithdrawn) public returns (bool) {
         address PAIR = address(_pair);
         IUniswapV2Pair pair = IUniswapV2Pair(PAIR);
 
         /// Caluculate earned rewards amount (Unit is "GLMP" (GLM Pool Token))
-        uint earnedRewardsAmount;   /// [Todo]: Add the calculation logic <-- This is fees calculation of UniswapV2
-        uint totalLPTokenAmountWithdrawn = lpTokenAmountWithdrawn.add(earnedRewardsAmount);
+        // uint earnedRewardsAmount;   /// [Todo]: Add the calculation logic <-- This is fees calculation of UniswapV2
+        // uint totalLPTokenAmountWithdrawn = lpTokenAmountWithdrawn.add(earnedRewardsAmount);
 
-        /// Burn GLM Pool Token and Transfer LPToken to a staker who call this method
-        _redeem(msg.sender, pair, totalLPTokenAmountWithdrawn);
+        if (pair.token0() == WETH_TOKEN || pair.token1() == WETH_TOKEN) {
+            /// Burn GLM Pool Token and Transfer GLM token and ETH + fees earned (into a staker)
+            _redeemWithETH(msg.sender, pair, lpTokenAmountWithdrawn);
+        } else {
+            /// Burn GLM Pool Token and Transfer GLM token and ERC20 + fees earned (into a staker)
+            _redeemWithERC20(msg.sender, pair, lpTokenAmountWithdrawn);
+        }
+
+
     }
 
-    function _redeem(address staker, IUniswapV2Pair _pair, uint totalLPTokenAmountWithdrawn) internal returns (bool) {
+    function _redeemWithERC20(address staker, IUniswapV2Pair _pair, uint lpTokenAmountWithdrawn) internal returns (bool) {
         address PAIR = address(_pair);
         IUniswapV2Pair pair = IUniswapV2Pair(PAIR);
 
         /// Burn GLM Pool Token
-        poolToken.burn(staker, totalLPTokenAmountWithdrawn);
+        poolToken.burn(staker, lpTokenAmountWithdrawn);
 
-        /// Transfer LPToken to a staker who call this method
-        pair.transfer(staker, totalLPTokenAmountWithdrawn);        
+        /// Remove liquidity that a staker was staked
+        uint GLMTokenAmount;
+        uint ERC20Amount;
+        uint GLMTokenMin = 0;
+        uint ERC20AmountMin = 0;
+        address to = staker;
+        uint deadline = now.add(15 seconds);
+        (GLMTokenAmount, ERC20Amount) = uniswapV2Router02.removeLiquidity(GLM_TOKEN, 
+                                                                          pair.token1(), 
+                                                                          lpTokenAmountWithdrawn,
+                                                                          GLMTokenMin,
+                                                                          ERC20AmountMin,
+                                                                          to,
+                                                                          deadline);
+
+        /// Transfer GLM token and ERC20 + fees earned (into a staker)
+        GLMToken.transfer(staker, GLMTokenAmount); 
+        IERC20(pair.token1()).transfer(staker, ERC20Amount);       
     }
-    
+
+    function _redeemWithETH(address payable staker, IUniswapV2Pair _pair, uint lpTokenAmountWithdrawn) internal returns (bool) {
+        address PAIR = address(_pair);
+        IUniswapV2Pair pair = IUniswapV2Pair(PAIR);
+
+        /// Burn GLM Pool Token
+        poolToken.burn(staker, lpTokenAmountWithdrawn);
+
+        /// Remove liquidity that a staker was staked
+        uint GLMTokenAmount;
+        uint ETHAmount;         /// WETH
+        uint GLMTokenMin = 0;
+        uint ETHAmountMin = 0;  /// WETH
+        address to = staker;
+        uint deadline = now.add(15 seconds);
+        (GLMTokenAmount, ETHAmount) = uniswapV2Router02.removeLiquidityETH(GLM_TOKEN, 
+                                                                           lpTokenAmountWithdrawn, 
+                                                                           GLMTokenMin, 
+                                                                           ETHAmountMin, 
+                                                                           to, 
+                                                                           deadline);
+
+        /// Convert WETH to ETH
+        wETH.withdraw(ETHAmount);
+
+        /// Transfer GLM token and ETH + fees earned (into a staker)
+        GLMToken.transfer(staker, GLMTokenAmount); 
+        staker.transfer(ETHAmount);       
+    }    
 
 
 }
