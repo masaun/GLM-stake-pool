@@ -38,6 +38,8 @@ contract GLMStakePool is GLMStakePoolStorages {
     address UNISWAP_V2_FACTORY;
     address UNISWAP_V2_ROUTOR_02;
 
+    uint8 public currentStakeId;
+
     constructor(GLMPoolToken _GLMPoolToken, NewGolemNetworkToken _GLMToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
         poolToken = _GLMPoolToken;
         GLMToken = _GLMToken;
@@ -225,12 +227,21 @@ contract GLMStakePool is GLMStakePoolStorages {
     /// Stake LP tokens of GLM/ERC20 or GLM/ETH into pool
     ///---------------------------------------------------
 
-    function stakeLPtokenGLMAndERC20(IUniswapV2Pair pair) public returns (bool) {}
+    /***
+     * @notice - Stake LP tokens (GLM/ERC20 or GLM/ETH)
+     **/
+    function stakeLPToken(IUniswapV2Pair pair, uint lpTokenAmount) public returns (bool) {
+        /// Stake LP tokens into this pool contract
+        pair.transferFrom(msg.sender, address(this), lpTokenAmount);
 
-    function stakeLPtokenGLMAndETH(IUniswapV2Pair pair) public payable returns (bool) {}
-
-
-
+        /// Register staker's data
+        uint8 newStakeId = getNextStakeId();
+        currentStakeId++;        
+        StakeData storage stakeData = stakeDatas[newStakeId];
+        stakeData.staker = msg.sender;
+        stakeData.lpToken = pair;
+        stakeData.stakedLPTokenAmount = lpTokenAmount;
+    }
 
 
     ///---------------------------------------------------
@@ -316,5 +327,13 @@ contract GLMStakePool is GLMStakePoolStorages {
         staker.transfer(ETHAmount);       
     }    
 
+
+    ///-------------------
+    /// Private methods
+    ///--------------------
+
+    function getNextStakeId() private view returns (uint8 nextStakeId) {
+        return currentStakeId + 1;
+    }
 
 }
