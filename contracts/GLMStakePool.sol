@@ -1,7 +1,7 @@
 pragma solidity ^0.5.16;
 pragma experimental ABIEncoderV2;
 
-import { GLMStakePoolStorages  } from "./glm-stake-pool/commons/GLMStakePoolStorages.sol";
+import { GLMStakePoolStorages } from "./glm-stake-pool/commons/GLMStakePoolStorages.sol";
 
 /// Openzeppelin v2.5.1
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -37,6 +37,8 @@ contract GLMStakePool is GLMStakePoolStorages {
     address WETH_TOKEN;
     address UNISWAP_V2_FACTORY;
     address UNISWAP_V2_ROUTOR_02;
+
+    uint8 public currentStakeId;
 
     constructor(GLMPoolToken _GLMPoolToken, NewGolemNetworkToken _GLMToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
         poolToken = _GLMPoolToken;
@@ -85,12 +87,13 @@ contract GLMStakePool is GLMStakePoolStorages {
      *         - include "Add Liquidity" for a pair (LP token) between the GLM tokens and another ERC20 tokens
      *         - e.g). GLM/DAI, GLM/USDC, etc...
      **/
-    function stakeGLMWithERC20(
-    //function addLiquidityWithERC20(
-        IERC20 erc20,
+    function addLiquidityWithERC20(
+        IUniswapV2Pair pair,
         uint GLMTokenAmountDesired,
         uint ERC20AmountDesired
     ) public returns (bool) {
+        IERC20 erc20 = IERC20(pair.token1());
+
         /// Transfer each sourse tokens from a user
         GLMToken.transferFrom(msg.sender, address(this), GLMTokenAmountDesired);
         erc20.transferFrom(msg.sender, address(this), ERC20AmountDesired);
@@ -123,6 +126,9 @@ contract GLMStakePool is GLMStakePoolStorages {
         // CheckPoint storage checkPoint = checkPoints[newStakeId];
         // checkPoint.staker = msg.sender;
         // checkPoint.blockTimestamp = now;
+
+        /// Back LPtoken to a staker
+        pair.transfer(msg.sender, liquidity);
     }
 
     function _addLiquidityWithERC20(   /// [Note]: This internal method is added for avoiding "Stack too deep" 
@@ -162,8 +168,8 @@ contract GLMStakePool is GLMStakePoolStorages {
      *         - include "Add Liquidity" for a pair (LP token) between the GLM tokens and ETH 
      *         - e.g). GLM/ETH
      **/
-    function stakeGLMWithETH(
-    //function addLiquidityWithETH(
+    function addLiquidityWithETH(
+        IUniswapV2Pair pair,
         uint GLMTokenAmountDesired
     ) public payable returns (bool) {
         /// Transfer GLM tokens and ETH from a user
@@ -186,6 +192,9 @@ contract GLMStakePool is GLMStakePoolStorages {
 
         /// [Todo]: Refund leftover ETH to a staker (Need to identify how much leftover ETH of a staker) 
         //msg.sender.call.value(address(this).balance)("");
+
+        /// Back LPtoken to a staker
+        pair.transfer(msg.sender, liquidity);
     }
 
     function _addLiquidityWithETH(   /// [Note]: This internal method is added for avoiding "Stack too deep" 
@@ -210,6 +219,28 @@ contract GLMStakePool is GLMStakePoolStorages {
                                                                                    deadline);
 
         return (GLMTokenAmount, ETHAmount, liquidity);
+    }
+
+
+
+    ///---------------------------------------------------
+    /// Stake LP tokens of GLM/ERC20 or GLM/ETH into pool
+    ///---------------------------------------------------
+
+    /***
+     * @notice - Stake LP tokens (GLM/ERC20 or GLM/ETH)
+     **/
+    function stakeLPToken(IUniswapV2Pair pair, uint lpTokenAmount) public returns (bool) {
+        /// Stake LP tokens into this pool contract
+        pair.transferFrom(msg.sender, address(this), lpTokenAmount);
+
+        /// Register staker's data
+        uint8 newStakeId = getNextStakeId();
+        currentStakeId++;        
+        StakeData storage stakeData = stakeDatas[newStakeId];
+        stakeData.staker = msg.sender;
+        stakeData.lpToken = pair;
+        stakeData.stakedLPTokenAmount = lpTokenAmount;
     }
 
 
@@ -296,5 +327,13 @@ contract GLMStakePool is GLMStakePoolStorages {
         staker.transfer(ETHAmount);       
     }    
 
+
+    ///-------------------
+    /// Private methods
+    ///--------------------
+
+    function getNextStakeId() private view returns (uint8 nextStakeId) {
+        return currentStakeId + 1;
+    }
 
 }
