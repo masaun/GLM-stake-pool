@@ -1,7 +1,7 @@
 pragma solidity ^0.5.16;
 pragma experimental ABIEncoderV2;
 
-import { GLMStakePoolStorages  } from "./glm-stake-pool/commons/GLMStakePoolStorages.sol";
+import { GLMStakePoolStorages } from "./glm-stake-pool/commons/GLMStakePoolStorages.sol";
 
 /// Openzeppelin v2.5.1
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
