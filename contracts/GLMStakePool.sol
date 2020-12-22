@@ -79,7 +79,7 @@ contract GLMStakePool is GLMStakePoolStorages {
 
 
     ///------------------------------------------------------------------------------
-    /// Stake GLM tokens with ERC20 tokens (Stake LP tokens of GLM/ERC20 into pool)
+    /// Add liquidity GLM tokens with ERC20 tokens (Stake LP tokens of GLM/ERC20 into pool)
     ///------------------------------------------------------------------------------
 
     /***
