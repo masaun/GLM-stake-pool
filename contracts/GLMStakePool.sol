@@ -85,8 +85,7 @@ contract GLMStakePool is GLMStakePoolStorages {
      *         - include "Add Liquidity" for a pair (LP token) between the GLM tokens and another ERC20 tokens
      *         - e.g). GLM/DAI, GLM/USDC, etc...
      **/
-    function stakeGLMWithERC20(
-    //function addLiquidityWithERC20(
+    function addLiquidityWithERC20(
         IERC20 erc20,
         uint GLMTokenAmountDesired,
         uint ERC20AmountDesired
@@ -162,8 +161,7 @@ contract GLMStakePool is GLMStakePoolStorages {
      *         - include "Add Liquidity" for a pair (LP token) between the GLM tokens and ETH 
      *         - e.g). GLM/ETH
      **/
-    function stakeGLMWithETH(
-    //function addLiquidityWithETH(
+    function addLiquidityWithETH(
         uint GLMTokenAmountDesired
     ) public payable returns (bool) {
         /// Transfer GLM tokens and ETH from a user
@@ -211,6 +209,19 @@ contract GLMStakePool is GLMStakePoolStorages {
 
         return (GLMTokenAmount, ETHAmount, liquidity);
     }
+
+
+
+    ///---------------------------------------------------
+    /// Stake LP tokens of GLM/ERC20 or GLM/ETH into pool
+    ///---------------------------------------------------
+
+    function stakeLPtokenGLMAndERC20() public returns (bool) {}
+
+    function stakeLPtokenGLMAndETH() public payable returns (bool) {}
+
+
+
 
 
     ///---------------------------------------------------
