@@ -86,10 +86,12 @@ contract GLMStakePool is GLMStakePoolStorages {
      *         - e.g). GLM/DAI, GLM/USDC, etc...
      **/
     function addLiquidityWithERC20(
-        IERC20 erc20,
+        IUniswapV2Pair pair,
         uint GLMTokenAmountDesired,
         uint ERC20AmountDesired
     ) public returns (bool) {
+        IERC20 erc20 = IERC20(pair.token1());
+
         /// Transfer each sourse tokens from a user
         GLMToken.transferFrom(msg.sender, address(this), GLMTokenAmountDesired);
         erc20.transferFrom(msg.sender, address(this), ERC20AmountDesired);
@@ -122,6 +124,9 @@ contract GLMStakePool is GLMStakePoolStorages {
         // CheckPoint storage checkPoint = checkPoints[newStakeId];
         // checkPoint.staker = msg.sender;
         // checkPoint.blockTimestamp = now;
+
+        /// Back LPtoken to a staker
+        pair.transfer(msg.sender, liquidity);
     }
 
     function _addLiquidityWithERC20(   /// [Note]: This internal method is added for avoiding "Stack too deep" 
@@ -162,6 +167,7 @@ contract GLMStakePool is GLMStakePoolStorages {
      *         - e.g). GLM/ETH
      **/
     function addLiquidityWithETH(
+        IUniswapV2Pair pair,
         uint GLMTokenAmountDesired
     ) public payable returns (bool) {
         /// Transfer GLM tokens and ETH from a user
@@ -184,6 +190,9 @@ contract GLMStakePool is GLMStakePoolStorages {
 
         /// [Todo]: Refund leftover ETH to a staker (Need to identify how much leftover ETH of a staker) 
         //msg.sender.call.value(address(this).balance)("");
+
+        /// Back LPtoken to a staker
+        pair.transfer(msg.sender, liquidity);
     }
 
     function _addLiquidityWithETH(   /// [Note]: This internal method is added for avoiding "Stack too deep" 
@@ -216,9 +225,9 @@ contract GLMStakePool is GLMStakePoolStorages {
     /// Stake LP tokens of GLM/ERC20 or GLM/ETH into pool
     ///---------------------------------------------------
 
-    function stakeLPtokenGLMAndERC20() public returns (bool) {}
+    function stakeLPtokenGLMAndERC20(IUniswapV2Pair pair) public returns (bool) {}
 
-    function stakeLPtokenGLMAndETH() public payable returns (bool) {}
+    function stakeLPtokenGLMAndETH(IUniswapV2Pair pair) public payable returns (bool) {}
 
 
 
