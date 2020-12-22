@@ -1,6 +1,8 @@
 pragma solidity ^0.5.16;
 pragma experimental ABIEncoderV2;
 
+import { GLMStakePoolStorages  } from "./glm-stake-pool/commons/GLMStakePoolStorages.sol";
+
 /// Openzeppelin v2.5.1
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
@@ -21,7 +23,7 @@ import { IUniswapV2Router02 } from "./uniswap-v2/uniswap-v2-periphery/interfaces
 import { IUniswapV2Pair } from "./uniswap-v2/uniswap-v2-core/interfaces/IUniswapV2Pair.sol";
 
 
-contract GLMStakePool {
+contract GLMStakePool is GLMStakePoolStorages {
     using SafeMath for uint;
 
     GLMPoolToken public poolToken;
@@ -35,30 +37,6 @@ contract GLMStakePool {
     address WETH_TOKEN;
     address UNISWAP_V2_FACTORY;
     address UNISWAP_V2_ROUTOR_02;
-
-    struct CheckPoint {    /// [Key]: stake ID
-        address staker; 
-        uint32 blockTimestamp;  /// Block number when a user was staked
-    }
-    mapping (uint => CheckPoint) checkPoints;  /// [Key]: stake ID
-
-    // Info of each user.
-    struct UserInfo {
-        uint256 amount;     // How many LP tokens the user has provided.
-        uint256 rewardDebt; // Reward debt. See explanation below.
-    }
-    // Info of each user that stakes LP tokens.
-    mapping (uint256 => mapping (address => UserInfo)) public userInfo;
-
-    // Info of each pool.
-    struct PoolInfo {
-        IERC20 lpToken;           // Address of LP token contract.
-        uint256 allocPoint;       // How many allocation points assigned to this pool. SUSHIs to distribute per block.
-        uint256 lastRewardBlock;  // Last block number that SUSHIs distribution occurs.
-        uint256 accSushiPerShare; // Accumulated SUSHIs per share, times 1e12. See below.
-    }
-    PoolInfo[] public poolInfo;
-
 
     constructor(GLMPoolToken _GLMPoolToken, NewGolemNetworkToken _GLMToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
         poolToken = _GLMPoolToken;
