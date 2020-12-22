@@ -1,6 +1,8 @@
 pragma solidity ^0.5.16;
 pragma experimental ABIEncoderV2;
 
+import { GLMStakePoolStorages  } from "./glm-stake-pool/commons/GLMStakePoolStorages.sol";
+
 /// Openzeppelin v2.5.1
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
@@ -21,7 +23,7 @@ import { IUniswapV2Router02 } from "./uniswap-v2/uniswap-v2-periphery/interfaces
 import { IUniswapV2Pair } from "./uniswap-v2/uniswap-v2-core/interfaces/IUniswapV2Pair.sol";
 
 
-contract GLMStakePool {
+contract GLMStakePool is GLMStakePoolStorages {
     using SafeMath for uint;
 
     GLMPoolToken public poolToken;
@@ -116,6 +118,11 @@ contract GLMStakePool {
 
         /// Mint amount that is equal to staked LP tokens to a staker
         poolToken.mint(msg.sender, liquidity);
+
+        /// Save stake data
+        // CheckPoint storage checkPoint = checkPoints[newStakeId];
+        // checkPoint.staker = msg.sender;
+        // checkPoint.blockTimestamp = now;
     }
 
     function _addLiquidityWithERC20(   /// [Note]: This internal method is added for avoiding "Stack too deep" 
@@ -214,35 +221,80 @@ contract GLMStakePool {
      * @notice - Withdraw LP tokens with earned rewards
      * @dev - Caller is a staker (msg.sender)
      **/
-    function withdrawLPTokenWithReward(IUniswapV2Pair _pair, uint lpTokenAmountWithdrawn) public returns (bool) {
+    function withdrawWithReward(IUniswapV2Pair _pair, uint lpTokenAmountWithdrawn) public returns (bool) {
         address PAIR = address(_pair);
         IUniswapV2Pair pair = IUniswapV2Pair(PAIR);
 
-        /// [Todo]: Check whether LP tokens amount withdrawn of a staker who call this method exceed maximum staked amount of user
-        uint maxLPTokenAmount;
-        require (lpTokenAmountWithdrawn <= maxLPTokenAmount, "LP tokens amount withdrawn of a staker who call this method exceeds maximum LP tokens amount staked of a staker");
+        /// Caluculate earned rewards amount (Unit is "GLMP" (GLM Pool Token))
+        // uint earnedRewardsAmount;   /// [Todo]: Add the calculation logic <-- This is fees calculation of UniswapV2
+        // uint totalLPTokenAmountWithdrawn = lpTokenAmountWithdrawn.add(earnedRewardsAmount);
 
-        /// Burn GLM Pool Token
-        //poolToken.burn(msg.sender, lpTokenAmountWithdrawn);
+        if (pair.token0() == WETH_TOKEN || pair.token1() == WETH_TOKEN) {
+            /// Burn GLM Pool Token and Transfer GLM token and ETH + fees earned (into a staker)
+            _redeemWithETH(msg.sender, pair, lpTokenAmountWithdrawn);
+        } else {
+            /// Burn GLM Pool Token and Transfer GLM token and ERC20 + fees earned (into a staker)
+            _redeemWithERC20(msg.sender, pair, lpTokenAmountWithdrawn);
+        }
 
-        /// Transfer LPToken to a staker who call this method
-        //uniswapV2Pair.transfer(msg.sender, lpTokenAmountWithdrawn);
 
-        /// Burn GLM Pool Token and Transfer LPToken to a staker who call this method
-        _redeem(msg.sender, pair, lpTokenAmountWithdrawn);
     }
 
-    function _redeem(address staker, IUniswapV2Pair _pair, uint lpTokenAmountWithdrawn) internal returns (bool) {
+    function _redeemWithERC20(address staker, IUniswapV2Pair _pair, uint lpTokenAmountWithdrawn) internal returns (bool) {
         address PAIR = address(_pair);
         IUniswapV2Pair pair = IUniswapV2Pair(PAIR);
 
         /// Burn GLM Pool Token
         poolToken.burn(staker, lpTokenAmountWithdrawn);
 
-        /// Transfer LPToken to a staker who call this method
-        pair.transfer(staker, lpTokenAmountWithdrawn);        
+        /// Remove liquidity that a staker was staked
+        uint GLMTokenAmount;
+        uint ERC20Amount;
+        uint GLMTokenMin = 0;
+        uint ERC20AmountMin = 0;
+        address to = staker;
+        uint deadline = now.add(15 seconds);
+        (GLMTokenAmount, ERC20Amount) = uniswapV2Router02.removeLiquidity(GLM_TOKEN, 
+                                                                          pair.token1(), 
+                                                                          lpTokenAmountWithdrawn,
+                                                                          GLMTokenMin,
+                                                                          ERC20AmountMin,
+                                                                          to,
+                                                                          deadline);
+
+        /// Transfer GLM token and ERC20 + fees earned (into a staker)
+        GLMToken.transfer(staker, GLMTokenAmount); 
+        IERC20(pair.token1()).transfer(staker, ERC20Amount);       
     }
-    
+
+    function _redeemWithETH(address payable staker, IUniswapV2Pair _pair, uint lpTokenAmountWithdrawn) internal returns (bool) {
+        address PAIR = address(_pair);
+        IUniswapV2Pair pair = IUniswapV2Pair(PAIR);
+
+        /// Burn GLM Pool Token
+        poolToken.burn(staker, lpTokenAmountWithdrawn);
+
+        /// Remove liquidity that a staker was staked
+        uint GLMTokenAmount;
+        uint ETHAmount;         /// WETH
+        uint GLMTokenMin = 0;
+        uint ETHAmountMin = 0;  /// WETH
+        address to = staker;
+        uint deadline = now.add(15 seconds);
+        (GLMTokenAmount, ETHAmount) = uniswapV2Router02.removeLiquidityETH(GLM_TOKEN, 
+                                                                           lpTokenAmountWithdrawn, 
+                                                                           GLMTokenMin, 
+                                                                           ETHAmountMin, 
+                                                                           to, 
+                                                                           deadline);
+
+        /// Convert WETH to ETH
+        wETH.withdraw(ETHAmount);
+
+        /// Transfer GLM token and ETH + fees earned (into a staker)
+        GLMToken.transfer(staker, GLMTokenAmount); 
+        staker.transfer(ETHAmount);       
+    }    
 
 
 }
