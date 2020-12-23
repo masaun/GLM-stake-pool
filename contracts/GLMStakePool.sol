@@ -250,7 +250,13 @@ contract GLMStakePool is GLMStakePoolStorages {
     /// GRT (Golem Reward Token) is given to stakers
     ///--------------------------------------------------------
 
-    function _computeReward() internal returns (bool) {}
+    /***
+     * @notice - Compute GRT (Golem Reward Token) as rewards
+     * @dev - Reward is given to each stakers every block (every 15 seconds)
+     **/
+    function _computeReward(address to, uint mintAmount) internal returns (bool) {
+        GRTToken.mint(to, mintAmount);
+    }
     
 
 

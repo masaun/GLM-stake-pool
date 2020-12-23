@@ -12,4 +12,12 @@ contract GolemRewardToken is ERC20, ERC20Detailed {
 
     constructor() public ERC20Detailed("Golem Reward Token", "GRT", 18) {}
 
+    function mint(address to, uint mintAmount) public returns (bool) {
+        _mint(to, mintAmount);
+    }
+
+    function burn(address to, uint burnAmount) public returns (bool) {
+        _burn(to, burnAmount);
+    }
+
 }
