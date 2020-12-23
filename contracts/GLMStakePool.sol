@@ -243,6 +243,7 @@ contract GLMStakePool is GLMStakePoolStorages {
         stakeData.staker = msg.sender;
         stakeData.lpToken = pair;
         stakeData.stakedLPTokenAmount = lpTokenAmount;
+        stakeData.startBlock = block.number;
     }
 
 
@@ -254,7 +255,7 @@ contract GLMStakePool is GLMStakePoolStorages {
      * @notice - Compute GRT (Golem Reward Token) as rewards
      * @dev - Reward is given to each stakers every block (every 15 seconds)
      **/
-    function _computeReward(address to, uint mintAmount) internal returns (bool) {
+    function computeReward(address to, uint mintAmount) public returns (bool) {
         GRTToken.mint(to, mintAmount);
     }
     

@@ -22,6 +22,8 @@ contract GLMStakePoolObjects {
         address staker;
         IUniswapV2Pair lpToken;  // Address of LP token contract.
         uint stakedLPTokenAmount;     // How many LP tokens the user has provided.
+        uint startBlock;  /// Start block (block.number) when a starker staked
+
         uint allocPoint;         // How many allocation points assigned to this pool. SUSHIs to distribute per block.
         uint lastRewardBlock;    // Last block number that SUSHIs distribution occurs.
         uint accSushiPerShare;   // Accumulated SUSHIs per share, times 1e12. See below.
