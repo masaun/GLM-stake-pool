@@ -10,6 +10,6 @@ import { ERC20Detailed } from "@openzeppelin/contracts/token/ERC20/ERC20Detailed
  **/
 contract GolemRewardToken is ERC20, ERC20Detailed {
 
-    constructor() public ERC20Detailed("Golem Reward Token", "GLR", 18) {}
+    constructor() public ERC20Detailed("Golem Reward Token", "GRT", 18) {}
 
 }
