@@ -1,11 +1,12 @@
 pragma solidity ^0.5.16;
 pragma experimental ABIEncoderV2;
 
-import { GolemRewardToken } from "./GolemRewardToken.sol";
-
 /// Openzeppelin v2.5.1
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+
+/// Golem Reward Token
+import { GolemRewardToken } from "./GolemRewardToken.sol";
 
 /// WETH
 import { IWETH } from "./uniswap-v2/uniswap-v2-periphery/interfaces/IWETH.sol";
@@ -19,14 +20,25 @@ import { IUniswapV2Pair } from "./uniswap-v2/uniswap-v2-core/interfaces/IUniswap
 
 
 /***
- * @title - Golem Reward Token Pool contract
+ * @title - GRT (Golem Reward Token) Stake Pool contract
  **/
-contract GolemRewardTokenPool {
+contract GRTStakePool {
+    using SafeMath for uint;
 
-    GolemRewardToken public golemRewardToken;
+    GolemRewardToken public GRTToken;
+    IWETH public wETH;
+    IUniswapV2Factory public uniswapV2Factory;
+    IUniswapV2Router02 public uniswapV2Router02;
 
-    constructor(GolemRewardToken _golemRewardToken) public {
-        golemRewardToken = _golemRewardToken;
+    address GRT_TOKEN;
+    address WETH_TOKEN;
+    address UNISWAP_V2_FACTORY;
+    address UNISWAP_V2_ROUTOR_02;
+
+    uint8 public currentStakeId;
+
+    constructor(GolemRewardToken _GRTToken) public {
+        GRTToken = _GRTToken;
     }
 
 
@@ -57,7 +69,7 @@ contract GolemRewardTokenPool {
 
 
     ///---------------------------------------------------
-    /// Stake LP tokens of GRT/ERC20 or GRT/ETH into pool
+    /// Stake LP tokens of GRT/ERC20 or GRT/ETH into the GRT pool
     ///---------------------------------------------------
 
     function stakeLPToken(IUniswapV2Pair pair, uint lpTokenAmount) public returns (bool) {}
