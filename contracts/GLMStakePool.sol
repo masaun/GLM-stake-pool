@@ -7,11 +7,11 @@ import { GLMStakePoolStorages } from "./glm-stake-pool/commons/GLMStakePoolStora
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
-/// GLM Pool Token
-import { GLMPoolToken } from "./GLMPoolToken.sol";
-
 /// Golem
 import { NewGolemNetworkToken } from "./golem/GNT2/NewGolemNetworkToken.sol";
+
+/// GLM Pool Token
+import { GLMPoolToken } from "./GLMPoolToken.sol";
 
 /// WETH
 import { IWETH } from "./uniswap-v2/uniswap-v2-periphery/interfaces/IWETH.sol";
@@ -26,7 +26,7 @@ import { IUniswapV2Pair } from "./uniswap-v2/uniswap-v2-core/interfaces/IUniswap
 contract GLMStakePool is GLMStakePoolStorages {
     using SafeMath for uint;
 
-    GLMPoolToken public poolToken;
+    GLMPoolToken public glmPoolToken;
     NewGolemNetworkToken public GLMToken;
     IWETH public wETH;
     IUniswapV2Factory public uniswapV2Factory;
@@ -40,15 +40,15 @@ contract GLMStakePool is GLMStakePoolStorages {
 
     uint8 public currentStakeId;
 
-    constructor(GLMPoolToken _GLMPoolToken, NewGolemNetworkToken _GLMToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
-        poolToken = _GLMPoolToken;
+    constructor(NewGolemNetworkToken _GLMToken, GLMPoolToken _glmPoolToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
         GLMToken = _GLMToken;
+        glmPoolToken = _glmPoolToken;
         wETH = IWETH(uniswapV2Router02.WETH());
         uniswapV2Factory = _uniswapV2Factory;
         uniswapV2Router02 = _uniswapV2Router02;
 
-        GLM_POOL_TOKEN = address(_GLMPoolToken);
         GLM_TOKEN = address(_GLMToken);
+        GLM_POOL_TOKEN = address(_glmPoolToken);
         WETH_TOKEN = address(uniswapV2Router02.WETH());
         UNISWAP_V2_FACTORY = address(_uniswapV2Factory);
         UNISWAP_V2_ROUTOR_02 = address(_uniswapV2Router02);
@@ -74,18 +74,16 @@ contract GLMStakePool is GLMStakePoolStorages {
      **/
     function createPairWithETH() public returns (IUniswapV2Pair pair) {
         address pair = uniswapV2Factory.createPair(GLM_TOKEN, WETH_TOKEN);  /// [Note]: WETH is treated as ETH 
-        return IUniswapV2Pair(pair);    
+        return IUniswapV2Pair(pair); 
     }
 
 
     ///------------------------------------------------------------------------------
-    /// Add liquidity GLM tokens with ERC20 tokens (Stake LP tokens of GLM/ERC20 into pool)
+    /// Add liquidity GLM tokens with ERC20 tokens (GLM/DAI, GLM/USDC, etc...)
     ///------------------------------------------------------------------------------
 
     /***
-     * @notice - Stake GLM tokens with ERC20 tokens (Stake LP tokens of GLM/ERC20 into pool)
-     *         - include "Add Liquidity" for a pair (LP token) between the GLM tokens and another ERC20 tokens
-     *         - e.g). GLM/DAI, GLM/USDC, etc...
+     * @notice - Add Liquidity" for a pair (LP token) between the GLM tokens and another ERC20 tokens (GLM/DAI, GLM/USDC, etc...)
      **/
     function addLiquidityWithERC20(
         IUniswapV2Pair pair,
@@ -120,7 +118,7 @@ contract GLMStakePool is GLMStakePoolStorages {
                                                                           ERC20AmountDesired);
 
         /// Mint amount that is equal to staked LP tokens to a staker
-        poolToken.mint(msg.sender, liquidity);
+        glmPoolToken.mint(msg.sender, liquidity);
 
         /// Save stake data
         // CheckPoint storage checkPoint = checkPoints[newStakeId];
@@ -160,13 +158,11 @@ contract GLMStakePool is GLMStakePoolStorages {
 
 
     ///-------------------------------------------------------------------
-    /// Stake GLM tokens with ETH (Stake LP tokens of GLM/ETH into pool)
+    /// Add Liquidity GLM tokens with ETH (GLM/ETH)
     ///-------------------------------------------------------------------
 
     /***
-     * @notice - Stake GLM tokens with ETH (Stake LP tokens of GLM/ETH into pool)
-     *         - include "Add Liquidity" for a pair (LP token) between the GLM tokens and ETH 
-     *         - e.g). GLM/ETH
+     * @notice - Add Liquidity for a pair (LP token) between the GLM tokens and ETH (GLM/ETH)
      **/
     function addLiquidityWithETH(
         IUniswapV2Pair pair,
@@ -222,10 +218,9 @@ contract GLMStakePool is GLMStakePoolStorages {
     }
 
 
-
-    ///---------------------------------------------------
-    /// Stake LP tokens of GLM/ERC20 or GLM/ETH into pool
-    ///---------------------------------------------------
+    ///--------------------------------------------------------
+    /// Stake LP tokens of GLM/ERC20 or GLM/ETH into GLM pool
+    ///--------------------------------------------------------
 
     /***
      * @notice - Stake LP tokens (GLM/ERC20 or GLM/ETH)
@@ -252,9 +247,8 @@ contract GLMStakePool is GLMStakePoolStorages {
      * @notice - Withdraw LP tokens with earned rewards
      * @dev - Caller is a staker (msg.sender)
      **/
-    function withdrawWithReward(IUniswapV2Pair _pair, uint lpTokenAmountWithdrawn) public returns (bool) {
-        address PAIR = address(_pair);
-        IUniswapV2Pair pair = IUniswapV2Pair(PAIR);
+    function withdrawWithReward(IUniswapV2Pair pair, uint lpTokenAmountWithdrawn) public returns (bool) {
+        address PAIR = address(pair);
 
         /// Caluculate earned rewards amount (Unit is "GLMP" (GLM Pool Token))
         // uint earnedRewardsAmount;   /// [Todo]: Add the calculation logic <-- This is fees calculation of UniswapV2
@@ -267,16 +261,13 @@ contract GLMStakePool is GLMStakePoolStorages {
             /// Burn GLM Pool Token and Transfer GLM token and ERC20 + fees earned (into a staker)
             _redeemWithERC20(msg.sender, pair, lpTokenAmountWithdrawn);
         }
-
-
     }
 
-    function _redeemWithERC20(address staker, IUniswapV2Pair _pair, uint lpTokenAmountWithdrawn) internal returns (bool) {
-        address PAIR = address(_pair);
-        IUniswapV2Pair pair = IUniswapV2Pair(PAIR);
+    function _redeemWithERC20(address staker, IUniswapV2Pair pair, uint lpTokenAmountWithdrawn) internal returns (bool) {
+        address PAIR = address(pair);
 
         /// Burn GLM Pool Token
-        poolToken.burn(staker, lpTokenAmountWithdrawn);
+        glmPoolToken.burn(staker, lpTokenAmountWithdrawn);
 
         /// Remove liquidity that a staker was staked
         uint GLMTokenAmount;
@@ -298,12 +289,11 @@ contract GLMStakePool is GLMStakePoolStorages {
         IERC20(pair.token1()).transfer(staker, ERC20Amount);       
     }
 
-    function _redeemWithETH(address payable staker, IUniswapV2Pair _pair, uint lpTokenAmountWithdrawn) internal returns (bool) {
-        address PAIR = address(_pair);
-        IUniswapV2Pair pair = IUniswapV2Pair(PAIR);
+    function _redeemWithETH(address payable staker, IUniswapV2Pair pair, uint lpTokenAmountWithdrawn) internal returns (bool) {
+        address PAIR = address(pair);
 
         /// Burn GLM Pool Token
-        poolToken.burn(staker, lpTokenAmountWithdrawn);
+        glmPoolToken.burn(staker, lpTokenAmountWithdrawn);
 
         /// Remove liquidity that a staker was staked
         uint GLMTokenAmount;
