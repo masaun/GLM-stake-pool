@@ -239,6 +239,14 @@ contract GLMStakePool is GLMStakePoolStorages {
     }
 
 
+    ///--------------------------------------------------------
+    /// GRT (Golem Reward Token) is given to stakers
+    ///--------------------------------------------------------
+
+    function _computeReward() internal returns (bool) {}
+    
+
+
     ///---------------------------------------------------
     /// Withdraw LP tokens with earned rewards
     ///---------------------------------------------------
