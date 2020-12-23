@@ -7,11 +7,14 @@ import { GLMStakePoolStorages } from "./glm-stake-pool/commons/GLMStakePoolStora
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
-/// Golem
+/// GLM Token
 import { NewGolemNetworkToken } from "./golem/GNT2/NewGolemNetworkToken.sol";
 
 /// GLM Pool Token
 import { GLMPoolToken } from "./GLMPoolToken.sol";
+
+/// GRT (Golem Reward Token)
+import { GolemRewardToken } from "./GolemRewardToken.sol";
 
 /// WETH
 import { IWETH } from "./uniswap-v2/uniswap-v2-periphery/interfaces/IWETH.sol";
@@ -26,29 +29,33 @@ import { IUniswapV2Pair } from "./uniswap-v2/uniswap-v2-core/interfaces/IUniswap
 contract GLMStakePool is GLMStakePoolStorages {
     using SafeMath for uint;
 
-    GLMPoolToken public glmPoolToken;
     NewGolemNetworkToken public GLMToken;
+    GLMPoolToken public glmPoolToken;
+    GolemRewardToken public  GRTToken;
     IWETH public wETH;
     IUniswapV2Factory public uniswapV2Factory;
     IUniswapV2Router02 public uniswapV2Router02;
 
     address GLM_TOKEN;
     address GLM_POOL_TOKEN;
+    address GRT_TOKEN;
     address WETH_TOKEN;
     address UNISWAP_V2_FACTORY;
     address UNISWAP_V2_ROUTOR_02;
 
     uint8 public currentStakeId;
 
-    constructor(NewGolemNetworkToken _GLMToken, GLMPoolToken _glmPoolToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
+    constructor(NewGolemNetworkToken _GLMToken, GLMPoolToken _glmPoolToken, GolemRewardToken _GRTToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
         GLMToken = _GLMToken;
         glmPoolToken = _glmPoolToken;
+        GRTToken = _GRTToken;
         wETH = IWETH(uniswapV2Router02.WETH());
         uniswapV2Factory = _uniswapV2Factory;
         uniswapV2Router02 = _uniswapV2Router02;
 
         GLM_TOKEN = address(_GLMToken);
         GLM_POOL_TOKEN = address(_glmPoolToken);
+        GRT_TOKEN = address(_GRTToken);
         WETH_TOKEN = address(uniswapV2Router02.WETH());
         UNISWAP_V2_FACTORY = address(_uniswapV2Factory);
         UNISWAP_V2_ROUTOR_02 = address(_uniswapV2Router02);
