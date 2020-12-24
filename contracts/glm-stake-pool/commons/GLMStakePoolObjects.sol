@@ -15,6 +15,8 @@ contract GLMStakePoolObjects {
         uint amount;     // How many LP tokens the user has provided.
         uint rewardDebt; // Reward debt. See explanation below.
         uint32 blockTimestamp;  /// Block number when a user was staked
+
+        uint8[] stakeIds;  /// Stake IDs which this staker was staked are stored into this array 
     }
 
     /// Info of stake

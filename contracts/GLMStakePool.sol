@@ -250,6 +250,10 @@ contract GLMStakePool is GLMStakePoolStorages {
 
         /// Staker is added into stakers list
         stakersList.push(msg.sender);
+
+        /// Save stake ID
+        Staker storage staker = stakers[msg.sender];
+        staker.stakeIds.push(newStakeId);
     }
 
 
@@ -283,8 +287,8 @@ contract GLMStakePool is GLMStakePoolStorages {
             uint GRTbalance = GRTToken.balanceOf(address(this));
 
             /// [Todo]: Identify each staker's share of pool
-            //uint shareOfPool;
-            //uint distributedGRTAmount = GRTbalance.mul(shareOfPool).div(100);  /// [Note]: Assuming each staker has more than 1% of share of pool 
+            uint shareOfPool = stakedAmount.div(totalStakedAmount);
+            uint distributedGRTAmount = GRTbalance.mul(shareOfPool).div(100);  /// [Note]: Assuming each staker has more than 1% of share of pool 
 
             /// Distribute GRT tokens amount are uniform amount which is divided by the number of stakers
             uint distributedGRTAmount = GRTbalance.div(stakersList.length);
