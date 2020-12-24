@@ -45,8 +45,8 @@ contract GLMStakePool is GLMStakePoolStorages {
 
     uint8 public currentStakeId;
 
-    uint totalStakedGLMAmountDuringWholePeriod;   /// Total staked GLM tokens amount during whole period
-    uint totalStakeGLMAmountUntilLastWeek;        /// Total staked GLM tokens amount until last week
+    uint totalStakedGLMAmount;      /// Total staked GLM tokens amount during whole period
+    uint lastTotalStakeGLMAmount;   /// Total staked GLM tokens amount until last week
 
     uint startBlock;
     uint currentBlock;
@@ -271,7 +271,7 @@ contract GLMStakePool is GLMStakePoolStorages {
         uint112 reserve1;  /// ERC20 token or ETH (WETH) amount
         uint32 blockTimestampLast;
         (reserve0, reserve1, blockTimestampLast) = pair.getReserves();
-        totalStakedGLMAmountDuringWholePeriod.add(uint256(reserve0)); 
+        totalStakedGLMAmount.add(uint256(reserve0)); 
 
     }
 
@@ -288,9 +288,9 @@ contract GLMStakePool is GLMStakePoolStorages {
      **/
     function computeReward(IUniswapV2Pair pair) public returns (bool) {
         /// [Todo]: Compute total staked GLM tokens amount per a week (7days)
-        uint totalStakedGLMAmountPerWeek = totalStakedGLMAmountDuringWholePeriod.sub(totalStakeGLMAmountUntilLastWeek);
+        uint weeklyTotalStakedGLMAmount = totalStakedGLMAmount.sub(lastTotalStakeGLMAmount);
 
-        uint earnedReward = totalStakedGLMAmountPerWeek.mul(REWARD_RATE).div(100);
+        uint earnedReward = weeklyTotalStakedGLMAmount.mul(REWARD_RATE).div(100);
 
         /// Mint GRT tokens which is equal amount to earned reward amount
         GRTToken.mint(address(this), earnedReward);
