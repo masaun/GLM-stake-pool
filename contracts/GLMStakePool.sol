@@ -50,6 +50,7 @@ contract GLMStakePool is GLMStakePoolStorages {
 
     uint startBlock;
     uint currentBlock;
+    uint lastBlock;
 
     /// [Note]: Current rewards rate is accept the fixed-rate that is set up by admin
     uint REWARD_RATE = 10;  /// Default fixed-rewards-rate is 10%
@@ -71,7 +72,7 @@ contract GLMStakePool is GLMStakePoolStorages {
         UNISWAP_V2_ROUTOR_02 = address(_uniswapV2Router02);
 
         startBlock = block.number;
-        currentBlock = block.number; /// [Note]: currentBlock is updated per a week.
+        lastBlock = block.number;
     }
 
 
@@ -320,7 +321,13 @@ contract GLMStakePool is GLMStakePoolStorages {
      * @notice - Update share of pool (%)
      *         - Because each staker's share of pool will be changed every stake
      **/
-    function _updateShareOfPool() internal returns (bool) {}
+    function _updateShareOfPool() internal returns (bool) {
+        currentBlock = block.number;
+        require (currentBlock > lastBlock, "Block number is still same period");
+
+        /// Update next block number
+        lastBlock = currentBlock.add(604800);  /// Plus 1 week (604800 seconds)
+    }
     
 
 
