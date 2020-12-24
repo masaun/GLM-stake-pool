@@ -6,7 +6,7 @@ import { ERC20Detailed } from "@openzeppelin/contracts/token/ERC20/ERC20Detailed
 
 
 /***
- * @title - GRT Pool Token contract
+ * @title - Pool Token contract of GRT (Golem Reward Token)
  **/
 contract GRTPoolToken is ERC20, ERC20Detailed {
 

@@ -45,6 +45,9 @@ contract GLMStakePool is GLMStakePoolStorages {
 
     uint8 public currentStakeId;
 
+    /// [Note]: Current rewards rate is accept the fixed-rate that is set up by admin
+    uint rewardRate = 10;  /// Default fixed-rewards-rate is 10%
+
     constructor(NewGolemNetworkToken _GLMToken, GLMPoolToken _glmPoolToken, GolemRewardToken _GRTToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
         GLMToken = _GLMToken;
         glmPoolToken = _glmPoolToken;
