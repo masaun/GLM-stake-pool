@@ -256,15 +256,19 @@ contract GLMStakePool is GLMStakePoolStorages {
 
     /***
      * @notice - Compute GRT (Golem Reward Token) as rewards
-     * @dev - Reward is given to each stakers every block (every 15 seconds)
+     * @dev - [idea v1]: Reward is given to each stakers every block (every 15 seconds)
+     * @dev - [idea v2]: Reward is given to each stakers by using the fixed-rewards-rate (10%)
+     *                   => There is the locked-period (7 days) as minimum staking-term.
      **/
     function computeReward() public returns (bool) {
         /// [Todo]: Compute earned rewards amount
-        uint totalRevenue;
-        uint earnedReward = totalRevenue.mul(REWARD_RATE).div(100);
+        uint totalStakedGLMPerWeek;  /// Total staked GLM tokens amount per a week (7days)
+        //uint totalRevenue;
+        uint earnedReward = totalStakedGLMPerWeek.mul(REWARD_RATE).div(100);
 
         /// Mint GRT tokens which is equal amount to earned reward amount
         GRTToken.mint(address(this), earnedReward);
+        //GRTToken.mint(staker, earnedReward);
     }
     
 
