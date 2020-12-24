@@ -46,7 +46,7 @@ contract GLMStakePool is GLMStakePoolStorages {
     uint8 public currentStakeId;
 
     /// [Note]: Current rewards rate is accept the fixed-rate that is set up by admin
-    uint rewardRate = 10;  /// Default fixed-rewards-rate is 10%
+    uint REWARD_RATE = 10;  /// Default fixed-rewards-rate is 10%
 
     constructor(NewGolemNetworkToken _GLMToken, GLMPoolToken _glmPoolToken, GolemRewardToken _GRTToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
         GLMToken = _GLMToken;
@@ -258,8 +258,13 @@ contract GLMStakePool is GLMStakePoolStorages {
      * @notice - Compute GRT (Golem Reward Token) as rewards
      * @dev - Reward is given to each stakers every block (every 15 seconds)
      **/
-    function computeReward(address to, uint mintAmount) public returns (bool) {
-        GRTToken.mint(to, mintAmount);
+    function computeReward() public returns (bool) {
+        /// [Todo]: Compute earned rewards amount
+        uint totalRevenue;
+        uint earnedReward = totalRevenue.mul(REWARD_RATE).div(100);
+
+        /// Mint GRT tokens which is equal amount to earned reward amount
+        GRTToken.mint(address(this), earnedReward);
     }
     
 
