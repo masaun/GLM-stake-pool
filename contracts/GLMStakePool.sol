@@ -48,8 +48,8 @@ contract GLMStakePool is GLMStakePoolStorages {
     uint totalStakedGLMAmountDuringWholePeriod;   /// Total staked GLM tokens amount during whole period
     uint totalStakeGLMAmountUntilLastWeek;        /// Total staked GLM tokens amount until last week
 
-    /// [Note]: Start block;
-    uint START_BLOCK = 1608854400;  /// 12/25/2020 @ 12:00am (UTC)
+    uint startBlock;
+    uint currentBlock;
 
     /// [Note]: Current rewards rate is accept the fixed-rate that is set up by admin
     uint REWARD_RATE = 10;  /// Default fixed-rewards-rate is 10%
@@ -69,6 +69,9 @@ contract GLMStakePool is GLMStakePoolStorages {
         WETH_TOKEN = address(uniswapV2Router02.WETH());
         UNISWAP_V2_FACTORY = address(_uniswapV2Factory);
         UNISWAP_V2_ROUTOR_02 = address(_uniswapV2Router02);
+
+        startBlock = block.number;
+        currentBlock = block.number; /// [Note]: currentBlock is updated per a week.
     }
 
 
