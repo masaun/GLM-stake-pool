@@ -45,6 +45,9 @@ contract GLMStakePool is GLMStakePoolStorages {
 
     uint8 public currentStakeId;
 
+    uint totalStakedGLMAmountDuringWholePeriod;   /// Total staked GLM tokens amount during whole period
+    uint totalStakeGLMAmountUntilLastWeek;        /// Total staked GLM tokens amount until last week
+
     /// [Note]: Current rewards rate is accept the fixed-rate that is set up by admin
     uint REWARD_RATE = 10;  /// Default fixed-rewards-rate is 10%
 
@@ -254,6 +257,14 @@ contract GLMStakePool is GLMStakePoolStorages {
         /// Save stake ID
         Staker storage staker = stakers[msg.sender];
         staker.stakeIds.push(newStakeId);
+
+        /// Add LP token amount to the total GLM token amount
+        uint112 reserve0;  /// GLM token
+        uint112 reserve1;  /// ERC20 token or ETH (WETH)
+        uint32 blockTimestampLast;
+        (reserve0, reserve1, blockTimestampLast) = pair.getReserves();
+        totalStakedGLMAmountDuringWholePeriod.add(uint256(reserve0)); 
+
     }
 
 
@@ -269,9 +280,7 @@ contract GLMStakePool is GLMStakePoolStorages {
      **/
     function computeReward(IUniswapV2Pair pair) public returns (bool) {
         /// [Todo]: Compute total staked GLM tokens amount per a week (7days)
-        uint totalStakedGLMAmount;     /// Total staked GLM tokens amount during whole period
-        uint lastTotalStakeGLMAmount;  /// Total staked GLM tokens amount until last week
-        uint totalStakedGLMAmountPerWeek = totalStakedGLMAmount.sub(lastTotalStakeGLMAmount);
+        uint totalStakedGLMAmountPerWeek = totalStakedGLMAmountDuringWholePeriod.sub(totalStakeGLMAmountUntilLastWeek);
 
         uint earnedReward = totalStakedGLMAmountPerWeek.mul(REWARD_RATE).div(100);
 
