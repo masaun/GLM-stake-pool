@@ -276,10 +276,18 @@ contract GLMStakePool is GLMStakePoolStorages {
         /// Distribute rewards into all stakers 
         /// (Note: Distribution term is every 7 days. And)
         for (uint8 i=0; i < stakersList.length; i++) {
+            /// Staker
+            address staker = stakersList[i];
+
+            /// Total GRT tokens amount in this contract
             uint GRTbalance = GRTToken.balanceOf(address(this));
 
-            /// [Todo]: Distribute depends on each staker's share of pool
-        
+            /// [Todo]: Identify each staker's share of pool
+            uint shareOfPool;
+            uint distributedGRTAmount = GRTbalance.mul(shareOfPool).div(100);  /// [Note]: Assuming each staker has more than 1% of share of pool 
+
+            /// Distribute GRT tokens (earned reward) depends on each staker's share of pool
+            GRTToken.transfer(staker, distributedGRTAmount);
         }
     }
 
