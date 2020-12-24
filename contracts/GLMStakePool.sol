@@ -269,6 +269,15 @@ contract GLMStakePool is GLMStakePoolStorages {
         /// Mint GRT tokens which is equal amount to earned reward amount
         GRTToken.mint(address(this), earnedReward);
         //GRTToken.mint(staker, earnedReward);
+
+        /// Distribute rewards into all stakers 
+        /// (Note: Distribution term is every 7 days. And)
+        for (uint8 i=0; i < stakers.length; i++) {
+            uint GRTbalance = GRTToken.balanceOf(address(this));
+
+            /// [Todo]: Distribute depends on each staker's share of pool
+        
+        }
     }
     
 
