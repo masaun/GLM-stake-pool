@@ -323,10 +323,14 @@ contract GLMStakePool is GLMStakePoolStorages {
      **/
     function _updateShareOfPool() internal returns (bool) {
         currentBlock = block.number;
-        require (currentBlock > lastBlock, "Block number is still same period");
 
-        /// Update next block number
-        lastBlock = currentBlock.add(604800);  /// Plus 1 week (604800 seconds)
+        if (currentBlock > lastBlock) {
+            require (currentBlock > lastBlock, "Block number is still in the same period");
+
+            /// Update next block number
+            lastBlock = currentBlock.add(604800);  /// Plus 1 week (604800 seconds)
+        }
+
     }
     
 
