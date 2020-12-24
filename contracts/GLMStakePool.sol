@@ -298,6 +298,13 @@ contract GLMStakePool is GLMStakePoolStorages {
         }
     }
 
+    /***
+     * @notice - Update share of pool (%)
+     *         - Because each staker's share of pool will be changed every stake
+     **/
+    function _updateShareOfPool() internal returns (bool) {}
+    
+
 
     ///---------------------------------------------------
     /// Withdraw LP tokens with earned rewards
