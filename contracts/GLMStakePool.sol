@@ -283,10 +283,13 @@ contract GLMStakePool is GLMStakePoolStorages {
             uint GRTbalance = GRTToken.balanceOf(address(this));
 
             /// [Todo]: Identify each staker's share of pool
-            uint shareOfPool;
-            uint distributedGRTAmount = GRTbalance.mul(shareOfPool).div(100);  /// [Note]: Assuming each staker has more than 1% of share of pool 
+            //uint shareOfPool;
+            //uint distributedGRTAmount = GRTbalance.mul(shareOfPool).div(100);  /// [Note]: Assuming each staker has more than 1% of share of pool 
 
-            /// Distribute GRT tokens (earned reward) depends on each staker's share of pool
+            /// Distribute GRT tokens amount are uniform amount which is divided by the number of stakers
+            uint distributedGRTAmount = GRTbalance.div(stakersList.length);
+
+            /// Distribute GRT tokens (earned reward)
             GRTToken.transfer(staker, distributedGRTAmount);
         }
     }
