@@ -8,6 +8,7 @@ contract GLMStakePoolStorages is GLMStakePoolObjects {
 
     // Info of each user that stakes LP tokens.
     mapping (uint8 => Staker) public stakers;  /// [Key]: stake ID
+    address[] stakersList;
 
     /// Info of stake
     mapping (uint8 => StakeData) public stakeDatas;  ///  [Key]: Stake ID

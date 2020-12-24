@@ -247,6 +247,9 @@ contract GLMStakePool is GLMStakePoolStorages {
         stakeData.lpToken = pair;
         stakeData.stakedLPTokenAmount = lpTokenAmount;
         stakeData.startBlock = block.number;
+
+        /// Staker is added into stakers list
+        stakersList.push(msg.sender);
     }
 
 
@@ -272,14 +275,13 @@ contract GLMStakePool is GLMStakePoolStorages {
 
         /// Distribute rewards into all stakers 
         /// (Note: Distribution term is every 7 days. And)
-        for (uint8 i=0; i < stakers.length; i++) {
+        for (uint8 i=0; i < stakersList.length; i++) {
             uint GRTbalance = GRTToken.balanceOf(address(this));
 
             /// [Todo]: Distribute depends on each staker's share of pool
         
         }
     }
-    
 
 
     ///---------------------------------------------------
