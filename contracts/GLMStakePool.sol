@@ -48,8 +48,12 @@ contract GLMStakePool is GLMStakePoolStorages {
     uint totalStakedGLMAmountDuringWholePeriod;   /// Total staked GLM tokens amount during whole period
     uint totalStakeGLMAmountUntilLastWeek;        /// Total staked GLM tokens amount until last week
 
+    /// [Note]: Start block;
+    uint START_BLOCK = 1608854400;  /// 12/25/2020 @ 12:00am (UTC)
+
     /// [Note]: Current rewards rate is accept the fixed-rate that is set up by admin
     uint REWARD_RATE = 10;  /// Default fixed-rewards-rate is 10%
+
 
     constructor(NewGolemNetworkToken _GLMToken, GLMPoolToken _glmPoolToken, GolemRewardToken _GRTToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
         GLMToken = _GLMToken;
@@ -259,8 +263,8 @@ contract GLMStakePool is GLMStakePoolStorages {
         staker.stakeIds.push(newStakeId);
 
         /// Add LP token amount to the total GLM token amount
-        uint112 reserve0;  /// GLM token
-        uint112 reserve1;  /// ERC20 token or ETH (WETH)
+        uint112 reserve0;  /// GLM token amount
+        uint112 reserve1;  /// ERC20 token or ETH (WETH) amount
         uint32 blockTimestampLast;
         (reserve0, reserve1, blockTimestampLast) = pair.getReserves();
         totalStakedGLMAmountDuringWholePeriod.add(uint256(reserve0)); 
