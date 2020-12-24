@@ -263,15 +263,17 @@ contract GLMStakePool is GLMStakePoolStorages {
 
     /***
      * @notice - Compute GRT (Golem Reward Token) as rewards
-     * @dev - [idea v1]: Reward is given to each stakers every block (every 15 seconds)
+     * @dev - [idea v1]: Reward is given to each stakers every block (every 15 seconds) and depends on share of pool
      * @dev - [idea v2]: Reward is given to each stakers by using the fixed-rewards-rate (10%)
      *                   => There is the locked-period (7 days) as minimum staking-term.
      **/
-    function computeReward() public returns (bool) {
-        /// [Todo]: Compute earned rewards amount
-        uint totalStakedGLMPerWeek;  /// Total staked GLM tokens amount per a week (7days)
-        //uint totalRevenue;
-        uint earnedReward = totalStakedGLMPerWeek.mul(REWARD_RATE).div(100);
+    function computeReward(IUniswapV2Pair pair) public returns (bool) {
+        /// [Todo]: Compute total staked GLM tokens amount per a week (7days)
+        uint totalStakedGLMAmount;     /// Total staked GLM tokens amount during whole period
+        uint lastTotalStakeGLMAmount;  /// Total staked GLM tokens amount until last week
+        uint totalStakedGLMAmountPerWeek = totalStakedGLMAmount.sub(lastTotalStakeGLMAmount);
+
+        uint earnedReward = totalStakedGLMAmountPerWeek.mul(REWARD_RATE).div(100);
 
         /// Mint GRT tokens which is equal amount to earned reward amount
         GRTToken.mint(address(this), earnedReward);
@@ -287,8 +289,8 @@ contract GLMStakePool is GLMStakePoolStorages {
             uint GRTbalance = GRTToken.balanceOf(address(this));
 
             /// [Todo]: Identify each staker's share of pool
-            uint shareOfPool = stakedAmount.div(totalStakedAmount);
-            uint distributedGRTAmount = GRTbalance.mul(shareOfPool).div(100);  /// [Note]: Assuming each staker has more than 1% of share of pool 
+            //uint shareOfPool = stakedAmount.div(totalStakedAmount);
+            //uint distributedGRTAmount = GRTbalance.mul(shareOfPool).div(100);  /// [Note]: Assuming each staker has more than 1% of share of pool 
 
             /// Distribute GRT tokens amount are uniform amount which is divided by the number of stakers
             uint distributedGRTAmount = GRTbalance.div(stakersList.length);
