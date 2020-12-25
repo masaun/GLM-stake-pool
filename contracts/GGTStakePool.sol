@@ -23,9 +23,8 @@ import { IUniswapV2Router02 } from "./uniswap-v2/uniswap-v2-periphery/interfaces
 import { IUniswapV2Pair } from "./uniswap-v2/uniswap-v2-core/interfaces/IUniswapV2Pair.sol";
 
 
-
 /***
- * @title - GGT (Golem Reward Token) Stake Pool contract
+ * @title - GGT (Golem Governance Token) Stake Pool contract
  **/
 contract GGTStakePool is GGTStakePoolStorages {
     using SafeMath for uint;

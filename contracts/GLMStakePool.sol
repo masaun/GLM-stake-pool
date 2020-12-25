@@ -46,12 +46,12 @@ contract GLMStakePool is GLMStakePoolStorages {
     uint8 public currentStakeId;
 
     uint totalStakedGLMAmount;        /// Total staked GLM tokens amount during whole period
-    uint lastTotalStakedGLMAmount;     /// Total staked GLM tokens amount until last week
+    uint lastTotalStakedGLMAmount;    /// Total staked GLM tokens amount until last week
     uint weeklyTotalStakedGLMAmount;  /// Total staked GLM tokens amount during recent week
 
-    uint startBlock;
-    uint lastBlock;
-    uint nextBlock;
+    uint public startBlock;
+    uint public lastBlock;
+    uint public nextBlock;
 
     /// [Note]: Current rewards rate is accept the fixed-rate that is set up by admin
     uint REWARD_RATE = 10;  /// Default fixed-rewards-rate is 10%
@@ -362,10 +362,23 @@ contract GLMStakePool is GLMStakePoolStorages {
     ///---------------------------------------------------
 
     /***
-     * @notice - Withdraw LP tokens with earned rewards
-     * @dev - Caller is a staker (msg.sender)
+     * @notice - Claim rewards (Not include staked LP tokens)
+     * @dev - Caller (msg.sender) is a staker
      **/
-    function withdrawWithReward(IUniswapV2Pair pair, uint lpTokenAmountWithdrawn) public returns (bool) {
+    function claimReward(IUniswapV2Pair pair) returns(bool res) {
+        if (pair.token0() == WETH_TOKEN || pair.token1() == WETH_TOKEN) {
+            /// [Todo]: Compute rewards (GGT tokens) amount
+
+            /// Only redeem rewards amount with GGT tokens
+            GGTToken.transfer(msg.sender, rewardAmount);
+        }
+    }
+    
+    /***
+     * @notice - Withdraw staked LP tokens with earned rewards (GGT tokens)
+     * @dev - Caller (msg.sender) is a staker
+     **/
+    function withdrawStakedLPTokenWithReward(IUniswapV2Pair pair, uint lpTokenAmountWithdrawn) public returns (bool) {
         address PAIR = address(pair);
 
         /// Caluculate earned rewards amount (Unit is "GLMP" (GLM Pool Token))
