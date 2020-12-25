@@ -50,8 +50,8 @@ contract GLMStakePool is GLMStakePoolStorages {
     uint weeklyTotalStakedGLMAmount;  /// Total staked GLM tokens amount during recent week
 
     uint startBlock;
-    uint currentBlock;
     uint lastBlock;
+    uint nextBlock;
 
     /// [Note]: Current rewards rate is accept the fixed-rate that is set up by admin
     uint REWARD_RATE = 10;  /// Default fixed-rewards-rate is 10%
@@ -327,8 +327,9 @@ contract GLMStakePool is GLMStakePoolStorages {
         if (currentBlock > lastBlock) {
             require (currentBlock > lastBlock, "Block number is still in the last period");
 
-            /// Update next block number
-            lastBlock = currentBlock.add(604800);  /// Plus 1 week (604800 seconds)
+            /// Update the last block and the next block
+            lastBlock = currentBlock;
+            nextBlock = currentBlock.add(604800);  /// Plus 1 week (604800 seconds)
 
             /// Update share of pool
             _updateShareOfPool();
