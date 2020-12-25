@@ -312,14 +312,12 @@ contract GLMStakePool is GLMStakePoolStorages {
      * @notice - Claim rewards (Not include staked LP tokens)
      * @dev - Caller (msg.sender) is a staker
      **/
-    function claimReward(IUniswapV2Pair pair) public returns (bool res) {
+    function claimEarnedReward(IUniswapV2Pair pair) public returns (bool res) {
         if (pair.token0() == WETH_TOKEN || pair.token1() == WETH_TOKEN) {
-            /// [Todo]: Compute rewards (GGT tokens) amount
             address staker = msg.sender;
-            uint rewardAmount = _computeReward(pair);
 
-            /// Only redeem rewards amount with GGT tokens
-            GGTToken.transfer(staker, rewardAmount);
+            /// [Todo]: Compute earned rewards (GGT tokens) and Distribute them into a staker
+            _computeEarnedReward(pair);
         }
     }
     
@@ -337,9 +335,15 @@ contract GLMStakePool is GLMStakePoolStorages {
         if (pair.token0() == WETH_TOKEN || pair.token1() == WETH_TOKEN) {
             /// Burn GLM Pool Token and Transfer GLM token and ETH + fees earned (into a staker)
             _redeemWithETH(msg.sender, pair, lpTokenAmountWithdrawn);
+
+            /// Compute earned reward (GGT tokens) and Distribute them into staker
+            _computeEarnedReward(pair);
         } else {
             /// Burn GLM Pool Token and Transfer GLM token and ERC20 + fees earned (into a staker)
             _redeemWithERC20(msg.sender, pair, lpTokenAmountWithdrawn);
+            
+            /// Compute earned reward (GGT tokens) and Distribute them into staker
+            _computeEarnedReward(pair);
         }
     }
 
@@ -403,41 +407,25 @@ contract GLMStakePool is GLMStakePoolStorages {
     ///--------------------------------------------------------
 
     /***
-     * @notice - Compute GGT (Golem Governance Token) as rewards
+     * @notice - Compute earned rewards that is GGT tokens (Golem Governance Token)
      * @dev - [idea v1]: Reward is given to each stakers every block (every 15 seconds) and depends on share of pool
      * @dev - [idea v2]: Reward is given to each stakers by using the fixed-rewards-rate (10%)
      *                   => There is the locked-period (7 days) as minimum staking-term.
      **/
-    function _computeReward(IUniswapV2Pair pair) internal returns (bool) {
+    function _computeEarnedReward(IUniswapV2Pair pair) internal returns (bool) {
+        address staker = msg.sender;
+        uint stakedAmount;
+
+        /// [Todo]: Identify each staker's share of pool
+        uint SHARE_OF_POOL = stakedAmount.div(totalStakedGLMAmount);
+
         /// [Todo]: Compute total staked GLM tokens amount per a week (7days)
         weeklyTotalStakedGLMAmount = totalStakedGLMAmount.sub(lastTotalStakedGLMAmount);
 
-        uint earnedReward = weeklyTotalStakedGLMAmount.mul(REWARD_RATE).div(100);
+        uint earnedReward = weeklyTotalStakedGLMAmount.mul(REWARD_RATE).div(100).mul(SHARE_OF_POOL).div(100);
 
-        /// Mint GGT tokens which is equal amount to earned reward amount
-        GGTToken.mint(address(this), earnedReward);
-        //GGTToken.mint(staker, earnedReward);
-
-        /// Distribute rewards into all stakers 
-        /// (Note: Distribution term is every 7 days. And)
-        for (uint8 i=0; i < stakersList.length; i++) {
-            /// Staker
-            address staker = stakersList[i];
-
-            /// Total GGT tokens amount in this contract
-            uint GGTbalance = GGTToken.balanceOf(address(this));
-
-            /// [Todo]: Identify each staker's share of pool
-            //uint shareOfPool = stakedAmount.div(totalStakedAmount);
-            //uint distributedGGTAmount = GGTbalance.mul(shareOfPool).div(100);  /// [Note]: Assuming each staker has more than 1% of share of pool 
-
-            /// Distribute GGT tokens amount are uniform amount which is divided by the number of stakers
-            uint distributedGGTAmount = GGTbalance.div(stakersList.length);
-
-            /// Distribute GGT tokens (earned reward)
-            GGTToken.transfer(staker, distributedGGTAmount);
-        }
-
+        /// Mint GGT tokens as rewards for a staker
+        GGTToken.mint(staker, earnedReward);
     }
     
     /***
