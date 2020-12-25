@@ -46,12 +46,12 @@ contract GLMStakePool is GLMStakePoolStorages {
     uint8 public currentStakeId;
 
     uint totalStakedGLMAmount;        /// Total staked GLM tokens amount during whole period
-    uint lastTotalStakeGLMAmount;     /// Total staked GLM tokens amount until last week
+    uint lastTotalStakedGLMAmount;    /// Total staked GLM tokens amount until last week
     uint weeklyTotalStakedGLMAmount;  /// Total staked GLM tokens amount during recent week
 
-    uint startBlock;
-    uint currentBlock;
-    uint lastBlock;
+    uint public startBlock;
+    uint public lastBlock;
+    uint public nextBlock;
 
     /// [Note]: Current rewards rate is accept the fixed-rate that is set up by admin
     uint REWARD_RATE = 10;  /// Default fixed-rewards-rate is 10%
@@ -251,6 +251,23 @@ contract GLMStakePool is GLMStakePoolStorages {
         /// Stake LP tokens into this pool contract
         pair.transferFrom(msg.sender, address(this), lpTokenAmount);
 
+        /// Get reserve0 and reserve1
+        uint112 reserve0;  /// GLM token amount
+        uint112 reserve1;  /// ERC20 token or ETH (WETH) amount
+        uint32 blockTimestampLast;
+        (reserve0, reserve1, blockTimestampLast) = pair.getReserves();
+
+        uint stakedGLMAmount = uint256(reserve0);
+        totalStakedGLMAmount.add(stakedGLMAmount); 
+
+        uint stakedERC20Amount;        /// reserve1 (ERC20 token) from UniswapV2
+        uint stakedETHAmount;          /// reserve1 (ETH == WETH) from UniswapV2
+        if (pair.token0() == WETH_TOKEN || pair.token1() == WETH_TOKEN) {
+            stakedETHAmount = uint256(reserve1);
+        } else {
+            stakedERC20Amount = uint256(reserve1);
+        }
+
         /// Register staker's data
         uint8 newStakeId = getNextStakeId();
         currentStakeId++;        
@@ -258,6 +275,9 @@ contract GLMStakePool is GLMStakePoolStorages {
         stakeData.staker = msg.sender;
         stakeData.lpToken = pair;
         stakeData.stakedLPTokenAmount = lpTokenAmount;
+        stakeData.stakedGLMAmount = stakedGLMAmount;       /// reserve0 (GLM token)   from UniswapV2
+        stakeData.stakedERC20Amount = stakedERC20Amount;   /// reserve1 (ERC20 token) from UniswapV2
+        stakeData.stakedETHAmount = stakedETHAmount;       /// reserve1 (ETH == WETH) from UniswapV2
         stakeData.startBlock = block.number;
 
         /// Staker is added into stakers list
@@ -268,72 +288,33 @@ contract GLMStakePool is GLMStakePoolStorages {
         staker.stakeIds.push(newStakeId);
 
         /// Add LP token amount to the total GLM token amount
-        uint112 reserve0;  /// GLM token amount
-        uint112 reserve1;  /// ERC20 token or ETH (WETH) amount
-        uint32 blockTimestampLast;
-        (reserve0, reserve1, blockTimestampLast) = pair.getReserves();
         totalStakedGLMAmount.add(uint256(reserve0)); 
 
     }
 
 
-    ///--------------------------------------------------------
-    /// GGT (Golem Reward Token) is given to stakers
-    ///--------------------------------------------------------
+    ///---------------------------------------------------
+    /// Regular update of pool status
+    ///---------------------------------------------------
 
     /***
-     * @notice - Compute GGT (Golem Reward Token) as rewards
-     * @dev - [idea v1]: Reward is given to each stakers every block (every 15 seconds) and depends on share of pool
-     * @dev - [idea v2]: Reward is given to each stakers by using the fixed-rewards-rate (10%)
-     *                   => There is the locked-period (7 days) as minimum staking-term.
+     * @notice - Update pool status weekly (every week)
      **/
-    function computeReward(IUniswapV2Pair pair) public returns (bool) {
-        /// [Todo]: Compute total staked GLM tokens amount per a week (7days)
-        weeklyTotalStakedGLMAmount = totalStakedGLMAmount.sub(lastTotalStakeGLMAmount);
+    function weeklyPoolStatusUpdate() public returns (bool) {
+        uint currentBlock = block.number;
 
-        uint earnedReward = weeklyTotalStakedGLMAmount.mul(REWARD_RATE).div(100);
-
-        /// Mint GGT tokens which is equal amount to earned reward amount
-        GGTToken.mint(address(this), earnedReward);
-        //GGTToken.mint(staker, earnedReward);
-
-        /// Distribute rewards into all stakers 
-        /// (Note: Distribution term is every 7 days. And)
-        for (uint8 i=0; i < stakersList.length; i++) {
-            /// Staker
-            address staker = stakersList[i];
-
-            /// Total GGT tokens amount in this contract
-            uint GGTbalance = GGTToken.balanceOf(address(this));
-
-            /// [Todo]: Identify each staker's share of pool
-            //uint shareOfPool = stakedAmount.div(totalStakedAmount);
-            //uint distributedGGTAmount = GGTbalance.mul(shareOfPool).div(100);  /// [Note]: Assuming each staker has more than 1% of share of pool 
-
-            /// Distribute GGT tokens amount are uniform amount which is divided by the number of stakers
-            uint distributedGGTAmount = GGTbalance.div(stakersList.length);
-
-            /// Distribute GGT tokens (earned reward)
-            GGTToken.transfer(staker, distributedGGTAmount);
-        }
-    }
-
-    /***
-     * @notice - Update share of pool (%)
-     *         - Because each staker's share of pool will be changed every stake
-     **/
-    function _updateShareOfPool() internal returns (bool) {
-        currentBlock = block.number;
-
-        if (currentBlock > lastBlock) {
+        if (currentBlock > nextBlock) {
             require (currentBlock > lastBlock, "Block number is still in the last period");
 
-            /// Update next block number
-            lastBlock = currentBlock.add(604800);  /// Plus 1 week (604800 seconds)
+            /// Update both blocks (the last block and the next block)
+            lastBlock = currentBlock;
+            nextBlock = currentBlock.add(604800);  /// Plus 1 week (604800 seconds)
+
+            /// Update total staked amount until last week
+            _updateLastTotalStakedGLMAmount();
         }
 
     }
-    
 
 
     ///---------------------------------------------------
@@ -341,30 +322,48 @@ contract GLMStakePool is GLMStakePoolStorages {
     ///---------------------------------------------------
 
     /***
-     * @notice - Withdraw LP tokens with earned rewards
-     * @dev - Caller is a staker (msg.sender)
+     * @notice - Claim rewards (Not un-stake LP tokens. Only earned rewards is claimed and distributed)
+     * @dev - Caller (msg.sender) is a staker
      **/
-    function withdrawWithReward(IUniswapV2Pair pair, uint lpTokenAmountWithdrawn) public returns (bool) {
+    function claimEarnedReward(IUniswapV2Pair pair) public returns (bool res) {
+        /// Compute earned rewards (GGT tokens) and Distribute them into a staker
+        uint earnedReward = _computeEarnedReward(pair);
+
+        /// Mint GGT tokens as rewards for a staker
+        GGTToken.mint(msg.sender, earnedReward);
+    }
+    
+    /***
+     * @notice - un-stake LP tokens with earned rewards (GGT tokens)
+     * @dev - Caller (msg.sender) is a staker
+     **/
+    function unStakeLPToken(IUniswapV2Pair pair, uint lpTokenAmountUnStaked) public returns (bool) {
         address PAIR = address(pair);
 
         /// Caluculate earned rewards amount (Unit is "GLMP" (GLM Pool Token))
         // uint earnedRewardsAmount;   /// [Todo]: Add the calculation logic <-- This is fees calculation of UniswapV2
-        // uint totalLPTokenAmountWithdrawn = lpTokenAmountWithdrawn.add(earnedRewardsAmount);
+        // uint totalLPTokenAmountWithdrawn = lpTokenAmountUnStaked.add(earnedRewardsAmount);
 
         if (pair.token0() == WETH_TOKEN || pair.token1() == WETH_TOKEN) {
             /// Burn GLM Pool Token and Transfer GLM token and ETH + fees earned (into a staker)
-            _redeemWithETH(msg.sender, pair, lpTokenAmountWithdrawn);
+            _redeemWithETH(msg.sender, pair, lpTokenAmountUnStaked);
+
+            /// Compute earned reward (GGT tokens) and Distribute them into staker
+            claimEarnedReward(pair);
         } else {
             /// Burn GLM Pool Token and Transfer GLM token and ERC20 + fees earned (into a staker)
-            _redeemWithERC20(msg.sender, pair, lpTokenAmountWithdrawn);
+            _redeemWithERC20(msg.sender, pair, lpTokenAmountUnStaked);
+            
+            /// Compute earned reward (GGT tokens) and Distribute them into staker
+            claimEarnedReward(pair);
         }
     }
 
-    function _redeemWithERC20(address staker, IUniswapV2Pair pair, uint lpTokenAmountWithdrawn) internal returns (bool) {
+    function _redeemWithERC20(address staker, IUniswapV2Pair pair, uint lpTokenAmountUnStaked) internal returns (bool) {
         address PAIR = address(pair);
 
         /// Burn GLM Pool Token
-        glmPoolToken.burn(staker, lpTokenAmountWithdrawn);
+        glmPoolToken.burn(staker, lpTokenAmountUnStaked);
 
         /// Remove liquidity that a staker was staked
         uint GLMTokenAmount;
@@ -375,7 +374,7 @@ contract GLMStakePool is GLMStakePoolStorages {
         uint deadline = now.add(15 seconds);
         (GLMTokenAmount, ERC20Amount) = uniswapV2Router02.removeLiquidity(GLM_TOKEN, 
                                                                           pair.token1(), 
-                                                                          lpTokenAmountWithdrawn,
+                                                                          lpTokenAmountUnStaked,
                                                                           GLMTokenMin,
                                                                           ERC20AmountMin,
                                                                           to,
@@ -386,11 +385,11 @@ contract GLMStakePool is GLMStakePoolStorages {
         IERC20(pair.token1()).transfer(staker, ERC20Amount);       
     }
 
-    function _redeemWithETH(address payable staker, IUniswapV2Pair pair, uint lpTokenAmountWithdrawn) internal returns (bool) {
+    function _redeemWithETH(address payable staker, IUniswapV2Pair pair, uint lpTokenAmountUnStaked) internal returns (bool) {
         address PAIR = address(pair);
 
         /// Burn GLM Pool Token
-        glmPoolToken.burn(staker, lpTokenAmountWithdrawn);
+        glmPoolToken.burn(staker, lpTokenAmountUnStaked);
 
         /// Remove liquidity that a staker was staked
         uint GLMTokenAmount;
@@ -400,7 +399,7 @@ contract GLMStakePool is GLMStakePoolStorages {
         address to = staker;
         uint deadline = now.add(15 seconds);
         (GLMTokenAmount, ETHAmount) = uniswapV2Router02.removeLiquidityETH(GLM_TOKEN, 
-                                                                           lpTokenAmountWithdrawn, 
+                                                                           lpTokenAmountUnStaked, 
                                                                            GLMTokenMin, 
                                                                            ETHAmountMin, 
                                                                            to, 
@@ -412,7 +411,55 @@ contract GLMStakePool is GLMStakePoolStorages {
         /// Transfer GLM token and ETH + fees earned (into a staker)
         GLMToken.transfer(staker, GLMTokenAmount); 
         staker.transfer(ETHAmount);       
-    }    
+    }
+
+
+    ///--------------------------------------------------------
+    /// GGT (Golem Reward Token) is given to stakers
+    ///--------------------------------------------------------
+
+    /***
+     * @notice - Compute earned rewards that is GGT tokens (Golem Governance Token)
+     * @dev - [idea v1]: Reward is given to each stakers every block (every 15 seconds) and depends on share of pool
+     * @dev - [idea v2]: Reward is given to each stakers by using the fixed-rewards-rate (10%)
+     *                   => There is the locked-period (7 days) as minimum staking-term.
+     **/
+    function _computeEarnedReward(IUniswapV2Pair pair) internal returns (uint _earnedReward) {
+        Staker memory staker = stakers[msg.sender];
+        uint8[] memory _stakeIds = staker.stakeIds;
+        uint totalIndividualStakedGLMAmount;
+
+        for (uint8 i=0; i < _stakeIds.length; i++) {
+            uint8 stakeId = i;
+
+            StakeData memory stakeData = stakeDatas[stakeId];
+            IUniswapV2Pair _pair = stakeData.lpToken; 
+            //uint _stakedLPTokenAmount = stakeData.stakedLPTokenAmount;  /// [Note]: But, this amount is "LP tokens amount". Not "GLM tokens" amount. Therefore, I need to extract only staked GLM tokens amount
+            uint stakedGLMAmount = stakeData.stakedGLMAmount;
+
+            totalIndividualStakedGLMAmount.add(stakedGLMAmount);
+        }
+
+        /// Identify each staker's share of pool
+        uint SHARE_OF_POOL = totalIndividualStakedGLMAmount.div(totalStakedGLMAmount);
+
+        /// Compute total staked GLM tokens amount per a week (7days)
+        weeklyTotalStakedGLMAmount = totalStakedGLMAmount.sub(lastTotalStakedGLMAmount);
+
+        /// Formula for computing earned rewards (GGT tokens)
+        uint earnedReward = weeklyTotalStakedGLMAmount.mul(REWARD_RATE).div(100).mul(SHARE_OF_POOL).div(100);
+
+        return earnedReward;
+    }
+
+    /***
+     * @notice - Update total staked amount until last week
+     **/
+    function _updateLastTotalStakedGLMAmount() internal returns (bool) {
+        lastTotalStakedGLMAmount = totalStakedGLMAmount;
+    }
+    
+    
 
 
     ///-------------------

@@ -11,7 +11,7 @@ import { IUniswapV2Pair } from "../../uniswap-v2/uniswap-v2-core/interfaces/IUni
 contract GLMStakePoolObjects {
 
     // Info of each staker
-    struct Staker {      /// [Key]: LP token address -> staker address
+    struct Staker {      /// [Key]: stake's address
         uint8[] stakeIds;  /// Stake IDs which this staker was staked are stored into this array 
 
         uint amount;     // How many LP tokens the user has provided.
@@ -20,12 +20,15 @@ contract GLMStakePoolObjects {
     }
 
     /// Info of stake
-    struct StakeData {   ///  [Key]: Stake ID
+    struct StakeData {  /// [Key]: Stake ID
         address staker;
-        IUniswapV2Pair lpToken;  // Address of LP token contract.
-        uint stakedLPTokenAmount;     // How many LP tokens the user has provided.
-        uint startBlock;  /// Start block (block.number) when a starker staked
-        uint shareOfPool; /// Share of pool (%)
+        IUniswapV2Pair lpToken;      /// Address of LP token contract.
+        uint stakedLPTokenAmount;    /// How many LP tokens the user has provided.
+        uint stakedGLMAmount;        /// [Todo]: reserve0 (GLM token)   from UniswapV2
+        uint stakedERC20Amount;      /// [Todo]: reserve1 (ERC20 token) from UniswapV2
+        uint stakedETHAmount;        /// [Todo]: reserve1 (ETH == WETH) from UniswapV2
+        uint startBlock;             /// Start block (block.number) when a starker staked
+        uint shareOfPool;            /// Share of pool (%)
 
         uint allocPoint;         // How many allocation points assigned to this pool. SUSHIs to distribute per block.
         uint lastRewardBlock;    // Last block number that SUSHIs distribution occurs.
