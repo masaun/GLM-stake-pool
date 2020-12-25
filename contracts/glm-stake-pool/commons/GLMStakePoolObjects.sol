@@ -24,6 +24,11 @@ contract GLMStakePoolObjects {
         address staker;
         IUniswapV2Pair lpToken;  // Address of LP token contract.
         uint stakedLPTokenAmount;     // How many LP tokens the user has provided.
+
+        uint stakedGLMTokenAmount;   /// [Todo]: reserve0 (GLM token)
+        uint stakedERC20Amount;      /// [Todo]: reserve1 (ERC20 token)
+        uint stakedETHAmount;        /// [Todo]: reserve1 (ETH == WETH)
+
         uint startBlock;  /// Start block (block.number) when a starker staked
         uint shareOfPool; /// Share of pool (%)
 
