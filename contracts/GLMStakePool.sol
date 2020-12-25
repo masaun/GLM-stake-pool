@@ -251,6 +251,23 @@ contract GLMStakePool is GLMStakePoolStorages {
         /// Stake LP tokens into this pool contract
         pair.transferFrom(msg.sender, address(this), lpTokenAmount);
 
+        /// Get reserve0 and reserve1
+        uint112 reserve0;  /// GLM token amount
+        uint112 reserve1;  /// ERC20 token or ETH (WETH) amount
+        uint32 blockTimestampLast;
+        (reserve0, reserve1, blockTimestampLast) = pair.getReserves();
+
+        uint stakedGLMAmount = uint256(reserve0);
+        totalStakedGLMAmount.add(stakedGLMAmount); 
+
+        uint stakedERC20Amount;        /// reserve1 (ERC20 token) from UniswapV2
+        uint stakedETHAmount;          /// reserve1 (ETH == WETH) from UniswapV2
+        if (pair.token0() == WETH_TOKEN || pair.token1() == WETH_TOKEN) {
+            stakedETHAmount = uint256(reserve1);
+        } else {
+            stakedERC20Amount = uint256(reserve1);
+        }
+
         /// Register staker's data
         uint8 newStakeId = getNextStakeId();
         currentStakeId++;        
@@ -258,6 +275,9 @@ contract GLMStakePool is GLMStakePoolStorages {
         stakeData.staker = msg.sender;
         stakeData.lpToken = pair;
         stakeData.stakedLPTokenAmount = lpTokenAmount;
+        stakeData.stakedGLMAmount = stakedGLMAmount;       /// reserve0 (GLM token)   from UniswapV2
+        stakeData.stakedERC20Amount = stakedERC20Amount;   /// reserve1 (ERC20 token) from UniswapV2
+        stakeData.stakedETHAmount = stakedETHAmount;       /// reserve1 (ETH == WETH) from UniswapV2
         stakeData.startBlock = block.number;
 
         /// Staker is added into stakers list
@@ -268,10 +288,6 @@ contract GLMStakePool is GLMStakePoolStorages {
         staker.stakeIds.push(newStakeId);
 
         /// Add LP token amount to the total GLM token amount
-        uint112 reserve0;  /// GLM token amount
-        uint112 reserve1;  /// ERC20 token or ETH (WETH) amount
-        uint32 blockTimestampLast;
-        (reserve0, reserve1, blockTimestampLast) = pair.getReserves();
         totalStakedGLMAmount.add(uint256(reserve0)); 
 
     }
@@ -422,7 +438,7 @@ contract GLMStakePool is GLMStakePoolStorages {
             StakeData memory stakeData = stakeDatas[stakeId];
             IUniswapV2Pair _pair = stakeData.lpToken; 
             //uint _stakedLPTokenAmount = stakeData.stakedLPTokenAmount;  /// [Note]: But, this amount is "LP tokens amount". Not "GLM tokens" amount. Therefore, I need to extract only staked GLM tokens amount
-            uint stakedGLMTokenAmount = stakeData.stakedGLMTokenAmount;
+            uint stakedGLMAmount = stakeData.stakedGLMAmount;
 
             /// [Todo]: Calculation
         }

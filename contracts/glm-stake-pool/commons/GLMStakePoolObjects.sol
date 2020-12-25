@@ -20,17 +20,15 @@ contract GLMStakePoolObjects {
     }
 
     /// Info of stake
-    struct StakeData {   ///  [Key]: Stake ID
+    struct StakeData {  /// [Key]: Stake ID
         address staker;
-        IUniswapV2Pair lpToken;  // Address of LP token contract.
-        uint stakedLPTokenAmount;     // How many LP tokens the user has provided.
-
-        uint stakedGLMTokenAmount;   /// [Todo]: reserve0 (GLM token)
-        uint stakedERC20Amount;      /// [Todo]: reserve1 (ERC20 token)
-        uint stakedETHAmount;        /// [Todo]: reserve1 (ETH == WETH)
-
-        uint startBlock;  /// Start block (block.number) when a starker staked
-        uint shareOfPool; /// Share of pool (%)
+        IUniswapV2Pair lpToken;      /// Address of LP token contract.
+        uint stakedLPTokenAmount;    /// How many LP tokens the user has provided.
+        uint stakedGLMAmount;        /// [Todo]: reserve0 (GLM token)   from UniswapV2
+        uint stakedERC20Amount;      /// [Todo]: reserve1 (ERC20 token) from UniswapV2
+        uint stakedETHAmount;        /// [Todo]: reserve1 (ETH == WETH) from UniswapV2
+        uint startBlock;             /// Start block (block.number) when a starker staked
+        uint shareOfPool;            /// Share of pool (%)
 
         uint allocPoint;         // How many allocation points assigned to this pool. SUSHIs to distribute per block.
         uint lastRewardBlock;    // Last block number that SUSHIs distribution occurs.
