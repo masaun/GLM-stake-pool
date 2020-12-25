@@ -1,10 +1,10 @@
 pragma solidity ^0.5.16;
 pragma experimental ABIEncoderV2;
 
-import { GRTStakePoolObjects } from "./GRTStakePoolObjects.sol";
+import { GGTStakePoolObjects } from "./GGTStakePoolObjects.sol";
 
 
-contract GRTStakePoolStorages is GRTStakePoolObjects {
+contract GGTStakePoolStorages is GGTStakePoolObjects {
 
     // Info of each user that stakes LP tokens.
     mapping (uint8 => Staker) public stakers;  /// [Key]: stake ID

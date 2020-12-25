@@ -6,11 +6,11 @@ import { ERC20Detailed } from "@openzeppelin/contracts/token/ERC20/ERC20Detailed
 
 
 /***
- * @title - Golem Reward Token contract
+ * @title - Golem Governance Token (GGT) contract
  **/
-contract GolemRewardToken is ERC20, ERC20Detailed {
+contract GolemGovernanceToken is ERC20, ERC20Detailed {
 
-    constructor() public ERC20Detailed("Golem Reward Token", "GRT", 18) {}
+    constructor() public ERC20Detailed("Golem Governance Token", "GGT", 18) {}
 
     function mint(address to, uint mintAmount) public returns (bool) {
         _mint(to, mintAmount);

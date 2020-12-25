@@ -13,7 +13,7 @@ const _chainId = web3.eth.getChainId();
 module.exports = async function(deployer, network, accounts) {
     await deployer.deploy(NewGolemNetworkToken, _migrationAgent, _chainId);
 
-    /// Test mint
+    /// Testing that mint GLM tokens
     const GLMToken = await NewGolemNetworkToken.deployed();
     await GLMToken.mint(accounts[0], 100);  /// [Error]: "MinterRole: caller does not have the Minter role.""
 };

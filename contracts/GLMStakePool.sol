@@ -13,8 +13,8 @@ import { NewGolemNetworkToken } from "./golem/GNT2/NewGolemNetworkToken.sol";
 /// GLM Pool Token
 import { GLMPoolToken } from "./GLMPoolToken.sol";
 
-/// GRT (Golem Reward Token)
-import { GolemRewardToken } from "./GolemRewardToken.sol";
+/// GGT (Golem Governance Token)
+import { GolemGovernanceToken } from "./GolemGovernanceToken.sol";
 
 /// WETH
 import { IWETH } from "./uniswap-v2/uniswap-v2-periphery/interfaces/IWETH.sol";
@@ -31,14 +31,14 @@ contract GLMStakePool is GLMStakePoolStorages {
 
     NewGolemNetworkToken public GLMToken;
     GLMPoolToken public glmPoolToken;
-    GolemRewardToken public  GRTToken;
+    GolemGovernanceToken public  GGTToken;
     IWETH public wETH;
     IUniswapV2Factory public uniswapV2Factory;
     IUniswapV2Router02 public uniswapV2Router02;
 
     address GLM_TOKEN;
     address GLM_POOL_TOKEN;
-    address GRT_TOKEN;
+    address GGT_TOKEN;
     address WETH_TOKEN;
     address UNISWAP_V2_FACTORY;
     address UNISWAP_V2_ROUTOR_02;
@@ -57,17 +57,17 @@ contract GLMStakePool is GLMStakePoolStorages {
     uint REWARD_RATE = 10;  /// Default fixed-rewards-rate is 10%
 
 
-    constructor(NewGolemNetworkToken _GLMToken, GLMPoolToken _glmPoolToken, GolemRewardToken _GRTToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
+    constructor(NewGolemNetworkToken _GLMToken, GLMPoolToken _glmPoolToken, GolemGovernanceToken _GGTToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
         GLMToken = _GLMToken;
         glmPoolToken = _glmPoolToken;
-        GRTToken = _GRTToken;
+        GGTToken = _GGTToken;
         wETH = IWETH(uniswapV2Router02.WETH());
         uniswapV2Factory = _uniswapV2Factory;
         uniswapV2Router02 = _uniswapV2Router02;
 
         GLM_TOKEN = address(_GLMToken);
         GLM_POOL_TOKEN = address(_glmPoolToken);
-        GRT_TOKEN = address(_GRTToken);
+        GGT_TOKEN = address(_GGTToken);
         WETH_TOKEN = address(uniswapV2Router02.WETH());
         UNISWAP_V2_FACTORY = address(_uniswapV2Factory);
         UNISWAP_V2_ROUTOR_02 = address(_uniswapV2Router02);
@@ -278,11 +278,11 @@ contract GLMStakePool is GLMStakePoolStorages {
 
 
     ///--------------------------------------------------------
-    /// GRT (Golem Reward Token) is given to stakers
+    /// GGT (Golem Reward Token) is given to stakers
     ///--------------------------------------------------------
 
     /***
-     * @notice - Compute GRT (Golem Reward Token) as rewards
+     * @notice - Compute GGT (Golem Reward Token) as rewards
      * @dev - [idea v1]: Reward is given to each stakers every block (every 15 seconds) and depends on share of pool
      * @dev - [idea v2]: Reward is given to each stakers by using the fixed-rewards-rate (10%)
      *                   => There is the locked-period (7 days) as minimum staking-term.
@@ -293,9 +293,9 @@ contract GLMStakePool is GLMStakePoolStorages {
 
         uint earnedReward = weeklyTotalStakedGLMAmount.mul(REWARD_RATE).div(100);
 
-        /// Mint GRT tokens which is equal amount to earned reward amount
-        GRTToken.mint(address(this), earnedReward);
-        //GRTToken.mint(staker, earnedReward);
+        /// Mint GGT tokens which is equal amount to earned reward amount
+        GGTToken.mint(address(this), earnedReward);
+        //GGTToken.mint(staker, earnedReward);
 
         /// Distribute rewards into all stakers 
         /// (Note: Distribution term is every 7 days. And)
@@ -303,18 +303,18 @@ contract GLMStakePool is GLMStakePoolStorages {
             /// Staker
             address staker = stakersList[i];
 
-            /// Total GRT tokens amount in this contract
-            uint GRTbalance = GRTToken.balanceOf(address(this));
+            /// Total GGT tokens amount in this contract
+            uint GGTbalance = GGTToken.balanceOf(address(this));
 
             /// [Todo]: Identify each staker's share of pool
             //uint shareOfPool = stakedAmount.div(totalStakedAmount);
-            //uint distributedGRTAmount = GRTbalance.mul(shareOfPool).div(100);  /// [Note]: Assuming each staker has more than 1% of share of pool 
+            //uint distributedGGTAmount = GGTbalance.mul(shareOfPool).div(100);  /// [Note]: Assuming each staker has more than 1% of share of pool 
 
-            /// Distribute GRT tokens amount are uniform amount which is divided by the number of stakers
-            uint distributedGRTAmount = GRTbalance.div(stakersList.length);
+            /// Distribute GGT tokens amount are uniform amount which is divided by the number of stakers
+            uint distributedGGTAmount = GGTbalance.div(stakersList.length);
 
-            /// Distribute GRT tokens (earned reward)
-            GRTToken.transfer(staker, distributedGRTAmount);
+            /// Distribute GGT tokens (earned reward)
+            GGTToken.transfer(staker, distributedGGTAmount);
         }
     }
 
