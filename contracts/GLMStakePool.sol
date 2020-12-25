@@ -45,8 +45,9 @@ contract GLMStakePool is GLMStakePoolStorages {
 
     uint8 public currentStakeId;
 
-    uint totalStakedGLMAmount;      /// Total staked GLM tokens amount during whole period
-    uint lastTotalStakeGLMAmount;   /// Total staked GLM tokens amount until last week
+    uint totalStakedGLMAmount;        /// Total staked GLM tokens amount during whole period
+    uint lastTotalStakeGLMAmount;     /// Total staked GLM tokens amount until last week
+    uint weeklyTotalStakedGLMAmount;  /// Total staked GLM tokens amount during recent week
 
     uint startBlock;
     uint currentBlock;
@@ -288,7 +289,7 @@ contract GLMStakePool is GLMStakePoolStorages {
      **/
     function computeReward(IUniswapV2Pair pair) public returns (bool) {
         /// [Todo]: Compute total staked GLM tokens amount per a week (7days)
-        uint weeklyTotalStakedGLMAmount = totalStakedGLMAmount.sub(lastTotalStakeGLMAmount);
+        weeklyTotalStakedGLMAmount = totalStakedGLMAmount.sub(lastTotalStakeGLMAmount);
 
         uint earnedReward = weeklyTotalStakedGLMAmount.mul(REWARD_RATE).div(100);
 
@@ -325,7 +326,7 @@ contract GLMStakePool is GLMStakePoolStorages {
         currentBlock = block.number;
 
         if (currentBlock > lastBlock) {
-            require (currentBlock > lastBlock, "Block number is still in the same period");
+            require (currentBlock > lastBlock, "Block number is still in the last period");
 
             /// Update next block number
             lastBlock = currentBlock.add(604800);  /// Plus 1 week (604800 seconds)
