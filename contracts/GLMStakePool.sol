@@ -7,11 +7,14 @@ import { GLMStakePoolStorages } from "./glm-stake-pool/commons/GLMStakePoolStora
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
-/// Golem
+/// GLM Token
 import { NewGolemNetworkToken } from "./golem/GNT2/NewGolemNetworkToken.sol";
 
 /// GLM Pool Token
 import { GLMPoolToken } from "./GLMPoolToken.sol";
+
+/// GGT (Golem Governance Token)
+import { GolemGovernanceToken } from "./GolemGovernanceToken.sol";
 
 /// WETH
 import { IWETH } from "./uniswap-v2/uniswap-v2-periphery/interfaces/IWETH.sol";
@@ -26,32 +29,51 @@ import { IUniswapV2Pair } from "./uniswap-v2/uniswap-v2-core/interfaces/IUniswap
 contract GLMStakePool is GLMStakePoolStorages {
     using SafeMath for uint;
 
-    GLMPoolToken public glmPoolToken;
     NewGolemNetworkToken public GLMToken;
+    GLMPoolToken public glmPoolToken;
+    GolemGovernanceToken public  GGTToken;
     IWETH public wETH;
     IUniswapV2Factory public uniswapV2Factory;
     IUniswapV2Router02 public uniswapV2Router02;
 
     address GLM_TOKEN;
     address GLM_POOL_TOKEN;
+    address GGT_TOKEN;
     address WETH_TOKEN;
     address UNISWAP_V2_FACTORY;
     address UNISWAP_V2_ROUTOR_02;
 
     uint8 public currentStakeId;
 
-    constructor(NewGolemNetworkToken _GLMToken, GLMPoolToken _glmPoolToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
+    uint totalStakedGLMAmount;        /// Total staked GLM tokens amount during whole period
+    uint lastTotalStakeGLMAmount;     /// Total staked GLM tokens amount until last week
+    uint weeklyTotalStakedGLMAmount;  /// Total staked GLM tokens amount during recent week
+
+    uint startBlock;
+    uint currentBlock;
+    uint lastBlock;
+
+    /// [Note]: Current rewards rate is accept the fixed-rate that is set up by admin
+    uint REWARD_RATE = 10;  /// Default fixed-rewards-rate is 10%
+
+
+    constructor(NewGolemNetworkToken _GLMToken, GLMPoolToken _glmPoolToken, GolemGovernanceToken _GGTToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
         GLMToken = _GLMToken;
         glmPoolToken = _glmPoolToken;
+        GGTToken = _GGTToken;
         wETH = IWETH(uniswapV2Router02.WETH());
         uniswapV2Factory = _uniswapV2Factory;
         uniswapV2Router02 = _uniswapV2Router02;
 
         GLM_TOKEN = address(_GLMToken);
         GLM_POOL_TOKEN = address(_glmPoolToken);
+        GGT_TOKEN = address(_GGTToken);
         WETH_TOKEN = address(uniswapV2Router02.WETH());
         UNISWAP_V2_FACTORY = address(_uniswapV2Factory);
         UNISWAP_V2_ROUTOR_02 = address(_uniswapV2Router02);
+
+        startBlock = block.number;
+        lastBlock = block.number;
     }
 
 
@@ -236,7 +258,82 @@ contract GLMStakePool is GLMStakePoolStorages {
         stakeData.staker = msg.sender;
         stakeData.lpToken = pair;
         stakeData.stakedLPTokenAmount = lpTokenAmount;
+        stakeData.startBlock = block.number;
+
+        /// Staker is added into stakers list
+        stakersList.push(msg.sender);
+
+        /// Save stake ID
+        Staker storage staker = stakers[msg.sender];
+        staker.stakeIds.push(newStakeId);
+
+        /// Add LP token amount to the total GLM token amount
+        uint112 reserve0;  /// GLM token amount
+        uint112 reserve1;  /// ERC20 token or ETH (WETH) amount
+        uint32 blockTimestampLast;
+        (reserve0, reserve1, blockTimestampLast) = pair.getReserves();
+        totalStakedGLMAmount.add(uint256(reserve0)); 
+
     }
+
+
+    ///--------------------------------------------------------
+    /// GGT (Golem Reward Token) is given to stakers
+    ///--------------------------------------------------------
+
+    /***
+     * @notice - Compute GGT (Golem Reward Token) as rewards
+     * @dev - [idea v1]: Reward is given to each stakers every block (every 15 seconds) and depends on share of pool
+     * @dev - [idea v2]: Reward is given to each stakers by using the fixed-rewards-rate (10%)
+     *                   => There is the locked-period (7 days) as minimum staking-term.
+     **/
+    function computeReward(IUniswapV2Pair pair) public returns (bool) {
+        /// [Todo]: Compute total staked GLM tokens amount per a week (7days)
+        weeklyTotalStakedGLMAmount = totalStakedGLMAmount.sub(lastTotalStakeGLMAmount);
+
+        uint earnedReward = weeklyTotalStakedGLMAmount.mul(REWARD_RATE).div(100);
+
+        /// Mint GGT tokens which is equal amount to earned reward amount
+        GGTToken.mint(address(this), earnedReward);
+        //GGTToken.mint(staker, earnedReward);
+
+        /// Distribute rewards into all stakers 
+        /// (Note: Distribution term is every 7 days. And)
+        for (uint8 i=0; i < stakersList.length; i++) {
+            /// Staker
+            address staker = stakersList[i];
+
+            /// Total GGT tokens amount in this contract
+            uint GGTbalance = GGTToken.balanceOf(address(this));
+
+            /// [Todo]: Identify each staker's share of pool
+            //uint shareOfPool = stakedAmount.div(totalStakedAmount);
+            //uint distributedGGTAmount = GGTbalance.mul(shareOfPool).div(100);  /// [Note]: Assuming each staker has more than 1% of share of pool 
+
+            /// Distribute GGT tokens amount are uniform amount which is divided by the number of stakers
+            uint distributedGGTAmount = GGTbalance.div(stakersList.length);
+
+            /// Distribute GGT tokens (earned reward)
+            GGTToken.transfer(staker, distributedGGTAmount);
+        }
+    }
+
+    /***
+     * @notice - Update share of pool (%)
+     *         - Because each staker's share of pool will be changed every stake
+     **/
+    function _updateShareOfPool() internal returns (bool) {
+        currentBlock = block.number;
+
+        if (currentBlock > lastBlock) {
+            require (currentBlock > lastBlock, "Block number is still in the last period");
+
+            /// Update next block number
+            lastBlock = currentBlock.add(604800);  /// Plus 1 week (604800 seconds)
+        }
+
+    }
+    
 
 
     ///---------------------------------------------------

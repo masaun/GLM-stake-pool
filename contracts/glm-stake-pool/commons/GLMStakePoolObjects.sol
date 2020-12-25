@@ -12,6 +12,8 @@ contract GLMStakePoolObjects {
 
     // Info of each staker
     struct Staker {      /// [Key]: LP token address -> staker address
+        uint8[] stakeIds;  /// Stake IDs which this staker was staked are stored into this array 
+
         uint amount;     // How many LP tokens the user has provided.
         uint rewardDebt; // Reward debt. See explanation below.
         uint32 blockTimestamp;  /// Block number when a user was staked
@@ -22,6 +24,9 @@ contract GLMStakePoolObjects {
         address staker;
         IUniswapV2Pair lpToken;  // Address of LP token contract.
         uint stakedLPTokenAmount;     // How many LP tokens the user has provided.
+        uint startBlock;  /// Start block (block.number) when a starker staked
+        uint shareOfPool; /// Share of pool (%)
+
         uint allocPoint;         // How many allocation points assigned to this pool. SUSHIs to distribute per block.
         uint lastRewardBlock;    // Last block number that SUSHIs distribution occurs.
         uint accSushiPerShare;   // Accumulated SUSHIs per share, times 1e12. See below.

@@ -1,17 +1,17 @@
 pragma solidity ^0.5.16;
 pragma experimental ABIEncoderV2;
 
-import { GRTStakePoolStorages } from "./grt-stake-pool/commons/GRTStakePoolStorages.sol";
+import { GGTStakePoolStorages } from "./ggt-stake-pool/commons/GGTStakePoolStorages.sol";
 
 /// Openzeppelin v2.5.1
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
-/// Golem Reward Token
-import { GolemRewardToken } from "./GolemRewardToken.sol";
+/// Golem Governance Token
+import { GolemGovernanceToken } from "./GolemGovernanceToken.sol";
 
-/// GRT Pool Token
-import { GRTPoolToken } from "./GRTPoolToken.sol";
+/// GGT Pool Token
+import { GGTPoolToken } from "./GGTPoolToken.sol";
 
 /// WETH
 import { IWETH } from "./uniswap-v2/uniswap-v2-periphery/interfaces/IWETH.sol";
@@ -25,34 +25,34 @@ import { IUniswapV2Pair } from "./uniswap-v2/uniswap-v2-core/interfaces/IUniswap
 
 
 /***
- * @title - GRT (Golem Reward Token) Stake Pool contract
+ * @title - GGT (Golem Reward Token) Stake Pool contract
  **/
-contract GRTStakePool is GRTStakePoolStorages {
+contract GGTStakePool is GGTStakePoolStorages {
     using SafeMath for uint;
 
-    GolemRewardToken public GRTToken;
-    GRTPoolToken public grtPoolToken;
+    GolemGovernanceToken public GGTToken;
+    GGTPoolToken public ggtPoolToken;
     IWETH public wETH;
     IUniswapV2Factory public uniswapV2Factory;
     IUniswapV2Router02 public uniswapV2Router02;
 
-    address GRT_TOKEN;
-    address GRT_POOL_TOKEN;    
+    address GGT_TOKEN;
+    address GGT_POOL_TOKEN;    
     address WETH_TOKEN;
     address UNISWAP_V2_FACTORY;
     address UNISWAP_V2_ROUTOR_02;
 
     uint8 public currentStakeId;
 
-    constructor(GolemRewardToken _GRTToken, GRTPoolToken _grtPoolToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
-        GRTToken = _GRTToken;
-        grtPoolToken = _grtPoolToken;
+    constructor(GolemGovernanceToken _GGTToken, GGTPoolToken _ggtPoolToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
+        GGTToken = _GGTToken;
+        ggtPoolToken = _ggtPoolToken;
         wETH = IWETH(uniswapV2Router02.WETH());
         uniswapV2Factory = _uniswapV2Factory;
         uniswapV2Router02 = _uniswapV2Router02;
 
-        GRT_TOKEN = address(_GRTToken);
-        GRT_POOL_TOKEN = address(_grtPoolToken);
+        GGT_TOKEN = address(_GGTToken);
+        GGT_POOL_TOKEN = address(_ggtPoolToken);
         WETH_TOKEN = address(uniswapV2Router02.WETH());
         UNISWAP_V2_FACTORY = address(_uniswapV2Factory);
         UNISWAP_V2_ROUTOR_02 = address(_uniswapV2Router02);
@@ -64,66 +64,66 @@ contract GRTStakePool is GRTStakePoolStorages {
     ///---------------------------------------------------
 
     /***
-     * @notice - Create a pair (LP token) between the GRT tokens and another ERC20 tokens
-     *         - e.g). GRT/DAI, GRT/USDC
+     * @notice - Create a pair (LP token) between the GGT tokens and another ERC20 tokens
+     *         - e.g). GGT/DAI, GGT/USDC
      * @param erc20 - e.g). DAI, USDC, etc...
      **/
     function createPairWithERC20(IERC20 erc20) public returns (IUniswapV2Pair pair) {
-        address pair = uniswapV2Factory.createPair(GRT_TOKEN, address(erc20)); 
+        address pair = uniswapV2Factory.createPair(GGT_TOKEN, address(erc20)); 
         return IUniswapV2Pair(pair);
     }
 
     /***
-     * @notice - Create a pair (LP token) between the GRT tokens and ETH (GRT/ETH)
+     * @notice - Create a pair (LP token) between the GGT tokens and ETH (GGT/ETH)
      **/
     function createPairWithETH() public returns (IUniswapV2Pair pair) {
-        address pair = uniswapV2Factory.createPair(GRT_TOKEN, WETH_TOKEN);  /// [Note]: WETH is treated as ETH 
+        address pair = uniswapV2Factory.createPair(GGT_TOKEN, WETH_TOKEN);  /// [Note]: WETH is treated as ETH 
         return IUniswapV2Pair(pair);        
     }
     
 
     ///------------------------------------------------------------------------------
-    /// Add liquidity GRT tokens with ERC20 tokens (GRT/DAI, GRT/USDC, etc...)
+    /// Add liquidity GGT tokens with ERC20 tokens (GGT/DAI, GGT/USDC, etc...)
     ///------------------------------------------------------------------------------
 
     /***
-     * @notice - Add Liquidity" for a pair (LP token) between the GRT tokens and another ERC20 tokens (GRT/DAI, GRT/USDC, etc...)
+     * @notice - Add Liquidity" for a pair (LP token) between the GGT tokens and another ERC20 tokens (GGT/DAI, GGT/USDC, etc...)
      **/
 
     function addLiquidityWithERC20(
         IUniswapV2Pair pair,
-        uint GRTTokenAmountDesired,
+        uint GGTTokenAmountDesired,
         uint ERC20AmountDesired
     ) public returns (bool) {
         IERC20 erc20 = IERC20(pair.token1());
 
         /// Transfer each sourse tokens from a user
-        GRTToken.transferFrom(msg.sender, address(this), GRTTokenAmountDesired);
+        GGTToken.transferFrom(msg.sender, address(this), GGTTokenAmountDesired);
         erc20.transferFrom(msg.sender, address(this), ERC20AmountDesired);
 
         /// Check whether a pair contract exists or not
-        address pairAddress = uniswapV2Factory.getPair(GRT_TOKEN, address(erc20)); 
+        address pairAddress = uniswapV2Factory.getPair(GGT_TOKEN, address(erc20)); 
         require (pairAddress > address(0), "This pair contract has not existed yet");
 
         /// Check whether liquidity of a pair contract is enough or not
-        IUniswapV2Pair pair = IUniswapV2Pair(UniswapV2Library.pairFor(UNISWAP_V2_FACTORY, GRT_TOKEN, address(erc20)));
+        IUniswapV2Pair pair = IUniswapV2Pair(UniswapV2Library.pairFor(UNISWAP_V2_FACTORY, GGT_TOKEN, address(erc20)));
         uint totalSupply = pair.totalSupply();
         require (totalSupply > 0, "This pair's totalSupply is still 0. Please add liquidity at first");        
 
         /// Approve each tokens for UniswapV2Routor02
-        GRTToken.approve(UNISWAP_V2_ROUTOR_02, GRTTokenAmountDesired);
+        GGTToken.approve(UNISWAP_V2_ROUTOR_02, GGTTokenAmountDesired);
         erc20.approve(UNISWAP_V2_ROUTOR_02, ERC20AmountDesired);
 
         /// Add liquidity and pair
-        uint GRTTokenAmount;
+        uint GGTTokenAmount;
         uint ERC20Amount;
         uint liquidity;
-        (GRTTokenAmount, ERC20Amount, liquidity) = _addLiquidityWithERC20(erc20,
-                                                                          GRTTokenAmountDesired,
+        (GGTTokenAmount, ERC20Amount, liquidity) = _addLiquidityWithERC20(erc20,
+                                                                          GGTTokenAmountDesired,
                                                                           ERC20AmountDesired);
 
         /// Mint amount that is equal to staked LP tokens to a staker
-        grtPoolToken.mint(msg.sender, liquidity);
+        ggtPoolToken.mint(msg.sender, liquidity);
 
         /// Back LPtoken to a staker
         pair.transfer(msg.sender, liquidity);
@@ -131,46 +131,46 @@ contract GRTStakePool is GRTStakePoolStorages {
 
     function _addLiquidityWithERC20(   /// [Note]: This internal method is added for avoiding "Stack too deep" 
         IERC20 erc20,
-        uint GRTTokenAmountDesired,
+        uint GGTTokenAmountDesired,
         uint ERC20AmountDesired
-    ) internal returns (uint _GRTTokenAmount, uint _ERC20Amount, uint _liquidity) {
-        uint GRTTokenAmount;
+    ) internal returns (uint _GGTTokenAmount, uint _ERC20Amount, uint _liquidity) {
+        uint GGTTokenAmount;
         uint ERC20Amount;
         uint liquidity;
 
         /// Define each minimum amounts (range of slippage)
-        uint GRTTokenMin = GRTTokenAmountDesired.sub(1 * 1e18);  /// Slippage is allowed until -1 GRT desired
+        uint GGTTokenMin = GGTTokenAmountDesired.sub(1 * 1e18);  /// Slippage is allowed until -1 GGT desired
         uint ERC20AmountMin = ERC20AmountDesired.sub(1 * 1e18);  /// Slippage is allowed until -1 DAI desired 
 
         address to = msg.sender;
         uint deadline = now.add(15 seconds);
-        (GRTTokenAmount, ERC20Amount, liquidity) = uniswapV2Router02.addLiquidity(GRT_TOKEN,
+        (GGTTokenAmount, ERC20Amount, liquidity) = uniswapV2Router02.addLiquidity(GGT_TOKEN,
                                                                                   address(erc20),
-                                                                                  GRTTokenAmountDesired,
+                                                                                  GGTTokenAmountDesired,
                                                                                   ERC20AmountDesired,
-                                                                                  GRTTokenMin,
+                                                                                  GGTTokenMin,
                                                                                   ERC20AmountMin,
                                                                                   to,
                                                                                   deadline);
 
-        return (GRTTokenAmount, ERC20Amount, liquidity);
+        return (GGTTokenAmount, ERC20Amount, liquidity);
     }
 
 
     ///-------------------------------------------------------------------
-    /// Add Liquidity GRT tokens with ETH (GRT/ETH)
+    /// Add Liquidity GGT tokens with ETH (GGT/ETH)
     ///-------------------------------------------------------------------
 
     /***
-     * @notice - Add Liquidity for a pair (LP token) between the GRT tokens and ETH (GRT/ETH)
+     * @notice - Add Liquidity for a pair (LP token) between the GGT tokens and ETH (GGT/ETH)
      **/
 
     function addLiquidityWithETH(
         IUniswapV2Pair pair,
-        uint GRTTokenAmountDesired
+        uint GGTTokenAmountDesired
     ) public payable returns (bool) {
-        /// Transfer GRT tokens and ETH from a user
-        GRTToken.transferFrom(msg.sender, address(this), GRTTokenAmountDesired);
+        /// Transfer GGT tokens and ETH from a user
+        GGTToken.transferFrom(msg.sender, address(this), GGTTokenAmountDesired);
         uint ETHAmountDesired = msg.value;
 
         /// Convert ETH (msg.value) to WETH (ERC20) 
@@ -178,14 +178,14 @@ contract GRTStakePool is GRTStakePoolStorages {
         wETH.deposit();
 
         /// Approve each tokens for UniswapV2Routor02
-        GRTToken.approve(UNISWAP_V2_ROUTOR_02, GRTTokenAmountDesired);
+        GGTToken.approve(UNISWAP_V2_ROUTOR_02, GGTTokenAmountDesired);
         //wETH.approve(UNISWAP_V2_ROUTOR_02, ETHAmountDesired);
 
         /// Add liquidity and pair
-        uint GRTTokenAmount;
+        uint GGTTokenAmount;
         uint ETHAmount;
         uint liquidity;
-        (GRTTokenAmount, ETHAmount, liquidity) = _addLiquidityWithETH(GRTTokenAmountDesired, ETHAmountDesired);
+        (GGTTokenAmount, ETHAmount, liquidity) = _addLiquidityWithETH(GGTTokenAmountDesired, ETHAmountDesired);
 
         /// [Todo]: Refund leftover ETH to a staker (Need to identify how much leftover ETH of a staker) 
         //msg.sender.call.value(address(this).balance)("");
@@ -195,32 +195,32 @@ contract GRTStakePool is GRTStakePoolStorages {
     }
 
     function _addLiquidityWithETH(   /// [Note]: This internal method is added for avoiding "Stack too deep" 
-        uint GRTTokenAmountDesired,
+        uint GGTTokenAmountDesired,
         uint ETHAmountDesired
-    ) internal returns (uint _GRTTokenAmount, uint _ETHAmount, uint _liquidity) {
-        uint GRTTokenAmount;
+    ) internal returns (uint _GGTTokenAmount, uint _ETHAmount, uint _liquidity) {
+        uint GGTTokenAmount;
         uint ETHAmount;
         uint liquidity;
 
         /// Define each minimum amounts (range of slippage)
-        uint GRTTokenMin = GRTTokenAmountDesired.sub(1 * 1e18);  /// Slippage is allowed until -1 GRT desired
+        uint GGTTokenMin = GGTTokenAmountDesired.sub(1 * 1e18);  /// Slippage is allowed until -1 GGT desired
         uint ETHAmountMin = ETHAmountDesired.sub(1 * 1e18);      /// Slippage is allowed until -1 DAI desired 
 
         address to = msg.sender;
         uint deadline = now.add(15 seconds);
-        (GRTTokenAmount, ETHAmount, liquidity) = uniswapV2Router02.addLiquidityETH(GRT_TOKEN,
-                                                                                   GRTTokenAmountDesired,
-                                                                                   GRTTokenMin,
+        (GGTTokenAmount, ETHAmount, liquidity) = uniswapV2Router02.addLiquidityETH(GGT_TOKEN,
+                                                                                   GGTTokenAmountDesired,
+                                                                                   GGTTokenMin,
                                                                                    ETHAmountMin,
                                                                                    to,
                                                                                    deadline);
 
-        return (GRTTokenAmount, ETHAmount, liquidity);
+        return (GGTTokenAmount, ETHAmount, liquidity);
     }
 
 
     ///-------------------------------------------------------------
-    /// Stake LP tokens of GRT/ERC20 or GRT/ETH into the GRT pool
+    /// Stake LP tokens of GGT/ERC20 or GGT/ETH into the GGT pool
     ///-------------------------------------------------------------
 
     function stakeLPToken(IUniswapV2Pair pair, uint lpTokenAmount) public returns (bool) {
@@ -249,10 +249,10 @@ contract GRTStakePool is GRTStakePoolStorages {
         address PAIR = address(pair);
 
         if (pair.token0() == WETH_TOKEN || pair.token1() == WETH_TOKEN) {
-            /// Transfer GRT token and ETH + fees earned (into a staker)
+            /// Transfer GGT token and ETH + fees earned (into a staker)
             _redeemWithETH(msg.sender, pair, lpTokenAmountWithdrawn);
         } else {
-            /// Transfer GRT token and ERC20 + fees earned (into a staker)
+            /// Transfer GGT token and ERC20 + fees earned (into a staker)
             _redeemWithERC20(msg.sender, pair, lpTokenAmountWithdrawn);
         }
     }
@@ -260,45 +260,45 @@ contract GRTStakePool is GRTStakePoolStorages {
     function _redeemWithERC20(address staker, IUniswapV2Pair pair, uint lpTokenAmountWithdrawn) internal returns (bool) {
         address PAIR = address(pair);
 
-        /// Burn GRT Pool Token
-        grtPoolToken.burn(staker, lpTokenAmountWithdrawn);
+        /// Burn GGT Pool Token
+        ggtPoolToken.burn(staker, lpTokenAmountWithdrawn);
 
         /// Remove liquidity that a staker was staked
-        uint GRTTokenAmount;
+        uint GGTTokenAmount;
         uint ERC20Amount;
-        uint GRTTokenMin = 0;
+        uint GGTTokenMin = 0;
         uint ERC20AmountMin = 0;
         address to = staker;
         uint deadline = now.add(15 seconds);
-        (GRTTokenAmount, ERC20Amount) = uniswapV2Router02.removeLiquidity(GRT_TOKEN, 
+        (GGTTokenAmount, ERC20Amount) = uniswapV2Router02.removeLiquidity(GGT_TOKEN, 
                                                                           pair.token1(), 
                                                                           lpTokenAmountWithdrawn,
-                                                                          GRTTokenMin,
+                                                                          GGTTokenMin,
                                                                           ERC20AmountMin,
                                                                           to,
                                                                           deadline);
 
-        /// Transfer GRT token and ERC20 + fees earned (into a staker)
-        GRTToken.transfer(staker, GRTTokenAmount); 
+        /// Transfer GGT token and ERC20 + fees earned (into a staker)
+        GGTToken.transfer(staker, GGTTokenAmount); 
         IERC20(pair.token1()).transfer(staker, ERC20Amount);       
     }
 
     function _redeemWithETH(address payable staker, IUniswapV2Pair pair, uint lpTokenAmountWithdrawn) internal returns (bool) {
         address PAIR = address(pair);
 
-        /// Burn GRT Pool Token
-        grtPoolToken.burn(staker, lpTokenAmountWithdrawn);
+        /// Burn GGT Pool Token
+        ggtPoolToken.burn(staker, lpTokenAmountWithdrawn);
 
         /// Remove liquidity that a staker was staked
-        uint GRTTokenAmount;
+        uint GGTTokenAmount;
         uint ETHAmount;         /// WETH
-        uint GRTTokenMin = 0;
+        uint GGTTokenMin = 0;
         uint ETHAmountMin = 0;  /// WETH
         address to = staker;
         uint deadline = now.add(15 seconds);
-        (GRTTokenAmount, ETHAmount) = uniswapV2Router02.removeLiquidityETH(GRT_TOKEN, 
+        (GGTTokenAmount, ETHAmount) = uniswapV2Router02.removeLiquidityETH(GGT_TOKEN, 
                                                                            lpTokenAmountWithdrawn, 
-                                                                           GRTTokenMin, 
+                                                                           GGTTokenMin, 
                                                                            ETHAmountMin, 
                                                                            to, 
                                                                            deadline);
@@ -306,8 +306,8 @@ contract GRTStakePool is GRTStakePoolStorages {
         /// Convert WETH to ETH
         wETH.withdraw(ETHAmount);
 
-        /// Transfer GRT token and ETH + fees earned (into a staker)
-        GRTToken.transfer(staker, GRTTokenAmount); 
+        /// Transfer GGT token and ETH + fees earned (into a staker)
+        GGTToken.transfer(staker, GGTTokenAmount); 
         staker.transfer(ETHAmount);       
     }
 

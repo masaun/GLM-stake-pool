@@ -8,7 +8,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IUniswapV2Pair } from "../../uniswap-v2/uniswap-v2-core/interfaces/IUniswapV2Pair.sol";
 
 
-contract GRTStakePoolObjects {
+contract GGTStakePoolObjects {
 
     // Info of each staker
     struct Staker {      /// [Key]: LP token address -> staker address
@@ -27,7 +27,7 @@ contract GRTStakePoolObjects {
         uint accSushiPerShare;   // Accumulated SUSHIs per share, times 1e12. See below.
     }
 
-    // Info of each pool. (GRT/ETH, GRT/ERC20)
+    // Info of each pool. (GGT/ETH, GGT/ERC20)
     struct Pool {       /// [Key]: LP token address
         IUniswapV2Pair lpToken;  // Address of LP token contract.
         uint allocPoint;         // How many allocation points assigned to this pool. SUSHIs to distribute per block.
