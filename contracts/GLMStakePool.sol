@@ -277,46 +277,9 @@ contract GLMStakePool is GLMStakePoolStorages {
     }
 
 
-    ///--------------------------------------------------------
-    /// GGT (Golem Reward Token) is given to stakers
-    ///--------------------------------------------------------
-
-    /***
-     * @notice - Compute GGT (Golem Governance Token) as rewards
-     * @dev - [idea v1]: Reward is given to each stakers every block (every 15 seconds) and depends on share of pool
-     * @dev - [idea v2]: Reward is given to each stakers by using the fixed-rewards-rate (10%)
-     *                   => There is the locked-period (7 days) as minimum staking-term.
-     **/
-    function computeReward(IUniswapV2Pair pair) public returns (bool) {
-        /// [Todo]: Compute total staked GLM tokens amount per a week (7days)
-        weeklyTotalStakedGLMAmount = totalStakedGLMAmount.sub(lastTotalStakedGLMAmount);
-
-        uint earnedReward = weeklyTotalStakedGLMAmount.mul(REWARD_RATE).div(100);
-
-        /// Mint GGT tokens which is equal amount to earned reward amount
-        GGTToken.mint(address(this), earnedReward);
-        //GGTToken.mint(staker, earnedReward);
-
-        /// Distribute rewards into all stakers 
-        /// (Note: Distribution term is every 7 days. And)
-        for (uint8 i=0; i < stakersList.length; i++) {
-            /// Staker
-            address staker = stakersList[i];
-
-            /// Total GGT tokens amount in this contract
-            uint GGTbalance = GGTToken.balanceOf(address(this));
-
-            /// [Todo]: Identify each staker's share of pool
-            //uint shareOfPool = stakedAmount.div(totalStakedAmount);
-            //uint distributedGGTAmount = GGTbalance.mul(shareOfPool).div(100);  /// [Note]: Assuming each staker has more than 1% of share of pool 
-
-            /// Distribute GGT tokens amount are uniform amount which is divided by the number of stakers
-            uint distributedGGTAmount = GGTbalance.div(stakersList.length);
-
-            /// Distribute GGT tokens (earned reward)
-            GGTToken.transfer(staker, distributedGGTAmount);
-        }
-    }
+    ///---------------------------------------------------
+    /// Regular update of pool status
+    ///---------------------------------------------------
 
     /***
      * @notice - Update pool status weekly (every week)
@@ -339,22 +302,6 @@ contract GLMStakePool is GLMStakePoolStorages {
         }
 
     }
-    
-    /***
-     * @notice - Update share of pool (%) weekly. (7 days)
-     *         - Because each staker's share of pool will be changed every stake
-     **/
-    function _updateShareOfPool() internal returns (bool) {
-        /// [Todo]: Add a logic
-    }
-
-    /***
-     * @notice - Update total staked amount until last week
-     **/
-    function _updateLastTotalStakedGLMAmount() internal returns (bool) {
-        lastTotalStakedGLMAmount = totalStakedGLMAmount;
-    }
-    
 
 
     ///---------------------------------------------------
@@ -365,12 +312,14 @@ contract GLMStakePool is GLMStakePoolStorages {
      * @notice - Claim rewards (Not include staked LP tokens)
      * @dev - Caller (msg.sender) is a staker
      **/
-    function claimReward(IUniswapV2Pair pair) returns(bool res) {
+    function claimReward(IUniswapV2Pair pair) public returns (bool res) {
         if (pair.token0() == WETH_TOKEN || pair.token1() == WETH_TOKEN) {
             /// [Todo]: Compute rewards (GGT tokens) amount
+            address staker = msg.sender;
+            uint rewardAmount = _computeReward(pair);
 
             /// Only redeem rewards amount with GGT tokens
-            GGTToken.transfer(msg.sender, rewardAmount);
+            GGTToken.transfer(staker, rewardAmount);
         }
     }
     
@@ -446,7 +395,67 @@ contract GLMStakePool is GLMStakePoolStorages {
         /// Transfer GLM token and ETH + fees earned (into a staker)
         GLMToken.transfer(staker, GLMTokenAmount); 
         staker.transfer(ETHAmount);       
-    }    
+    }
+
+
+    ///--------------------------------------------------------
+    /// GGT (Golem Reward Token) is given to stakers
+    ///--------------------------------------------------------
+
+    /***
+     * @notice - Compute GGT (Golem Governance Token) as rewards
+     * @dev - [idea v1]: Reward is given to each stakers every block (every 15 seconds) and depends on share of pool
+     * @dev - [idea v2]: Reward is given to each stakers by using the fixed-rewards-rate (10%)
+     *                   => There is the locked-period (7 days) as minimum staking-term.
+     **/
+    function _computeReward(IUniswapV2Pair pair) internal returns (bool) {
+        /// [Todo]: Compute total staked GLM tokens amount per a week (7days)
+        weeklyTotalStakedGLMAmount = totalStakedGLMAmount.sub(lastTotalStakedGLMAmount);
+
+        uint earnedReward = weeklyTotalStakedGLMAmount.mul(REWARD_RATE).div(100);
+
+        /// Mint GGT tokens which is equal amount to earned reward amount
+        GGTToken.mint(address(this), earnedReward);
+        //GGTToken.mint(staker, earnedReward);
+
+        /// Distribute rewards into all stakers 
+        /// (Note: Distribution term is every 7 days. And)
+        for (uint8 i=0; i < stakersList.length; i++) {
+            /// Staker
+            address staker = stakersList[i];
+
+            /// Total GGT tokens amount in this contract
+            uint GGTbalance = GGTToken.balanceOf(address(this));
+
+            /// [Todo]: Identify each staker's share of pool
+            //uint shareOfPool = stakedAmount.div(totalStakedAmount);
+            //uint distributedGGTAmount = GGTbalance.mul(shareOfPool).div(100);  /// [Note]: Assuming each staker has more than 1% of share of pool 
+
+            /// Distribute GGT tokens amount are uniform amount which is divided by the number of stakers
+            uint distributedGGTAmount = GGTbalance.div(stakersList.length);
+
+            /// Distribute GGT tokens (earned reward)
+            GGTToken.transfer(staker, distributedGGTAmount);
+        }
+
+    }
+    
+    /***
+     * @notice - Update share of pool (%) weekly. (7 days)
+     *         - Because each staker's share of pool will be changed every stake
+     **/
+    function _updateShareOfPool() internal returns (bool) {
+        /// [Todo]: Add a logic
+    }
+
+    /***
+     * @notice - Update total staked amount until last week
+     **/
+    function _updateLastTotalStakedGLMAmount() internal returns (bool) {
+        lastTotalStakedGLMAmount = totalStakedGLMAmount;
+    }
+    
+    
 
 
     ///-------------------
