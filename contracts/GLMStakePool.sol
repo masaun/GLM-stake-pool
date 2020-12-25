@@ -322,10 +322,10 @@ contract GLMStakePool is GLMStakePoolStorages {
     }
     
     /***
-     * @notice - Withdraw staked LP tokens with earned rewards (GGT tokens)
+     * @notice - un-staked LP tokens with earned rewards (GGT tokens)
      * @dev - Caller (msg.sender) is a staker
      **/
-    function withdrawStakedLPTokenWithReward(IUniswapV2Pair pair, uint lpTokenAmountWithdrawn) public returns (bool) {
+    function unStakeLPToken(IUniswapV2Pair pair, uint lpTokenAmountWithdrawn) public returns (bool) {
         address PAIR = address(pair);
 
         /// Caluculate earned rewards amount (Unit is "GLMP" (GLM Pool Token))
