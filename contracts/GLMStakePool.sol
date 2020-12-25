@@ -322,36 +322,36 @@ contract GLMStakePool is GLMStakePoolStorages {
     }
     
     /***
-     * @notice - un-staked LP tokens with earned rewards (GGT tokens)
+     * @notice - un-stake LP tokens with earned rewards (GGT tokens)
      * @dev - Caller (msg.sender) is a staker
      **/
-    function unStakeLPToken(IUniswapV2Pair pair, uint lpTokenAmountWithdrawn) public returns (bool) {
+    function unStakeLPToken(IUniswapV2Pair pair, uint lpTokenAmountUnStaked) public returns (bool) {
         address PAIR = address(pair);
 
         /// Caluculate earned rewards amount (Unit is "GLMP" (GLM Pool Token))
         // uint earnedRewardsAmount;   /// [Todo]: Add the calculation logic <-- This is fees calculation of UniswapV2
-        // uint totalLPTokenAmountWithdrawn = lpTokenAmountWithdrawn.add(earnedRewardsAmount);
+        // uint totalLPTokenAmountWithdrawn = lpTokenAmountUnStaked.add(earnedRewardsAmount);
 
         if (pair.token0() == WETH_TOKEN || pair.token1() == WETH_TOKEN) {
             /// Burn GLM Pool Token and Transfer GLM token and ETH + fees earned (into a staker)
-            _redeemWithETH(msg.sender, pair, lpTokenAmountWithdrawn);
+            _redeemWithETH(msg.sender, pair, lpTokenAmountUnStaked);
 
             /// Compute earned reward (GGT tokens) and Distribute them into staker
             _computeEarnedReward(pair);
         } else {
             /// Burn GLM Pool Token and Transfer GLM token and ERC20 + fees earned (into a staker)
-            _redeemWithERC20(msg.sender, pair, lpTokenAmountWithdrawn);
+            _redeemWithERC20(msg.sender, pair, lpTokenAmountUnStaked);
             
             /// Compute earned reward (GGT tokens) and Distribute them into staker
             _computeEarnedReward(pair);
         }
     }
 
-    function _redeemWithERC20(address staker, IUniswapV2Pair pair, uint lpTokenAmountWithdrawn) internal returns (bool) {
+    function _redeemWithERC20(address staker, IUniswapV2Pair pair, uint lpTokenAmountUnStaked) internal returns (bool) {
         address PAIR = address(pair);
 
         /// Burn GLM Pool Token
-        glmPoolToken.burn(staker, lpTokenAmountWithdrawn);
+        glmPoolToken.burn(staker, lpTokenAmountUnStaked);
 
         /// Remove liquidity that a staker was staked
         uint GLMTokenAmount;
@@ -362,7 +362,7 @@ contract GLMStakePool is GLMStakePoolStorages {
         uint deadline = now.add(15 seconds);
         (GLMTokenAmount, ERC20Amount) = uniswapV2Router02.removeLiquidity(GLM_TOKEN, 
                                                                           pair.token1(), 
-                                                                          lpTokenAmountWithdrawn,
+                                                                          lpTokenAmountUnStaked,
                                                                           GLMTokenMin,
                                                                           ERC20AmountMin,
                                                                           to,
@@ -373,11 +373,11 @@ contract GLMStakePool is GLMStakePoolStorages {
         IERC20(pair.token1()).transfer(staker, ERC20Amount);       
     }
 
-    function _redeemWithETH(address payable staker, IUniswapV2Pair pair, uint lpTokenAmountWithdrawn) internal returns (bool) {
+    function _redeemWithETH(address payable staker, IUniswapV2Pair pair, uint lpTokenAmountUnStaked) internal returns (bool) {
         address PAIR = address(pair);
 
         /// Burn GLM Pool Token
-        glmPoolToken.burn(staker, lpTokenAmountWithdrawn);
+        glmPoolToken.burn(staker, lpTokenAmountUnStaked);
 
         /// Remove liquidity that a staker was staked
         uint GLMTokenAmount;
@@ -387,7 +387,7 @@ contract GLMStakePool is GLMStakePoolStorages {
         address to = staker;
         uint deadline = now.add(15 seconds);
         (GLMTokenAmount, ETHAmount) = uniswapV2Router02.removeLiquidityETH(GLM_TOKEN, 
-                                                                           lpTokenAmountWithdrawn, 
+                                                                           lpTokenAmountUnStaked, 
                                                                            GLMTokenMin, 
                                                                            ETHAmountMin, 
                                                                            to, 
