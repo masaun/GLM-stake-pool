@@ -329,12 +329,11 @@ contract GLMStakePool is GLMStakePoolStorages {
      * @dev - Caller (msg.sender) is a staker
      **/
     function claimEarnedReward(IUniswapV2Pair pair) public returns (bool res) {
-        if (pair.token0() == WETH_TOKEN || pair.token1() == WETH_TOKEN) {
-            address staker = msg.sender;
+        /// Compute earned rewards (GGT tokens) and Distribute them into a staker
+        uint earnedReward = _computeEarnedReward(pair);
 
-            /// [Todo]: Compute earned rewards (GGT tokens) and Distribute them into a staker
-            _computeEarnedReward(pair);
-        }
+        /// Mint GGT tokens as rewards for a staker
+        GGTToken.mint(msg.sender, earnedReward);
     }
     
     /***
@@ -353,13 +352,13 @@ contract GLMStakePool is GLMStakePoolStorages {
             _redeemWithETH(msg.sender, pair, lpTokenAmountUnStaked);
 
             /// Compute earned reward (GGT tokens) and Distribute them into staker
-            _computeEarnedReward(pair);
+            claimEarnedReward(pair);
         } else {
             /// Burn GLM Pool Token and Transfer GLM token and ERC20 + fees earned (into a staker)
             _redeemWithERC20(msg.sender, pair, lpTokenAmountUnStaked);
             
             /// Compute earned reward (GGT tokens) and Distribute them into staker
-            _computeEarnedReward(pair);
+            claimEarnedReward(pair);
         }
     }
 
@@ -428,9 +427,10 @@ contract GLMStakePool is GLMStakePoolStorages {
      * @dev - [idea v2]: Reward is given to each stakers by using the fixed-rewards-rate (10%)
      *                   => There is the locked-period (7 days) as minimum staking-term.
      **/
-    function _computeEarnedReward(IUniswapV2Pair pair) internal returns (bool) {
+    function _computeEarnedReward(IUniswapV2Pair pair) internal returns (uint _earnedReward) {
         Staker memory staker = stakers[msg.sender];
         uint8[] memory _stakeIds = staker.stakeIds;
+        uint totalIndividualStakedGLMAmount;
 
         for (uint8 i=0; i < _stakeIds.length; i++) {
             uint8 stakeId = i;
@@ -440,22 +440,19 @@ contract GLMStakePool is GLMStakePoolStorages {
             //uint _stakedLPTokenAmount = stakeData.stakedLPTokenAmount;  /// [Note]: But, this amount is "LP tokens amount". Not "GLM tokens" amount. Therefore, I need to extract only staked GLM tokens amount
             uint stakedGLMAmount = stakeData.stakedGLMAmount;
 
-            /// [Todo]: Calculation
+            totalIndividualStakedGLMAmount.add(stakedGLMAmount);
         }
 
-        /// [Todo]: Identify staked amount of a staker
-        uint stakedAmount;
+        /// Identify each staker's share of pool
+        uint SHARE_OF_POOL = totalIndividualStakedGLMAmount.div(totalStakedGLMAmount);
 
-        /// [Todo]: Identify each staker's share of pool
-        uint SHARE_OF_POOL = stakedAmount.div(totalStakedGLMAmount);
-
-        /// [Todo]: Compute total staked GLM tokens amount per a week (7days)
+        /// Compute total staked GLM tokens amount per a week (7days)
         weeklyTotalStakedGLMAmount = totalStakedGLMAmount.sub(lastTotalStakedGLMAmount);
 
+        /// Formula for computing earned rewards (GGT tokens)
         uint earnedReward = weeklyTotalStakedGLMAmount.mul(REWARD_RATE).div(100).mul(SHARE_OF_POOL).div(100);
 
-        /// Mint GGT tokens as rewards for a staker
-        GGTToken.mint(msg.sender, earnedReward);
+        return earnedReward;
     }
     
     /***
