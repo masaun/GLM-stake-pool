@@ -46,7 +46,7 @@ contract GLMStakePool is GLMStakePoolStorages {
     uint8 public currentStakeId;
 
     uint totalStakedGLMAmount;        /// Total staked GLM tokens amount during whole period
-    uint lastTotalStakeGLMAmount;     /// Total staked GLM tokens amount until last week
+    uint lastTotalStakedGLMAmount;     /// Total staked GLM tokens amount until last week
     uint weeklyTotalStakedGLMAmount;  /// Total staked GLM tokens amount during recent week
 
     uint startBlock;
@@ -282,14 +282,14 @@ contract GLMStakePool is GLMStakePoolStorages {
     ///--------------------------------------------------------
 
     /***
-     * @notice - Compute GGT (Golem Reward Token) as rewards
+     * @notice - Compute GGT (Golem Governance Token) as rewards
      * @dev - [idea v1]: Reward is given to each stakers every block (every 15 seconds) and depends on share of pool
      * @dev - [idea v2]: Reward is given to each stakers by using the fixed-rewards-rate (10%)
      *                   => There is the locked-period (7 days) as minimum staking-term.
      **/
     function computeReward(IUniswapV2Pair pair) public returns (bool) {
         /// [Todo]: Compute total staked GLM tokens amount per a week (7days)
-        weeklyTotalStakedGLMAmount = totalStakedGLMAmount.sub(lastTotalStakeGLMAmount);
+        weeklyTotalStakedGLMAmount = totalStakedGLMAmount.sub(lastTotalStakedGLMAmount);
 
         uint earnedReward = weeklyTotalStakedGLMAmount.mul(REWARD_RATE).div(100);
 
