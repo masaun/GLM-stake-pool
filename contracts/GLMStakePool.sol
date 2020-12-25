@@ -322,12 +322,12 @@ contract GLMStakePool is GLMStakePoolStorages {
      * @notice - Update pool status weekly (every week)
      **/
     function weeklyPoolStatusUpdate() public returns (bool) {
-        currentBlock = block.number;
+        uint currentBlock = block.number;
 
-        if (currentBlock > lastBlock) {
+        if (currentBlock > nextBlock) {
             require (currentBlock > lastBlock, "Block number is still in the last period");
 
-            /// Update the last block and the next block
+            /// Update both blocks (the last block and the next block)
             lastBlock = currentBlock;
             nextBlock = currentBlock.add(604800);  /// Plus 1 week (604800 seconds)
 
