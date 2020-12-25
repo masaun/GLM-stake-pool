@@ -321,6 +321,7 @@ contract GLMStakePool is GLMStakePoolStorages {
     /***
      * @notice - Update share of pool (%)
      *         - Because each staker's share of pool will be changed every stake
+     * @notice - At the same time, total staked amount until last week is also updated. 
      **/
     function _updateShareOfPool() internal returns (bool) {
         currentBlock = block.number;
@@ -330,8 +331,18 @@ contract GLMStakePool is GLMStakePoolStorages {
 
             /// Update next block number
             lastBlock = currentBlock.add(604800);  /// Plus 1 week (604800 seconds)
+
+            /// Update total staked amount until last week
+            _updateLastTotalStakedGLMAmount();
         }
 
+    }
+    
+    /***
+     * @notice - Update total staked amount until last week
+     **/
+    function _updateLastTotalStakedGLMAmount() internal returns (bool) {
+        lastTotalStakedGLMAmount = totalStakedGLMAmount;
     }
     
 
