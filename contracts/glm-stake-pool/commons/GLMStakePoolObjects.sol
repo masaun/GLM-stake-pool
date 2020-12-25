@@ -11,7 +11,7 @@ import { IUniswapV2Pair } from "../../uniswap-v2/uniswap-v2-core/interfaces/IUni
 contract GLMStakePoolObjects {
 
     // Info of each staker
-    struct Staker {      /// [Key]: LP token address -> staker address
+    struct Staker {      /// [Key]: stake's address
         uint8[] stakeIds;  /// Stake IDs which this staker was staked are stored into this array 
 
         uint amount;     // How many LP tokens the user has provided.

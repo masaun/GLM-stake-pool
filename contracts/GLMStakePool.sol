@@ -309,7 +309,7 @@ contract GLMStakePool is GLMStakePoolStorages {
     ///---------------------------------------------------
 
     /***
-     * @notice - Claim rewards (Not include staked LP tokens)
+     * @notice - Claim rewards (Not un-stake LP tokens. Only earned rewards is claimed and distributed)
      * @dev - Caller (msg.sender) is a staker
      **/
     function claimEarnedReward(IUniswapV2Pair pair) public returns (bool res) {
@@ -413,7 +413,20 @@ contract GLMStakePool is GLMStakePoolStorages {
      *                   => There is the locked-period (7 days) as minimum staking-term.
      **/
     function _computeEarnedReward(IUniswapV2Pair pair) internal returns (bool) {
-        address staker = msg.sender;
+        Staker memory staker = stakers[msg.sender];
+        uint8[] memory _stakeIds = staker.stakeIds;
+
+        for (uint8 i=0; i < _stakeIds.length; i++) {
+            uint8 stakeId = i;
+
+            StakeData memory stakeData = stakeDatas[stakeId];
+            IUniswapV2Pair _pair = stakeData.lpToken; 
+            uint _stakedLPTokenAmount = stakeData.stakedLPTokenAmount;
+
+            /// [Todo]: Calculation
+        }
+
+        /// [Todo]: Identify staked amount of a staker
         uint stakedAmount;
 
         /// [Todo]: Identify each staker's share of pool
@@ -425,7 +438,7 @@ contract GLMStakePool is GLMStakePoolStorages {
         uint earnedReward = weeklyTotalStakedGLMAmount.mul(REWARD_RATE).div(100).mul(SHARE_OF_POOL).div(100);
 
         /// Mint GGT tokens as rewards for a staker
-        GGTToken.mint(staker, earnedReward);
+        GGTToken.mint(msg.sender, earnedReward);
     }
     
     /***
