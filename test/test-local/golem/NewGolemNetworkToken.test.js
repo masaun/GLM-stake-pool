@@ -29,8 +29,8 @@ contract("NewGolemNetworkToken", function(accounts) {
 
             // Get the contract instance.
             GLMToken = await NewGolemNetworkToken.new(migrationAgent, chainId, { from: accounts[0] });
+            //console.log('=== GLMToken contract instance ===', GLMToken);
         });
 
-        console.log('=== GLMToken contract instance ===', GLMToken);
     });
 });
