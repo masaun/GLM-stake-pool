@@ -48,7 +48,13 @@ contract("NGNTFaucet", function(accounts) {
         });
 
         it('create', async () => {
-            /// [Error]: revert MinterRole: caller does not have the Minter role -- Reason given: MinterRole: caller does not have the Minter role.
+            /// Give "Minter" role for accounts[0]
+            await GLMToken.addMinter(accounts[0], { from: accounts[1] });
+            const isMinter0 = await GLMToken.isMinter(accounts[0]);
+            console.log("=== isMinter() for accounts[0] ===", isMinter0);  /// [Result]: false
+
+            /// [Error]: revert MinterRole: caller does not have the Minter role 
+            ///          -- Reason given: MinterRole: caller does not have the Minter role.
             await nGNTFaucet.create({ from: accounts[0] });
         });
     });
