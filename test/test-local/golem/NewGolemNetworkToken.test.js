@@ -24,7 +24,8 @@ contract("NewGolemNetworkToken", function(accounts) {
         it('Setup NewGolemNetworkToken contract instance', async () => {
             //migrationAgent = accounts[0];
             migrationAgent = accounts[1];
-            chainId = web3.eth.getChainId();;
+            chainId = await web3.eth.getChainId();  /// e.g). 1337
+            console.log('=== chainId ===', chainId, typeof chainId);
 
             // Get the contract instance.
             GLMToken = await NewGolemNetworkToken.new(migrationAgent, chainId, { from: accounts[0] });
