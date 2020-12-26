@@ -16,12 +16,19 @@ module.exports = async function(deployer, network, accounts) {
     console.log('=== accounts[0] ===', accounts[0]);
 
     if (network == 'local') {
-        _migrationAgent = accounts[0];
+        _migrationAgent = accounts[1];
         _chainId = web3.eth.getChainId();
     } else if (network == 'rinkeby') {
-        _migrationAgent = accounts[0];
+        _migrationAgent = accounts[1];
         _chainId = 4;   /// Rinkeby's network ID
     }
 
     await deployer.deploy(NewGolemNetworkToken, _migrationAgent, _chainId);
+
+    const GLMToken = await NewGolemNetworkToken.deployed();
+    const isMinter0 = await GLMToken.isMinter(accounts[0]);
+    const isMinter1 = await GLMToken.isMinter(accounts[1]);
+    console.log("=== isMinter() for accounts[0] ===", isMinter0);  /// [Result]: false
+    console.log("=== isMinter() for accounts[1] ===", isMinter1);  /// [Result]: true
+
 };
