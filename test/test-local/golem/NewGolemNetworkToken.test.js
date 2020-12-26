@@ -5,6 +5,10 @@ const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8545'
 /// My contract
 const NewGolemNetworkToken = artifacts.require("NewGolemNetworkToken");
 
+
+/***
+ * @dev - Execution COMMAND: $ truffle test ./test/test-local/golem/NewGolemNetworkToken.test.js
+ **/
 contract("NewGolemNetworkToken", function(accounts) {
     /***
      * @notice - Global variable
@@ -23,7 +27,7 @@ contract("NewGolemNetworkToken", function(accounts) {
             chainId = web3.eth.getChainId();;
 
             // Get the contract instance.
-            GLMToken = await NewGolemNetworkToken.new(migrationAgent, chainId);
+            GLMToken = await NewGolemNetworkToken.new(migrationAgent, chainId, { from: accounts[0] });
         });
 
         console.log('=== GLMToken contract instance ===', GLMToken);

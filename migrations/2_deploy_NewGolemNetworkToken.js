@@ -15,7 +15,7 @@ module.exports = async function(deployer, network, accounts) {
     console.log('=== network ===', network);
     console.log('=== accounts[0] ===', accounts[0]);
 
-    if (network == 'local') {
+    if (network == 'local' || network == 'test') {
         _migrationAgent = accounts[1];
         _chainId = web3.eth.getChainId();
     } else if (network == 'rinkeby') {

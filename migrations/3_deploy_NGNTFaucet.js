@@ -10,5 +10,5 @@ module.exports = async function(deployer) {
     console.log("=== Success to execute setNGNT() ===");
 
     /// Testing for the GLM fancet
-    await nGNTFaucet.create();  /// [Note]: GLM tokens are minted for msg.sender (onlyOwner)
+    //await nGNTFaucet.create();  /// [Note]: GLM tokens are minted for msg.sender (onlyOwner)
 };
