@@ -9,7 +9,7 @@ const NGNTFaucet = artifacts.require("NGNTFaucet");
 /***
  * @dev - Execution COMMAND: $ truffle test ./test/test-local/golem/NGNTFaucet.test.js
  **/
-contract("NewGolemNetworkToken", function(accounts) {
+contract("NGNTFaucet", function(accounts) {
     /***
      * @notice - Global variable
      **/
@@ -43,12 +43,13 @@ contract("NewGolemNetworkToken", function(accounts) {
      **/
     describe("Fancet GLM tokens", () => {
         it('setNGNT', async () => {
-            const _token = NewGolemNetworkToken.address;
-            NGNTFaucet = await nGNTFaucet.setNGNT(_token, { from: accounts[0] });
+            let _token = NewGolemNetworkToken.address;
+            await nGNTFaucet.setNGNT(_token, { from: accounts[0] });
         });
 
         it('create', async () => {
-            NGNTFaucet = await nGNTFaucet.create({ from: accounts[0] });
+            /// [Error]: revert MinterRole: caller does not have the Minter role -- Reason given: MinterRole: caller does not have the Minter role.
+            await nGNTFaucet.create({ from: accounts[0] });
         });
     });
 
