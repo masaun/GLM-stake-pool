@@ -14,7 +14,7 @@ contract("NewGolemNetworkToken", function(accounts) {
      * @notice - Global variable
      **/
     let GLMToken;
-    let NGNTFaucet;
+    let nGNTFaucet;
     let migrationAgent;  /// [Note]: This wallet address will become "Minter Role" for GLM tokens (in the NewGolemNetworkToken.sol)
     let chainId;
 
@@ -34,7 +34,7 @@ contract("NewGolemNetworkToken", function(accounts) {
 
         it('Setup NGNTFaucet contract instance', async () => {           
             // Get the contract instance.
-            NGNTFaucet = await NGNTFaucet.new({ from: accounts[0] });
+            nGNTFaucet = await NGNTFaucet.new({ from: accounts[0] });
         });
     });
 
@@ -44,11 +44,11 @@ contract("NewGolemNetworkToken", function(accounts) {
     describe("Fancet GLM tokens", () => {
         it('setNGNT', async () => {
             const _token = NewGolemNetworkToken.address;
-            NGNTFaucet = await NGNTFaucet.setNGNT(_token, { from: accounts[0] });
+            NGNTFaucet = await nGNTFaucet.setNGNT(_token, { from: accounts[0] });
         });
 
         it('create', async () => {
-            NGNTFaucet = await NGNTFaucet.create({ from: accounts[0] });
+            NGNTFaucet = await nGNTFaucet.create({ from: accounts[0] });
         });
     });
 
