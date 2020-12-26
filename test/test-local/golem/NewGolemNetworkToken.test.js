@@ -1,0 +1,31 @@
+/// Using local network
+const Web3 = require('web3');
+const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8545'));
+
+/// My contract
+const NewGolemNetworkToken = artifacts.require("NewGolemNetworkToken");
+
+contract("NewGolemNetworkToken", function(accounts) {
+    /***
+     * @notice - Global variable
+     **/
+    let GLMToken;
+    let migrationAgent;  /// [Note]: This wallet address will become "Minter Role" for GLM tokens (in the NewGolemNetworkToken.sol)
+    let chainId;
+
+    /***
+     * @notice - Setup
+     **/
+    describe("Setup", () => {
+        it('Setup NewGolemNetworkToken contract instance', async () => {
+            //migrationAgent = accounts[0];
+            migrationAgent = accounts[1];
+            chainId = web3.eth.getChainId();;
+
+            // Get the contract instance.
+            GLMToken = await NewGolemNetworkToken.new(migrationAgent, chainId);
+        });
+
+        console.log('=== GLMToken contract instance ===', GLMToken);
+    });
+});
