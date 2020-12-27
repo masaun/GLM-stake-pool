@@ -6,6 +6,7 @@ const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8545'
 const NewGolemNetworkToken = artifacts.require("NewGolemNetworkToken");
 const NGNTFaucet = artifacts.require("NGNTFaucet");
 
+
 /***
  * @dev - Execution COMMAND: $ truffle test ./test/test-local/golem/NGNTFaucet.test.js
  **/
@@ -15,8 +16,12 @@ contract("NGNTFaucet", function(accounts) {
      **/
     let GLMToken;
     let nGNTFaucet;
+    let GLM_TOKEN;       /// Contract address of GLMToken
     let migrationAgent;  /// [Note]: This wallet address will become "Minter Role" for GLM tokens (in the NewGolemNetworkToken.sol)
     let chainId;
+
+    console.log("=== accounts ===\n", accounts);
+
 
     /***
      * @notice - Setup
@@ -43,19 +48,22 @@ contract("NGNTFaucet", function(accounts) {
      **/
     describe("Fancet GLM tokens", () => {
         it('setNGNT', async () => {
-            let _token = NewGolemNetworkToken.address;
-            await nGNTFaucet.setNGNT(_token, { from: accounts[0] });
+            GLM_TOKEN = NewGolemNetworkToken.address;
+            await nGNTFaucet.setNGNT(GLM_TOKEN, { from: accounts[0] });
         });
 
         it('create', async () => {
             /// Give "Minter" role for accounts[0]
             await GLMToken.addMinter(accounts[0], { from: accounts[1] });
             const isMinter0 = await GLMToken.isMinter(accounts[0]);
-            console.log("=== isMinter() for accounts[0] ===", isMinter0);  /// [Result]: false
+            const isMinter1 = await GLMToken.isMinter(accounts[0]);
+            console.log("=== isMinter() for accounts[0] ===", isMinter0);  /// [Result]: true
+            console.log("=== isMinter() for accounts[1] ===", isMinter1);  /// [Result]: true
 
             /// [Error]: revert MinterRole: caller does not have the Minter role 
             ///          -- Reason given: MinterRole: caller does not have the Minter role.
             await nGNTFaucet.create({ from: accounts[0] });
+            //await nGNTFaucet.create({ from: accounts[1] });
         });
     });
 
