@@ -33,12 +33,12 @@ contract("NGNTFaucet", function(accounts) {
             chainId = await web3.eth.getChainId();  /// e.g). 1337
             console.log('=== chainId ===', chainId, typeof chainId);
 
-            // Get the contract instance.
+            /// Deploy the NewGolemNetworkToken contract
             GLMToken = await NewGolemNetworkToken.new(migrationAgent, chainId, { from: accounts[0] });
         });
 
         it('Setup NGNTFaucet contract instance', async () => {           
-            // Get the contract instance.
+            /// Deploy the NGNTFaucet contract
             nGNTFaucet = await NGNTFaucet.new({ from: accounts[0] });
         });
     });
@@ -55,8 +55,9 @@ contract("NGNTFaucet", function(accounts) {
         it('create', async () => {
             /// Give "Minter" role for accounts[0]
             await GLMToken.addMinter(accounts[0], { from: accounts[1] });
+            //await GLMToken.renounceMinter({ from: accounts[0] });
             const isMinter0 = await GLMToken.isMinter(accounts[0]);
-            const isMinter1 = await GLMToken.isMinter(accounts[0]);
+            const isMinter1 = await GLMToken.isMinter(accounts[1]);
             console.log("=== isMinter() for accounts[0] ===", isMinter0);  /// [Result]: true
             console.log("=== isMinter() for accounts[1] ===", isMinter1);  /// [Result]: true
 

@@ -16,9 +16,16 @@ module.exports = async function(deployer, network, accounts) {
     /// Check whether "Minter-Role" is true/false
     const isMinter0 = await GLMToken.isMinter(accounts[0]);
     const isMinter1 = await GLMToken.isMinter(accounts[1]);
-    console.log("=== isMinter() for accounts[0] ===", isMinter0);  /// [Result]: false
+    console.log("=== isMinter() for accounts[0] ===", isMinter0);  /// [Result]: true
     console.log("=== isMinter() for accounts[1] ===", isMinter1);  /// [Result]: true
 
-    /// Testing for the GLM fancet
-    await nGNTFaucet.create();  /// [Note]: GLM tokens are minted for msg.sender (onlyOwner)
+    const balance0 = await GLMToken.balanceOf(accounts[0]);
+    const balance1 = await GLMToken.balanceOf(accounts[1]);
+    console.log("=== balance of accounts[0] ===", balance0);  /// [Result]: 
+    console.log("=== balance of accounts[1] ===", balance1);  /// [Result]: 
+
+    /// @dev - GLM tokens are minted for msg.sender (onlyOwner)
+    /// [Error]: revert MinterRole: caller does not have the Minter role 
+    ///          -- Reason given: MinterRole: caller does not have the Minter role.
+    //await nGNTFaucet.create();
 };
