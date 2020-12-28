@@ -35,6 +35,8 @@ contract("GLMMockToken", function(accounts) {
             );
 
             console.log('=== Balance of accounts[1] ===\n', await GLMToken.balanceOf(accounts[1]));
+            let balance = await GLMToken.balanceOf(accounts[1]);
+            console.log('=== Balance of accounts[1] ===\n', parseFloat(web3.utils.fromWei(balance)));
         });
     });
 
