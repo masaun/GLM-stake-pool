@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/ownership/Ownable.sol";
 contract NGNTFaucet is Ownable {
     NewGolemNetworkToken public token;
 
-    function setNGNT (address _token) external onlyOwner {
+    function setNGNT(address _token) external onlyOwner {
         // can be called only once
         require(address(token) == address(0), "Function can be invoked only once");
 
