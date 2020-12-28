@@ -9,6 +9,7 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
 /// GLM Token
 import { NewGolemNetworkToken } from "./golem/GNT2/NewGolemNetworkToken.sol";
+import { GLMMockToken } from "./GLMMockToken/GLMMockToken.sol";  /// [Note]: This is mock token of the NewGolemNetworkToken (GLM token)
 
 /// GLM Pool Token
 import { GLMPoolToken } from "./GLMPoolToken.sol";
@@ -29,7 +30,8 @@ import { IUniswapV2Pair } from "./uniswap-v2/uniswap-v2-core/interfaces/IUniswap
 contract GLMStakePool is GLMStakePoolStorages {
     using SafeMath for uint;
 
-    NewGolemNetworkToken public GLMToken;
+    //NewGolemNetworkToken public GLMToken;
+    GLMMockToken public GLMToken;  /// [Note]: This is mock token of the NewGolemNetworkToken (GLM token)
     GLMPoolToken public glmPoolToken;
     GolemGovernanceToken public  GGTToken;
     IWETH public wETH;
@@ -57,7 +59,8 @@ contract GLMStakePool is GLMStakePoolStorages {
     uint REWARD_RATE = 10;  /// Default fixed-rewards-rate is 10%
 
 
-    constructor(NewGolemNetworkToken _GLMToken, GLMPoolToken _glmPoolToken, GolemGovernanceToken _GGTToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
+    constructor(GLMMockToken _GLMToken, GLMPoolToken _glmPoolToken, GolemGovernanceToken _GGTToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
+    //constructor(NewGolemNetworkToken _GLMToken, GLMPoolToken _glmPoolToken, GolemGovernanceToken _GGTToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
         GLMToken = _GLMToken;
         glmPoolToken = _glmPoolToken;
         GGTToken = _GGTToken;
