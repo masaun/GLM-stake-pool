@@ -33,14 +33,14 @@ contract GLMStakePool is GLMStakePoolStorages {
     //NewGolemNetworkToken public GLMToken;
     GLMMockToken public GLMToken;  /// [Note]: This is mock token of the NewGolemNetworkToken (GLM token)
     GLMPoolToken public glmPoolToken;
-    GolemGovernanceToken public  GGTToken;
+    GolemGovernanceToken public  GGToken;
     IWETH public wETH;
     IUniswapV2Factory public uniswapV2Factory;
     IUniswapV2Router02 public uniswapV2Router02;
 
     address GLM_TOKEN;
     address GLM_POOL_TOKEN;
-    address GGT_TOKEN;
+    address GG_TOKEN;
     address WETH_TOKEN;
     address UNISWAP_V2_FACTORY;
     address UNISWAP_V2_ROUTOR_02;
@@ -59,18 +59,18 @@ contract GLMStakePool is GLMStakePoolStorages {
     uint REWARD_RATE = 10;  /// Default fixed-rewards-rate is 10%
 
 
-    constructor(GLMMockToken _GLMToken, GLMPoolToken _glmPoolToken, GolemGovernanceToken _GGTToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
-    //constructor(NewGolemNetworkToken _GLMToken, GLMPoolToken _glmPoolToken, GolemGovernanceToken _GGTToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
+    constructor(GLMMockToken _GLMToken, GLMPoolToken _glmPoolToken, GolemGovernanceToken _golemGovernanceToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
+    //constructor(NewGolemNetworkToken _GLMToken, GLMPoolToken _glmPoolToken, GolemGovernanceToken _GGToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
         GLMToken = _GLMToken;
         glmPoolToken = _glmPoolToken;
-        GGTToken = _GGTToken;
+        GGToken = _golemGovernanceToken;
         wETH = IWETH(uniswapV2Router02.WETH());
         uniswapV2Factory = _uniswapV2Factory;
         uniswapV2Router02 = _uniswapV2Router02;
 
         GLM_TOKEN = address(_GLMToken);
         GLM_POOL_TOKEN = address(_glmPoolToken);
-        GGT_TOKEN = address(_GGTToken);
+        GG_TOKEN = address(_golemGovernanceToken);
         WETH_TOKEN = address(uniswapV2Router02.WETH());
         UNISWAP_V2_FACTORY = address(_uniswapV2Factory);
         UNISWAP_V2_ROUTOR_02 = address(_uniswapV2Router02);
@@ -395,12 +395,12 @@ contract GLMStakePool is GLMStakePoolStorages {
         /// Compute earned rewards (GGT tokens) and Distribute them into a staker
         uint earnedReward = _computeEarnedReward(pair);
 
-        /// Mint GGT tokens as rewards for a staker
-        GGTToken.mint(msg.sender, earnedReward);
+        /// Mint GGTokens as rewards for a staker
+        GGToken.mint(msg.sender, earnedReward);
     }
     
     /***
-     * @notice - un-stake LP tokens with earned rewards (GGT tokens)
+     * @notice - un-stake LP tokens with earned rewards (GGTokens)
      * @dev - Caller (msg.sender) is a staker
      **/
     function unStakeLPToken(IUniswapV2Pair pair, uint lpTokenAmountUnStaked) public returns (bool) {
@@ -428,7 +428,7 @@ contract GLMStakePool is GLMStakePoolStorages {
     ///--------------------------------------------------------
 
     /***
-     * @notice - Compute earned rewards that is GGT tokens (Golem Governance Token)
+     * @notice - Compute earned rewards that is GGTokens (Golem Governance Token)
      * @dev - [idea v1]: Reward is given to each stakers every block (every 15 seconds) and depends on share of pool
      * @dev - [idea v2]: Reward is given to each stakers by using the fixed-rewards-rate (10%)
      *                   => There is the locked-period (7 days) as minimum staking-term.
@@ -455,7 +455,7 @@ contract GLMStakePool is GLMStakePoolStorages {
         /// Compute total staked GLM tokens amount per a week (7days)
         weeklyTotalStakedGLMAmount = totalStakedGLMAmount.sub(lastTotalStakedGLMAmount);
 
-        /// Formula for computing earned rewards (GGT tokens)
+        /// Formula for computing earned rewards (GGTokens)
         uint earnedReward = weeklyTotalStakedGLMAmount.mul(REWARD_RATE).div(100).mul(SHARE_OF_POOL).div(100);
 
         return earnedReward;
