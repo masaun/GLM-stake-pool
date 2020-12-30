@@ -49,7 +49,8 @@ $ npm run script:rinkeby
 ```
 $ ganache-cli --fork https://mainnet.infura.io/v3/{YOUR INFURA KEY}
 ```
-（Ref：https://medium.com/@samajammin/how-to-interact-with-ethereums-mainnet-in-a-development-environment-with-ganache-3d8649df0876 ）
+(Ref：https://medium.com/@samajammin/how-to-interact-with-ethereums-mainnet-in-a-development-environment-with-ganache-3d8649df0876 ）
+(Current block number @ mainnet: https://etherscan.io/blocks )
 
 &nbsp;
 
@@ -61,6 +62,6 @@ $ ganache-cli --fork https://mainnet.infura.io/v3/{YOUR INFURA KEY}
 
 <br>
 
-- Test (Mainnet-fork approach with Ganache-CLI)  
+- Test (Mainnet-fork approach with Ganache-CLI and Infura)  
 https://medium.com/@samajammin/how-to-interact-with-ethereums-mainnet-in-a-development-environment-with-ganache-3d8649df0876
-
+(Current block number @ mainnet: https://etherscan.io/blocks )
