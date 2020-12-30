@@ -18,7 +18,7 @@ module.exports = async function(deployer, network, accounts) {
     await deployer.deploy(GLMStakePool, 
                           _GLMToken,
                           _glmPoolToken, 
-                          _golemGovernanceToken, 
+                          _golemGovernanceToken,
                           _uniswapV2Factory, 
                           _uniswapV2Router02);
 };

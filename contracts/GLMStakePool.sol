@@ -33,7 +33,7 @@ contract GLMStakePool is GLMStakePoolStorages {
     //NewGolemNetworkToken public GLMToken;
     GLMMockToken public GLMToken;  /// [Note]: This is mock token of the NewGolemNetworkToken (GLM token)
     GLMPoolToken public glmPoolToken;
-    GolemGovernanceToken public  GGToken;
+    GolemGovernanceToken public GGToken;
     IWETH public wETH;
     IUniswapV2Factory public uniswapV2Factory;
     IUniswapV2Router02 public uniswapV2Router02;
@@ -59,21 +59,27 @@ contract GLMStakePool is GLMStakePoolStorages {
     uint REWARD_RATE = 10;  /// Default fixed-rewards-rate is 10%
 
 
-    constructor(GLMMockToken _GLMToken, GLMPoolToken _glmPoolToken, GolemGovernanceToken _golemGovernanceToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
-    //constructor(NewGolemNetworkToken _GLMToken, GLMPoolToken _glmPoolToken, GolemGovernanceToken _GGToken, IUniswapV2Factory _uniswapV2Factory, IUniswapV2Router02 _uniswapV2Router02) public {
+    constructor(
+        GLMMockToken _GLMToken,             /// [Note]: Mock token of GLM token
+        //NewGolemNetworkToken _GLMToken,   /// [Note]: Original GLM Token
+        GLMPoolToken _glmPoolToken, 
+        GolemGovernanceToken _golemGovernanceToken, 
+        IUniswapV2Factory _uniswapV2Factory, 
+        IUniswapV2Router02 _uniswapV2Router02
+    ) public {
         GLMToken = _GLMToken;
         glmPoolToken = _glmPoolToken;
         GGToken = _golemGovernanceToken;
-        wETH = IWETH(uniswapV2Router02.WETH());
         uniswapV2Factory = _uniswapV2Factory;
         uniswapV2Router02 = _uniswapV2Router02;
+        wETH = IWETH(uniswapV2Router02.WETH());
 
         GLM_TOKEN = address(_GLMToken);
         GLM_POOL_TOKEN = address(_glmPoolToken);
         GG_TOKEN = address(_golemGovernanceToken);
-        WETH_TOKEN = address(uniswapV2Router02.WETH());
         UNISWAP_V2_FACTORY = address(_uniswapV2Factory);
         UNISWAP_V2_ROUTOR_02 = address(_uniswapV2Router02);
+        WETH_TOKEN = address(uniswapV2Router02.WETH());
 
         startBlock = block.number;
         lastBlock = block.number;
