@@ -11,7 +11,7 @@ import { ERC20Detailed } from "@openzeppelin/contracts/token/ERC20/ERC20Detailed
  **/
 contract GLMMockToken is ERC20, ERC20Detailed {
 
-    constructor() public ERC20Detailed("GLM Mock Token", "GLM MOCK", 18) {}
+    constructor() public ERC20Detailed("Golem Network Mock Token", "GLM", 18) {}
 
     function mint(address to, uint mintAmount) public returns (bool) {
         _mint(to, mintAmount);

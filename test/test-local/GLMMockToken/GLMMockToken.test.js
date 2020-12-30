@@ -24,10 +24,12 @@ contract("GLMMockToken", function(accounts) {
         });
     });
 
-    describe("Mint", () => {
-        it('Mint GLMMockToken', async () => {
+    describe("Mint GLMMockToken", () => {
+        it('Mint 1000000 GLMMockToken (GLM)', async () => {
             await GLMToken.mint(accounts[1], web3.utils.toWei("1000000", "ether"), { from: accounts[0] });
-            
+        }); 
+
+        it('GLMMockToken Balance of accounts[1] should be 1000000 GLM', async () => {
             assert.equal(
                 await GLMToken.balanceOf(accounts[1]), 
                 web3.utils.toWei("1000000", "ether"), 

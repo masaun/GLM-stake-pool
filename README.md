@@ -43,6 +43,14 @@ $ npm run migrate:rinkeby
 $ npm run script:rinkeby
 ```
 
+<br>
+
+### ④ Test (Mainnet-fork approach with Ganache-CLI)
+```
+$ ganache-cli --fork https://mainnet.infura.io/v3/{YOUR INFURA KEY}
+```
+(Ref：https://medium.com/@samajammin/how-to-interact-with-ethereums-mainnet-in-a-development-environment-with-ganache-3d8649df0876 ）
+(Current block number @ mainnet: https://etherscan.io/blocks )
 
 &nbsp;
 
@@ -51,3 +59,9 @@ $ npm run script:rinkeby
 ## 【References】
 - Golem
   - Prize：https://gitcoin.co/issue/golemfactory/hackathons/4/100024409
+
+<br>
+
+- Test (Mainnet-fork approach with Ganache-CLI and Infura)  
+https://medium.com/@samajammin/how-to-interact-with-ethereums-mainnet-in-a-development-environment-with-ganache-3d8649df0876
+(Current block number @ mainnet: https://etherscan.io/blocks )
