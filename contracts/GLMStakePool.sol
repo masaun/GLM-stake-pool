@@ -12,7 +12,7 @@ import { NewGolemNetworkToken } from "./golem/GNT2/NewGolemNetworkToken.sol";
 import { GLMMockToken } from "./GLMMockToken/GLMMockToken.sol";  /// [Note]: This is mock token of the NewGolemNetworkToken (GLM token)
 
 /// GLM Pool Token
-import { GLMPoolToken } from "./GLMPoolToken.sol";
+import { GolemFarmingLPToken } from "./GolemFarmingLPToken.sol";
 
 /// GGT (Golem Governance Token)
 import { GolemGovernanceToken } from "./GolemGovernanceToken.sol";
@@ -32,7 +32,7 @@ contract GLMStakePool is GLMStakePoolStorages {
 
     //NewGolemNetworkToken public GLMToken;
     GLMMockToken public GLMToken;  /// [Note]: This is mock token of the NewGolemNetworkToken (GLM token)
-    GLMPoolToken public glmPoolToken;
+    GolemFarmingLPToken public golemFarmingLPToken;
     GolemGovernanceToken public GGToken;
     IWETH public wETH;
     IUniswapV2Factory public uniswapV2Factory;
@@ -62,20 +62,20 @@ contract GLMStakePool is GLMStakePoolStorages {
     constructor(
         GLMMockToken _GLMToken,             /// [Note]: Mock token of GLM token
         //NewGolemNetworkToken _GLMToken,   /// [Note]: Original GLM Token
-        GLMPoolToken _glmPoolToken, 
+        GolemFarmingLPToken _golemFarmingLPToken, 
         GolemGovernanceToken _golemGovernanceToken, 
         IUniswapV2Factory _uniswapV2Factory, 
         IUniswapV2Router02 _uniswapV2Router02
     ) public {
         GLMToken = _GLMToken;
-        glmPoolToken = _glmPoolToken;
+        golemFarmingLPToken = _golemFarmingLPToken;
         GGToken = _golemGovernanceToken;
         uniswapV2Factory = _uniswapV2Factory;
         uniswapV2Router02 = _uniswapV2Router02;
         wETH = IWETH(uniswapV2Router02.WETH());
 
         GLM_TOKEN = address(_GLMToken);
-        GLM_POOL_TOKEN = address(_glmPoolToken);
+        GLM_POOL_TOKEN = address(_golemFarmingLPToken);
         GG_TOKEN = address(_golemGovernanceToken);
         UNISWAP_V2_FACTORY = address(_uniswapV2Factory);
         UNISWAP_V2_ROUTOR_02 = address(_uniswapV2Router02);
@@ -150,7 +150,7 @@ contract GLMStakePool is GLMStakePoolStorages {
                                                                           ERC20AmountDesired);
 
         /// Mint amount that is equal to staked LP tokens to a staker
-        glmPoolToken.mint(msg.sender, liquidity);
+        golemFarmingLPToken.mint(msg.sender, liquidity);
 
         /// Save stake data
         // CheckPoint storage checkPoint = checkPoints[newStakeId];
@@ -421,7 +421,7 @@ contract GLMStakePool is GLMStakePoolStorages {
 
     function _redeemWithUnStakedLPToken(address staker, IUniswapV2Pair pair, uint lpTokenAmountUnStaked) internal returns (bool) {
         /// Burn GLM Pool Token (=GLM Farming Token)
-        glmPoolToken.burn(staker, lpTokenAmountUnStaked);
+        golemFarmingLPToken.burn(staker, lpTokenAmountUnStaked);
 
         /// Transfer un-staked LP tokens
         pair.transfer(staker, lpTokenAmountUnStaked);
