@@ -420,7 +420,7 @@ contract GLMStakePool is GLMStakePoolStorages {
     }
 
     function _redeemWithUnStakedLPToken(address staker, IUniswapV2Pair pair, uint lpTokenAmountUnStaked) internal returns (bool) {
-        /// Burn GLM Pool Token
+        /// Burn GLM Pool Token (=GLM Farming Token)
         glmPoolToken.burn(staker, lpTokenAmountUnStaked);
 
         /// Transfer un-staked LP tokens
