@@ -323,6 +323,9 @@ contract GLMStakePool is GLMStakePoolStorages {
         /// Stake LP tokens into this pool contract
         pair.transferFrom(msg.sender, address(this), lpTokenAmount);
 
+        /// Mint the Golem Farming LP tokens
+        golemFarmingLPToken.mint(msg.sender, lpTokenAmount);
+
         /// Get reserve0 and reserve1
         uint112 reserve0;  /// GLM token amount
         uint112 reserve1;  /// ERC20 token or ETH (WETH) amount
@@ -361,7 +364,6 @@ contract GLMStakePool is GLMStakePoolStorages {
 
         /// Add LP token amount to the total GLM token amount
         totalStakedGLMAmount.add(uint256(reserve0)); 
-
     }
 
 
@@ -420,7 +422,7 @@ contract GLMStakePool is GLMStakePoolStorages {
     }
 
     function _redeemWithUnStakedLPToken(address staker, IUniswapV2Pair pair, uint lpTokenAmountUnStaked) internal returns (bool) {
-        /// Burn GLM Pool Token (=GLM Farming Token)
+        /// Burn the Golem Farming LP tokens
         golemFarmingLPToken.burn(staker, lpTokenAmountUnStaked);
 
         /// Transfer un-staked LP tokens
