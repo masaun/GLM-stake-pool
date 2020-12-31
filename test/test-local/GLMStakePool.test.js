@@ -2,6 +2,10 @@
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8545'));
 
+//@dev - Import from exported file
+const contractAddressList = require('../../migrations/addressesList/contractAddress/contractAddress.js');
+const tokenAddressList = require('../../migrations/addressesList/tokenAddress/tokenAddress.js');
+
 /// Artifact of the GLMStakePool contract 
 const GLMStakePool = artifacts.require("GLMStakePool");
 const GLMMockToken = artifacts.require("GLMMockToken");
@@ -40,8 +44,8 @@ contract("GLMStakePool", function(accounts) {
             const _glmToken = glmToken.address;
             const _golemFarmingLPToken = golemFarmingLPToken.address;
             const _golemGovernanceToken = golemGovernanceToken.address;
-            const _uniswapV2Factory = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f";   /// [Note]: common contract address on mainnet and testnet
-            const _uniswapV2Router02 = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";  /// [Note]: common contract address on mainnet and testnet
+            const _uniswapV2Factory = contractAddressList["Mainnet"]["Uniswap"]["UniswapV2Factory"];   /// [Note]: common contract address on mainnet and testnet
+            const _uniswapV2Router02 = contractAddressList["Mainnet"]["Uniswap"]["UniswapV2Router02"]; /// [Note]: common contract address on mainnet and testnet
 
             glmStakePool = await GLMStakePool.new(_glmToken, 
                                                   _golemFarmingLPToken, 
