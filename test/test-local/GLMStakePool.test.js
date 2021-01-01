@@ -11,6 +11,7 @@ const GLMStakePool = artifacts.require("GLMStakePool");
 const GLMMockToken = artifacts.require("GLMMockToken");
 const GolemFarmingLPToken = artifacts.require("GolemFarmingLPToken");
 const GolemGovernanceToken = artifacts.require("GolemGovernanceToken");
+const UniswapV2Helper = artifacts.require("UniswapV2Helper");
 const ERC20 = artifacts.require("ERC20");
 
 /// Global variable
@@ -18,8 +19,7 @@ let glmStakePool;
 let glmToken;
 let golemFarmingLPToken;
 let golemGovernanceToken;
-let uniswapV2Factory;
-let uniswapV2Router02;
+let uniswapV2Helper;
 let dai;
 
 
@@ -73,6 +73,10 @@ contract("GLMStakePool", function(accounts) {
         it("Setup DAI contract instance", async () => {
             dai = await ERC20.new(DAI_ADDRESS, { from: accounts[0] });
         });
+
+        it("Setup UniswapV2Helper contract instance", async () => {
+            uniswapV2Helper = await UniswapV2Helper.new(UNISWAP_V2_FACTORY, UNISWAP_V2_ROUTER_02, { from: accounts[0] });
+        });
     });
 
     describe("Swap on Uniswap-V2", () => {
@@ -89,7 +93,10 @@ contract("GLMStakePool", function(accounts) {
 
         it("Swap ETH for DAI on Uniswap-V2", async () => {
             /// [Todo]
-            uniswapV2Router02.swapETHForExactTokens(user1, { from: user1, value: ethAmount });
+            const erc20 = DAI_ADDRESS;
+            const erc20Amount = web3.utils.toWei('100', 'ether');  /// 100 DAI
+            const ethAmount = web3.utils.toWei('1', 'ether');      /// 1 ETH
+            uniswapV2Helper.convertEthToERC20(erc20, erc20Amount, { from: user1, value: ethAmount });
         });
     });
 
