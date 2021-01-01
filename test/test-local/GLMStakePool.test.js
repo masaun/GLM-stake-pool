@@ -72,10 +72,16 @@ contract("GLMStakePool", function(accounts) {
     });
 
     describe("Swap on Uniswap-V2", () => {
-        it("Get DAI balance of each accounts", async () => {
+        it("Get initial DAI balance of user1", async () => {
             let _daiBalance = await dai.balanceOf(user1, { from: user1 });
             let daiBalance = parseFloat(web3.utils.fromWei(_daiBalance));
-            console.log('===  daiBalance of accounts[0] ===', daiBalance);            
+            console.log('===  DAI Balance of user1 ===', daiBalance);  /// [Result]: "0"         
+        });
+
+       it("Get initial ETH balance of user1", async () => {
+            let _ethBalance = await user1.balanceOf(user1, { from: user1 });
+            let ethBalance = parseFloat(web3.utils.fromWei(_ethBalance));
+            console.log('===  ETH Balance of user1 ===', ethBalance);  /// [Result]: "100"         
         });
 
         it("Swap ETH for DAI on Uniswap-V2", async () => {
