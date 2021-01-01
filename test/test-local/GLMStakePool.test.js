@@ -92,11 +92,20 @@ contract("GLMStakePool", function(accounts) {
         });
 
         it("Swap ETH for DAI on Uniswap-V2", async () => {
-            /// [Todo]
+            /// [Todo]: Swap ETH for DAI
             const erc20 = DAI_ADDRESS;
             const erc20Amount = web3.utils.toWei('100', 'ether');  /// 100 DAI
             const ethAmount = web3.utils.toWei('1', 'ether');      /// 1 ETH
             uniswapV2Helper.convertEthToERC20(erc20, erc20Amount, { from: user1, value: ethAmount });
+
+            /// Check DAI balance
+            let _daiBalance = await dai.balanceOf(user1, { from: user1 });
+            let daiBalance = parseFloat(web3.utils.fromWei(_daiBalance));
+            assert.equal(
+                daiBalance,
+                100,
+                "DAI Balance of user1 should be 100 DAI"
+            );
         });
     });
 
