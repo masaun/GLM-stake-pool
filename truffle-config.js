@@ -52,7 +52,14 @@ module.exports = {
       network_id: '*',
       skipDryRun: true,
       gasPrice: 5000000000
-    }
+    },
+    test: {
+      host: '127.0.0.1',
+      port: 8545,
+      network_id: '*',
+      skipDryRun: true,
+      gasPrice: 5000000000
+    }    
   },
 
   compilers: {

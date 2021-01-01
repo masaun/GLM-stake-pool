@@ -6,11 +6,11 @@ import { ERC20Detailed } from "@openzeppelin/contracts/token/ERC20/ERC20Detailed
 
 
 /***
- * @title - GLM Pool Token contract
+ * @title - Golem Farming LP Token contract
  **/
-contract GLMPoolToken is ERC20, ERC20Detailed {
+contract GolemFarmingLPToken is ERC20, ERC20Detailed {
 
-    constructor() public ERC20Detailed("GLM Pool Token", "GLMP", 18) {}
+    constructor() public ERC20Detailed("Golem Farming Liquidity Provider Token", "GFLP", 18) {}
 
     function mint(address to, uint mintAmount) public returns (bool) {
         _mint(to, mintAmount);
