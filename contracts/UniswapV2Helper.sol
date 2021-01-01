@@ -41,9 +41,9 @@ contract UniswapV2Helper {
         WETH_TOKEN = address(uniswapV2Router02.WETH());
     }
 
-    function convertEthToERC20(uint erc20Amount) public payable {
+    function convertEthToERC20(IERC20 erc20, uint erc20Amount) public payable {
         uint deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
-        uniswapV2Router02.swapETHForExactTokens(msg.value)(erc20Amount, getPathForETHtoERC20(), address(this), deadline);
+        uniswapV2Router02.swapETHForExactTokens.value(msg.value)(erc20Amount, getPathForETHtoERC20(erc20), address(this), deadline);
         
         /// refund leftover ETH to user
         (bool success,) = msg.sender.call.value(address(this).balance)("");       /// [Note]: Solidity-v0.5
