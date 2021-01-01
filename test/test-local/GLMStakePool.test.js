@@ -56,8 +56,12 @@ contract("GLMStakePool", function(accounts) {
         });
     });
 
-    describe("GLMStakePool", () => {
-
+    describe("Create a pair (LP token)", () => {
+        it("Create a pair (LP token) between the GLM tokens and another ERC20 tokens", async () => {
+            const erc20 = tokenAddressList["Mainnet"]["DAI"];  /// DAI on Mainnet
+            let res = await glmStakePool.createPairWithERC20(erc20, { from: accounts[0] });
+            console.log('=== res ===', res);
+        });           
     });
 
 });
