@@ -23,6 +23,10 @@ let golemGovernanceToken;
  **/
 contract("GLMStakePool", function(accounts) {
 
+    const deployer = accounts[0];
+    const user1 = accounts[1];
+    const user2 = accounts[2];
+
     describe("Setup", () => {
         it("Check all accounts", async () => {
             console.log('=== accounts ===\n', accounts);
@@ -57,9 +61,15 @@ contract("GLMStakePool", function(accounts) {
     });
 
     describe("Create a pair (LP token)", () => {
+        it("Get DAI balance of each accounts", async () => {
+            let _daiBalance = await dai.balanceOf(user1, { from: user1 });
+            let daiBalance = parseFloat(web3.utils.fromWei(_daiBalance));
+            console.log('===  daiBalance of accounts[0] ===', daiBalance);            
+        });
+
         it("Create a pair (LP token) between the GLM tokens and another ERC20 tokens", async () => {
             const erc20 = tokenAddressList["Mainnet"]["DAI"];  /// DAI on Mainnet
-            let res = await glmStakePool.createPairWithERC20(erc20, { from: accounts[0] });
+            let res = await glmStakePool.createPairWithERC20(erc20, { from: user1 });
             console.log('=== res ===', res);
         });           
     });
