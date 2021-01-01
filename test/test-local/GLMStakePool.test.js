@@ -11,12 +11,19 @@ const GLMStakePool = artifacts.require("GLMStakePool");
 const GLMMockToken = artifacts.require("GLMMockToken");
 const GolemFarmingLPToken = artifacts.require("GolemFarmingLPToken");
 const GolemGovernanceToken = artifacts.require("GolemGovernanceToken");
+const IERC20 = artifacts.require("IERC20");
 
 /// Global variable
 let glmStakePool;
 let glmToken;
 let golemFarmingLPToken;
 let golemGovernanceToken;
+let dai;
+
+/// Deployed address
+let DAI_ADDRESS = tokenAddressList["Mainnet"]["DAI"];  /// DAI on Mainnet;
+
+
 
 /***
  * @dev - Execution COMMAND: $ truffle test ./test/test-local/GLMStakePool.test.js
@@ -58,17 +65,27 @@ contract("GLMStakePool", function(accounts) {
                                                   _uniswapV2Router02,
                                                   { from: accounts[0] });
         });
+
+        it("Setup DAI contract instance", async () => {
+            dai = await IERC20.new(DAI_ADDRESS, { from: accounts[0] });
+        });
     });
 
-    describe("Create a pair (LP token)", () => {
+    describe("Swap on Uniswap-V2", () => {
         it("Get DAI balance of each accounts", async () => {
             let _daiBalance = await dai.balanceOf(user1, { from: user1 });
             let daiBalance = parseFloat(web3.utils.fromWei(_daiBalance));
             console.log('===  daiBalance of accounts[0] ===', daiBalance);            
         });
 
+        it("Swap ETH for DAI on Uniswap-V2", async () => {
+            /// [Todo]
+        });
+    });
+
+    describe("Create a pair (LP token)", () => {
         it("Create a pair (LP token) between the GLM tokens and another ERC20 tokens", async () => {
-            const erc20 = tokenAddressList["Mainnet"]["DAI"];  /// DAI on Mainnet
+            const erc20 = DAI_ADDRESS;  /// DAI on Mainnet
             let res = await glmStakePool.createPairWithERC20(erc20, { from: user1 });
             console.log('=== res ===', res);
         });           
