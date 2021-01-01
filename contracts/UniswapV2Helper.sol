@@ -42,7 +42,7 @@ contract UniswapV2Helper {
         uniswapV2Router02.swapETHForExactTokens(msg.value)(erc20Amount, getPathForETHtoERC20(), address(this), deadline);
         
         // refund leftover ETH to user
-        (bool success,) = msg.sender.call{ value: address(this).balance }("");
+        (bool success,) = msg.sender.call.value(address(this).balance)("");
         require(success, "refund failed");
     }
   
@@ -58,7 +58,10 @@ contract UniswapV2Helper {
         return path;
     }
 
-    // important to receive ETH
-    receive() payable external {}
+    /*** 
+     * @notice - important to receive ETH
+     **/
+    function() payable external {}   /// [Note]: Solidity-v0.5
+    //receive() payable external {}  /// [Note]: Soldiity-v0.6.1 ~
 
 }
