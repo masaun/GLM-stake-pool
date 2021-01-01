@@ -11,7 +11,7 @@ const GLMStakePool = artifacts.require("GLMStakePool");
 const GLMMockToken = artifacts.require("GLMMockToken");
 const GolemFarmingLPToken = artifacts.require("GolemFarmingLPToken");
 const GolemGovernanceToken = artifacts.require("GolemGovernanceToken");
-const IERC20 = artifacts.require("IERC20");
+const ERC20 = artifacts.require("ERC20");
 
 /// Global variable
 let glmStakePool;
@@ -67,7 +67,7 @@ contract("GLMStakePool", function(accounts) {
         });
 
         it("Setup DAI contract instance", async () => {
-            dai = await IERC20.new(DAI_ADDRESS, { from: accounts[0] });
+            dai = await ERC20.new(DAI_ADDRESS, { from: accounts[0] });
         });
     });
 
