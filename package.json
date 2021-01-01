@@ -6,7 +6,7 @@
     "test": "test"
   },
   "scripts": {
-    "test:local": "truffle test ./test/test-local/* --network local",
+    "test": "truffle test ./test/test-local/*",
     "compile:local": "truffle compile --reset --network local",
     "migrate:local": "truffle migrate --reset --network local",
     "console:ropsten": "truffle console --network ropsten",
