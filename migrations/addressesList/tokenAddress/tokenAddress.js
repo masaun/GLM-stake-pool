@@ -1,4 +1,7 @@
 module.exports = {
+    "Mainnet": {
+        "DAI": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+    },
     "Ropsten": {
         "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",    // ETH address
         "DAI": "0xaD6D458402F60fD3Bd25163575031ACDce07538D",    // DAI address on Ropsten（from Kyber）

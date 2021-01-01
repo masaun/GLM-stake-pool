@@ -15,7 +15,7 @@ let _uniswapV2Router02;
 
 
 module.exports = async function(deployer, network, accounts) {
-    if (network == 'test' || network == 'local') {
+    if (network == 'test' || network == 'local') {  /// [Note]: Mainnet-fork approach with Truffle/Ganache-CLI/Infura 
         _uniswapV2Factory = contractAddressList["Mainnet"]["Uniswap"]["UniswapV2Factory"];
         _uniswapV2Router02 = contractAddressList["Mainnet"]["Uniswap"]["UniswapV2Router02"];
     } else if (network == 'ropsten') {
