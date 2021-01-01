@@ -79,8 +79,9 @@ contract("GLMStakePool", function(accounts) {
         });
 
        it("Get initial ETH balance of user1", async () => {
-            let _ethBalance = await web3.eth.getBalance(user1, { from: user1 });
-            let ethBalance = parseFloat(web3.utils.fromWei(_ethBalance));
+            let ethBalance = await web3.eth.getBalance(user1);
+            //let _ethBalance = await web3.eth.getBalance(user1, { from: user1 });
+            //let ethBalance = parseFloat(web3.utils.fromWei(_ethBalance));
             console.log('===  ETH Balance of user1 ===', ethBalance);  /// [Result]: "100"         
         });
 
