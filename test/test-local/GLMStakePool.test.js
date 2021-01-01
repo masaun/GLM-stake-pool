@@ -18,11 +18,15 @@ let glmStakePool;
 let glmToken;
 let golemFarmingLPToken;
 let golemGovernanceToken;
+let uniswapV2Factory;
+let uniswapV2Router02;
 let dai;
 
-/// Deployed address
-let DAI_ADDRESS = tokenAddressList["Mainnet"]["DAI"];  /// DAI on Mainnet;
 
+/// Deployed address
+let UNISWAP_V2_ROUTER_02 = contractAddressList["Mainnet"]["Uniswap"]["UniswapV2Router02"]; /// [Note]: common contract address on mainnet and testnet
+let UNISWAP_V2_FACTORY = contractAddressList["Mainnet"]["Uniswap"]["UniswapV2Factory"];   /// [Note]: common contract address on mainnet and testnet
+let DAI_ADDRESS = tokenAddressList["Mainnet"]["DAI"];  /// DAI on Mainnet;
 
 
 /***
@@ -55,8 +59,8 @@ contract("GLMStakePool", function(accounts) {
             const _glmToken = glmToken.address;
             const _golemFarmingLPToken = golemFarmingLPToken.address;
             const _golemGovernanceToken = golemGovernanceToken.address;
-            const _uniswapV2Factory = contractAddressList["Mainnet"]["Uniswap"]["UniswapV2Factory"];   /// [Note]: common contract address on mainnet and testnet
-            const _uniswapV2Router02 = contractAddressList["Mainnet"]["Uniswap"]["UniswapV2Router02"]; /// [Note]: common contract address on mainnet and testnet
+            const _uniswapV2Factory = UNISWAP_V2_FACTORY;
+            const _uniswapV2Router02 = UNISWAP_V2_ROUTER_02;
 
             glmStakePool = await GLMStakePool.new(_glmToken, 
                                                   _golemFarmingLPToken, 
@@ -80,13 +84,12 @@ contract("GLMStakePool", function(accounts) {
 
        it("Get initial ETH balance of user1", async () => {
             let ethBalance = await web3.eth.getBalance(user1);
-            //let _ethBalance = await web3.eth.getBalance(user1, { from: user1 });
-            //let ethBalance = parseFloat(web3.utils.fromWei(_ethBalance));
             console.log('===  ETH Balance of user1 ===', ethBalance);  /// [Result]: "100"         
         });
 
         it("Swap ETH for DAI on Uniswap-V2", async () => {
             /// [Todo]
+            uniswapV2Router02.swapETHForExactTokens(user1, { from: user1, value: ethAmount });
         });
     });
 
