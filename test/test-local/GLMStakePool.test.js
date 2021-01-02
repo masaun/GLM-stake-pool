@@ -142,8 +142,7 @@ contract("GLMStakePool", function(accounts) {
         });
 
         it("Create a pair (LP token) between the GLM tokens and ETH", async () => {
-            const ethAmount = web3.utils.toWei('1', 'ether');  /// 1 ETH
-            let pair = await glmStakePool.createPairWithETH({ from: user1, value: ethAmount });
+            let pair = await glmStakePool.createPairWithETH({ from: user1 });
 
             /// Get created pair address
             let pairAddress = await uniswapV2Factory.getPair(GLM_TOKEN, WETH_TOKEN, { from: user1 });            
