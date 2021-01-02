@@ -52,9 +52,18 @@ contract("GLMStakePool", function(accounts) {
             console.log('\n=== accounts ===\n', accounts);
         });        
 
-        it("Setup GLMMockToken contract instance", async () => {
+        it("Setup GLMToken contract instance (by using GLMMockToken)", async () => {
             glmToken = await GLMMockToken.new({ from: accounts[0] });
             GLM_TOKEN = glmToken.address;
+        });
+
+        it("Mint 100000 GLMToken to user1", async () => {
+            const mintAmount = web3.utils.toWei('100000', 'ether');  /// 100000 GLM
+            await GLMMockToken.mint(user1, mintAmount, { from: user1 });
+            
+            let _glmBalance = await glmToken.balanceOf(user1, { from: user1 });
+            let glmBalance = parseFloat(web3.utils.fromWei(_glmBalance));
+            console.log('\n===  GLM balance of user1 ===', glmBalance);  /// [Result]:               
         });
 
         it("Setup GolemFarmingLPToken contract instance", async () => {
