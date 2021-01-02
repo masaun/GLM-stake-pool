@@ -118,12 +118,14 @@ contract("GLMStakePool", function(accounts) {
         });
 
         it("Create a pair (LP token) between the GLM tokens and ETH", async () => {
-            /// [Todo]: Check GLMMockToken balance
-
             const ethAmount = web3.utils.toWei('1', 'ether');  /// 1 ETH
             let pair = await glmStakePool.createPairWithETH({ from: user1, value: ethAmount });
             console.log('=== pair (GLM-ETH) ===', res);
         }); 
+    });
+
+    describe("Add liquidity GLM tokens with ETH or ERC20 tokens", () => {
+        /// [Todo]: Prioritize AddLiquidityWithETH
     });
 
 });
