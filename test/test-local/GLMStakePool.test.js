@@ -166,11 +166,15 @@ contract("GLMStakePool", function(accounts) {
     });
 
     describe("Add liquidity GLM tokens with ETH or ERC20 tokens", () => {
-        /// [Todo]: Prioritize AddLiquidityWithETH
+        it("Add liquidity GLM tokens with ERC20", async () => {
+            /// [Todo]: addLiquidityWithERC20()
+        });
+
         it("Add liquidity GLM tokens with ETH", async () => {
-            const GLMTokenAmountDesired = web3.utils.toWei('100', 'ether');   /// 100 GLM
+            const GLMTokenAmountDesired = web3.utils.toWei('100', 'ether'); /// 100 GLM
+            const ETHAmountDesired = web3.utils.toWei('1', 'ether');        /// 1 ETH
             await glmToken.approve(GLM_STAKE_POOL, GLMTokenAmountDesired, { from: user1 });  /// Approve GLM tokens
-            await glmStakePool.addLiquidityWithETH(PAIR_GLM_ETH, GLMTokenAmountDesired, { from: user1 });
+            await glmStakePool.addLiquidityWithETH(PAIR_GLM_ETH, GLMTokenAmountDesired, { from: user1, value: ETHAmountDesired });
 
             /// Check pair (GLM-ETH) balance
             const uniswapV2Pair = UniswapV2Pair.at(PAIR_GLM_ETH, { from: user1 });
