@@ -20,14 +20,19 @@ let glmStakePool;
 let glmToken;
 let golemFarmingLPToken;
 let golemGovernanceToken;
+let uniswapV2Factory;
+let uniswapV2Router02;
 let uniswapV2Helper;
+let wETH;
 let dai;
 
-
 /// Deployed address
+let GLM_TOKEN;
+let GOLEM_FARMING_LP_TOKEN;
+let WETH_TOKEN;
 let UNISWAP_V2_ROUTER_02 = contractAddressList["Mainnet"]["Uniswap"]["UniswapV2Router02"]; /// [Note]: common contract address on mainnet and testnet
 let UNISWAP_V2_FACTORY = contractAddressList["Mainnet"]["Uniswap"]["UniswapV2Factory"];   /// [Note]: common contract address on mainnet and testnet
-let DAI_ADDRESS = tokenAddressList["Mainnet"]["DAI"];  /// DAI on Mainnet;
+let DAI_TOKEN = tokenAddressList["Mainnet"]["DAI"];  /// DAI on Mainnet;
 
 
 /***
@@ -46,10 +51,12 @@ contract("GLMStakePool", function(accounts) {
 
         it("Setup GLMMockToken contract instance", async () => {
             glmToken = await GLMMockToken.new({ from: accounts[0] });
+            GLM_TOKEN = glmToken.address;
         });
 
         it("Setup GolemFarmingLPToken contract instance", async () => {
             golemFarmingLPToken = await GolemFarmingLPToken.new({ from: accounts[0] });
+            GOLEM_FARMING_LP_TOKEN = golemFarmingLPToken.address;
         });
 
         it("Setup GolemGovernanceToken contract instance", async () => {
@@ -71,12 +78,25 @@ contract("GLMStakePool", function(accounts) {
                                                   { from: accounts[0] });
         });
 
-        it("Setup DAI contract instance", async () => {
-            dai = await Dai.at(DAI_ADDRESS, { from: accounts[0] });
+        it("Setup UniswapV2Factory contract instance", async () => {
+            uniswapV2Factory = await UniswapV2Factory.at(UNISWAP_V2_FACTORY, { from: accounts[0] });
+        });
+
+        it("Setup UniswapV2Router02 contract instance", async () => {
+            uniswapV2Router02 = await UniswapV2Router02.at(UNISWAP_V2_ROUTER_02, { from: accounts[0] });
         });
 
         it("Setup UniswapV2Helper contract instance", async () => {
             uniswapV2Helper = await UniswapV2Helper.new(UNISWAP_V2_FACTORY, UNISWAP_V2_ROUTER_02, { from: accounts[0] });
+        });
+
+        it("Setup WETH contract instance", async () => {
+            WETH_TOKEN = await uniswapV2Router02.WETH();
+            console.log('=== WETH_TOKEN ===', WETH_TOKEN);
+        });
+
+        it("Setup DAI contract instance", async () => {
+            dai = await Dai.at(DAI_TOKEN, { from: accounts[0] });
         });
     });
 
@@ -94,7 +114,7 @@ contract("GLMStakePool", function(accounts) {
 
         it("Swap ETH for DAI on Uniswap-V2", async () => {
             /// [Todo]: Swap ETH for DAI
-            const erc20 = DAI_ADDRESS;
+            const erc20 = DAI_TOKEN;
             const erc20Amount = web3.utils.toWei('100', 'ether');  /// 100 DAI
             const ethAmount = web3.utils.toWei('1', 'ether');      /// 1 ETH
             uniswapV2Helper.convertEthToERC20(erc20, erc20Amount, { from: user1, value: ethAmount });
@@ -112,15 +132,21 @@ contract("GLMStakePool", function(accounts) {
 
     describe("Create a pair (LP token)", () => {
         it("Create a pair (LP token) between the GLM tokens and another ERC20 tokens", async () => {
-            const erc20 = DAI_ADDRESS;  /// DAI on Mainnet
+            const erc20 = DAI_TOKEN;  /// DAI on Mainnet
             let pair = await glmStakePool.createPairWithERC20(erc20, { from: user1 });
-            console.log('=== pair (GLM-ERC20)===', pair);
+
+            /// Get created pair address
+            let pairAddress = uniswapV2Factory.getPair(GLM_TOKEN, DAI_TOKEN);
+            console.log('=== pair (GLM-ERC20)===', pairAddress);
         });
 
         it("Create a pair (LP token) between the GLM tokens and ETH", async () => {
             const ethAmount = web3.utils.toWei('1', 'ether');  /// 1 ETH
             let pair = await glmStakePool.createPairWithETH({ from: user1, value: ethAmount });
-            console.log('=== pair (GLM-ETH) ===', res);
+
+            /// Get created pair address
+            let pairAddress = uniswapV2Factory.getPair(GLM_TOKEN, WETH_TOKEN);            
+            console.log('=== pair (GLM-ETH) ===', pairAddress);
         }); 
     });
 
