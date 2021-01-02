@@ -149,7 +149,7 @@ contract("GLMStakePool", function(accounts) {
 
             /// Get created pair address
             PAIR_GLM_ERC20 = await uniswapV2Factory.getPair(GLM_TOKEN, DAI_TOKEN, { from: user1 });
-            console.log('\n=== pair (GLM-ERC20)===', pairAddress);
+            console.log('\n=== pair (GLM-ERC20)===', PAIR_GLM_ERC20);
         });
 
         it("Create a pair (LP token) between the GLM tokens and ETH", async () => {
@@ -157,7 +157,7 @@ contract("GLMStakePool", function(accounts) {
 
             /// Get created pair address
             PAIR_GLM_ETH = await uniswapV2Factory.getPair(GLM_TOKEN, WETH_TOKEN, { from: user1 });            
-            console.log('\n=== pair (GLM-ETH) ===', pairAddress);
+            console.log('\n=== pair (GLM-ETH) ===', PAIR_GLM_ETH);
         }); 
     });
 
