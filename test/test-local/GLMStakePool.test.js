@@ -30,6 +30,8 @@ let dai;
 /// Deployed address
 let GLM_TOKEN;
 let GOLEM_FARMING_LP_TOKEN;
+let PAIR_GLM_ERC20;
+let PAIR_GLM_ETH;
 let WETH_TOKEN;
 let UNISWAP_V2_ROUTER_02 = contractAddressList["Mainnet"]["Uniswap"]["UniswapV2Router02"]; /// [Note]: common contract address on mainnet and testnet
 let UNISWAP_V2_FACTORY = contractAddressList["Mainnet"]["Uniswap"]["UniswapV2Factory"];   /// [Note]: common contract address on mainnet and testnet
