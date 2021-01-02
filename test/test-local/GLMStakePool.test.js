@@ -93,7 +93,7 @@ contract("GLMStakePool", function(accounts) {
 
         it("Setup WETH contract instance", async () => {
             WETH_TOKEN = await uniswapV2Router02.WETH();
-            console.log('\n=== WETH_TOKEN ===\n', WETH_TOKEN);
+            console.log('\n=== WETH_TOKEN ===', WETH_TOKEN);
         });
 
         it("Setup DAI contract instance", async () => {
@@ -105,12 +105,12 @@ contract("GLMStakePool", function(accounts) {
         it("Get initial DAI balance of user1", async () => {
             let _daiBalance = await dai.balanceOf(user1, { from: user1 });
             let daiBalance = parseFloat(web3.utils.fromWei(_daiBalance));
-            console.log('\n===  DAI Balance of user1 ===\n', daiBalance);  /// [Result]: "0"         
+            console.log('\n===  DAI Balance of user1 ===', daiBalance);  /// [Result]: "0"         
         });
 
        it("Get initial ETH balance of user1", async () => {
             let ethBalance = await web3.eth.getBalance(user1);
-            console.log('\n===  ETH Balance of user1 ===\n', ethBalance);  /// [Result]: "100"         
+            console.log('\n===  ETH Balance of user1 ===', ethBalance);  /// [Result]: "100"         
         });
 
         it("Swap ETH for DAI on Uniswap-V2", async () => {
@@ -138,7 +138,7 @@ contract("GLMStakePool", function(accounts) {
 
             /// Get created pair address
             let pairAddress = await uniswapV2Factory.getPair(GLM_TOKEN, DAI_TOKEN, { from: user1 });
-            console.log('\n=== pair (GLM-ERC20)===\n', pairAddress);
+            console.log('\n=== pair (GLM-ERC20)===', pairAddress);
         });
 
         it("Create a pair (LP token) between the GLM tokens and ETH", async () => {
@@ -146,7 +146,7 @@ contract("GLMStakePool", function(accounts) {
 
             /// Get created pair address
             let pairAddress = await uniswapV2Factory.getPair(GLM_TOKEN, WETH_TOKEN, { from: user1 });            
-            console.log('\n=== pair (GLM-ETH) ===\n', pairAddress);
+            console.log('\n=== pair (GLM-ETH) ===', pairAddress);
         }); 
     });
 
