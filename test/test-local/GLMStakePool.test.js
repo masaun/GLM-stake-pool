@@ -29,6 +29,7 @@ let wETH;
 let dai;
 
 /// Deployed address
+let GLM_STAKE_POOL;
 let GLM_TOKEN;
 let GOLEM_FARMING_LP_TOKEN;
 let PAIR_GLM_ERC20;
@@ -89,6 +90,8 @@ contract("GLMStakePool", function(accounts) {
                                                   _uniswapV2Factory, 
                                                   _uniswapV2Router02,
                                                   { from: accounts[0] });
+
+            GLM_STAKE_POOL = glmStakePool.address;
         });
 
         it("Setup UniswapV2Factory contract instance", async () => {
@@ -165,7 +168,8 @@ contract("GLMStakePool", function(accounts) {
     describe("Add liquidity GLM tokens with ETH or ERC20 tokens", () => {
         /// [Todo]: Prioritize AddLiquidityWithETH
         it("Add liquidity GLM tokens with ETH", async () => {
-            const GLMTokenAmountDesired = web3.utils.toWei('100', 'ether');  /// 100 GLM
+            const GLMTokenAmountDesired = web3.utils.toWei('100', 'ether');   /// 100 GLM
+            await glmToken.approve(GLM_STAKE_POOL, GLMTokenAmountDesired, { from: user1 });  /// Approve GLM tokens
             await glmStakePool.addLiquidityWithETH(PAIR_GLM_ETH, GLMTokenAmountDesired, { from: user1 });
 
             /// Check pair (GLM-ETH) balance
