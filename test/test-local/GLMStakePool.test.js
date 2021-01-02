@@ -113,14 +113,16 @@ contract("GLMStakePool", function(accounts) {
     describe("Create a pair (LP token)", () => {
         it("Create a pair (LP token) between the GLM tokens and another ERC20 tokens", async () => {
             const erc20 = DAI_ADDRESS;  /// DAI on Mainnet
-            let res = await glmStakePool.createPairWithERC20(erc20, { from: user1 });
-            console.log('=== res ===', res);
+            let pair = await glmStakePool.createPairWithERC20(erc20, { from: user1 });
+            console.log('=== pair (GLM-ERC20)===', pair);
         });
 
         it("Create a pair (LP token) between the GLM tokens and ETH", async () => {
+            /// [Todo]: Check GLMMockToken balance
+
             const ethAmount = web3.utils.toWei('1', 'ether');  /// 1 ETH
-            let res = await glmStakePool.createPairWithETH({ from: user1, value: ethAmount });
-            console.log('=== res ===', res);
+            let pair = await glmStakePool.createPairWithETH({ from: user1, value: ethAmount });
+            console.log('=== pair (GLM-ETH) ===', res);
         }); 
     });
 
