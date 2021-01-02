@@ -13,6 +13,7 @@ const GolemFarmingLPToken = artifacts.require("GolemFarmingLPToken");
 const GolemGovernanceToken = artifacts.require("GolemGovernanceToken");
 const UniswapV2Helper = artifacts.require("UniswapV2Helper");
 const ERC20 = artifacts.require("ERC20");
+const Dai = artifacts.require("Dai");
 
 /// Global variable
 let glmStakePool;
@@ -71,7 +72,7 @@ contract("GLMStakePool", function(accounts) {
         });
 
         it("Setup DAI contract instance", async () => {
-            dai = await ERC20.new(DAI_ADDRESS, { from: accounts[0] });
+            dai = await Dai.at(DAI_ADDRESS);
         });
 
         it("Setup UniswapV2Helper contract instance", async () => {
