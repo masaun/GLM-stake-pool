@@ -72,7 +72,7 @@ contract("GLMStakePool", function(accounts) {
         });
 
         it("Setup DAI contract instance", async () => {
-            dai = await Dai.at(DAI_ADDRESS);
+            dai = await Dai.at(DAI_ADDRESS, { from: accounts[0] });
         });
 
         it("Setup UniswapV2Helper contract instance", async () => {
@@ -115,7 +115,13 @@ contract("GLMStakePool", function(accounts) {
             const erc20 = DAI_ADDRESS;  /// DAI on Mainnet
             let res = await glmStakePool.createPairWithERC20(erc20, { from: user1 });
             console.log('=== res ===', res);
-        });           
+        });
+
+        it("Create a pair (LP token) between the GLM tokens and ETH", async () => {
+            const ethAmount = web3.utils.toWei('1', 'ether');  /// 1 ETH
+            let res = await glmStakePool.createPairWithETH({ from: user1, value: ethAmount });
+            console.log('=== res ===', res);
+        }); 
     });
 
 });
