@@ -137,7 +137,7 @@ contract("GLMStakePool", function(accounts) {
             let pair = await glmStakePool.createPairWithERC20(erc20, { from: user1 });
 
             /// Get created pair address
-            let pairAddress = await uniswapV2Factory.getPair(GLM_TOKEN, DAI_TOKEN, { from: user1 });
+            PAIR_GLM_ERC20 = await uniswapV2Factory.getPair(GLM_TOKEN, DAI_TOKEN, { from: user1 });
             console.log('\n=== pair (GLM-ERC20)===', pairAddress);
         });
 
@@ -145,13 +145,17 @@ contract("GLMStakePool", function(accounts) {
             let pair = await glmStakePool.createPairWithETH({ from: user1 });
 
             /// Get created pair address
-            let pairAddress = await uniswapV2Factory.getPair(GLM_TOKEN, WETH_TOKEN, { from: user1 });            
+            PAIR_GLM_ETH = await uniswapV2Factory.getPair(GLM_TOKEN, WETH_TOKEN, { from: user1 });            
             console.log('\n=== pair (GLM-ETH) ===', pairAddress);
         }); 
     });
 
     describe("Add liquidity GLM tokens with ETH or ERC20 tokens", () => {
         /// [Todo]: Prioritize AddLiquidityWithETH
+        it("Add liquidity GLM tokens with ETH", async () => {
+            const GLMTokenAmountDesired = web3.utils.toWei('100', 'ether');  /// 100 GLM
+            glmStakePool.addLiquidityWithETH(PAIR_GLM_ETH, GLMTokenAmountDesired, { from: user1 });
+        });
     });
 
 });
