@@ -59,7 +59,7 @@ contract("GLMStakePool", function(accounts) {
 
         it("Mint 100000 GLMToken to user1", async () => {
             const mintAmount = web3.utils.toWei('100000', 'ether');  /// 100000 GLM
-            await GLMMockToken.mint(user1, mintAmount, { from: user1 });
+            await glmToken.mint(user1, mintAmount, { from: user1 });
             
             let _glmBalance = await glmToken.balanceOf(user1, { from: user1 });
             let glmBalance = parseFloat(web3.utils.fromWei(_glmBalance));
