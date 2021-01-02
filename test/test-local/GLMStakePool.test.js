@@ -11,9 +11,10 @@ const GLMStakePool = artifacts.require("GLMStakePool");
 const GLMMockToken = artifacts.require("GLMMockToken");
 const GolemFarmingLPToken = artifacts.require("GolemFarmingLPToken");
 const GolemGovernanceToken = artifacts.require("GolemGovernanceToken");
+const UniswapV2Factory = artifacts.require("IUniswapV2Factory");
+const UniswapV2Router02 = artifacts.require("IUniswapV2Router02");
 const UniswapV2Helper = artifacts.require("UniswapV2Helper");
-const ERC20 = artifacts.require("ERC20");
-const Dai = artifacts.require("Dai");
+const IERC20 = artifacts.require("IERC20");
 
 /// Global variable
 let glmStakePool;
@@ -96,7 +97,7 @@ contract("GLMStakePool", function(accounts) {
         });
 
         it("Setup DAI contract instance", async () => {
-            dai = await Dai.at(DAI_TOKEN, { from: accounts[0] });
+            dai = await IERC20.at(DAI_TOKEN, { from: accounts[0] });
         });
     });
 
@@ -136,7 +137,7 @@ contract("GLMStakePool", function(accounts) {
             let pair = await glmStakePool.createPairWithERC20(erc20, { from: user1 });
 
             /// Get created pair address
-            let pairAddress = uniswapV2Factory.getPair(GLM_TOKEN, DAI_TOKEN);
+            let pairAddress = await uniswapV2Factory.getPair(GLM_TOKEN, DAI_TOKEN, { from: user1 });
             console.log('=== pair (GLM-ERC20)===', pairAddress);
         });
 
@@ -145,7 +146,7 @@ contract("GLMStakePool", function(accounts) {
             let pair = await glmStakePool.createPairWithETH({ from: user1, value: ethAmount });
 
             /// Get created pair address
-            let pairAddress = uniswapV2Factory.getPair(GLM_TOKEN, WETH_TOKEN);            
+            let pairAddress = await uniswapV2Factory.getPair(GLM_TOKEN, WETH_TOKEN, { from: user1 });            
             console.log('=== pair (GLM-ETH) ===', pairAddress);
         }); 
     });
