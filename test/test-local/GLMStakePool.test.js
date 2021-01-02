@@ -12,6 +12,7 @@ const GLMMockToken = artifacts.require("GLMMockToken");
 const GolemFarmingLPToken = artifacts.require("GolemFarmingLPToken");
 const GolemGovernanceToken = artifacts.require("GolemGovernanceToken");
 const UniswapV2Factory = artifacts.require("IUniswapV2Factory");
+const UniswapV2Pair = artifacts.require("IUniswapV2Pair");
 const UniswapV2Router02 = artifacts.require("IUniswapV2Router02");
 const UniswapV2Helper = artifacts.require("UniswapV2Helper");
 const IERC20 = artifacts.require("IERC20");
@@ -165,7 +166,15 @@ contract("GLMStakePool", function(accounts) {
         /// [Todo]: Prioritize AddLiquidityWithETH
         it("Add liquidity GLM tokens with ETH", async () => {
             const GLMTokenAmountDesired = web3.utils.toWei('100', 'ether');  /// 100 GLM
-            glmStakePool.addLiquidityWithETH(PAIR_GLM_ETH, GLMTokenAmountDesired, { from: user1 });
+            await glmStakePool.addLiquidityWithETH(PAIR_GLM_ETH, GLMTokenAmountDesired, { from: user1 });
+
+            /// Check pair (GLM-ETH) balance
+            const uniswapV2Pair = UniswapV2Pair.at(PAIR_GLM_ETH, { from: user1 });
+            let _pairBalance = await uniswapV2Pair.balanceOf(user1, { from: user1 });
+            let pairBalance = parseFloat(web3.utils.fromWei(_pairBalance));
+            console.log('\n=== pair (GLM-ETH) balance of user1 ===', pairBalance);
+
+            // assert.equal();
         });
     });
 
