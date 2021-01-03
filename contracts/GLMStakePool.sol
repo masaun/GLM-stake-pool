@@ -202,7 +202,7 @@ contract GLMStakePool is GLMStakePoolStorages {
     ) public payable returns (bool) {
         /// Transfer GLM tokens and ETH from a user
         GLMToken.transferFrom(msg.sender, address(this), GLMTokenAmountDesired);
-        uint ETHAmountDesired = msg.value;
+        uint ETHAmountMin = msg.value;
 
         /// Convert ETH (msg.value) to WETH (ERC20) 
         /// [Note]: Converted amountETH is equal to "msg.value"
@@ -210,13 +210,13 @@ contract GLMStakePool is GLMStakePoolStorages {
 
         /// Approve each tokens for UniswapV2Routor02
         GLMToken.approve(UNISWAP_V2_ROUTOR_02, GLMTokenAmountDesired);
-        //wETH.approve(UNISWAP_V2_ROUTOR_02, ETHAmountDesired);
+        //wETH.approve(UNISWAP_V2_ROUTOR_02, ETHAmountMin);
 
         /// Add liquidity and pair
         uint GLMTokenAmount;
         uint ETHAmount;
         uint liquidity;
-        (GLMTokenAmount, ETHAmount, liquidity) = _addLiquidityWithETH(GLMTokenAmountDesired, ETHAmountDesired);
+        (GLMTokenAmount, ETHAmount, liquidity) = _addLiquidityWithETH(GLMTokenAmountDesired, ETHAmountMin);
 
         /// [Todo]: Refund leftover ETH to a staker (Need to identify how much leftover ETH of a staker) 
         //msg.sender.call.value(address(this).balance)("");
@@ -227,7 +227,7 @@ contract GLMStakePool is GLMStakePoolStorages {
 
     function _addLiquidityWithETH(   /// [Note]: This internal method is added for avoiding "Stack too deep" 
         uint GLMTokenAmountDesired,
-        uint ETHAmountDesired
+        uint ETHAmountMin
     ) internal returns (uint _GLMTokenAmount, uint _ETHAmount, uint _liquidity) {
         uint GLMTokenAmount;
         uint ETHAmount;
@@ -235,7 +235,6 @@ contract GLMStakePool is GLMStakePoolStorages {
 
         /// Define each minimum amounts
         uint GLMTokenMin = GLMTokenAmountDesired;  /// [Note]: 5 GLM will be set as the initial addLiquidity.
-        uint ETHAmountMin = 1 * 1e17;              /// [Note]: Because 0.1 ETH per 5 GLM in the initial addLiquidity
 
         address to = msg.sender;
         uint deadline = now.add(300 seconds);
