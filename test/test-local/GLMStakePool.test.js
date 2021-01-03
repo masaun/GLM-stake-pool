@@ -174,6 +174,7 @@ contract("GLMStakePool", function(accounts) {
             const GLMTokenAmountDesired = web3.utils.toWei('100', 'ether'); /// 100 GLM
             const ETHAmountDesired = web3.utils.toWei('1', 'ether');        /// 1 ETH
             await glmToken.approve(GLM_STAKE_POOL, GLMTokenAmountDesired, { from: user1 });  /// Approve GLM tokens
+            await wETH.approve(GLM_STAKE_POOL, ETHAmountDesired, { from: user1 });           /// Approve ETH (WETH)
             await glmStakePool.addLiquidityWithETH(PAIR_GLM_ETH, GLMTokenAmountDesired, { from: user1, value: ETHAmountDesired });
 
             /// Check pair (GLM-ETH) balance
