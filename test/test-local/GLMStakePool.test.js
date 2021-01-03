@@ -12,6 +12,8 @@ const GLMMockToken = artifacts.require("GLMMockToken");
 const GolemFarmingLPToken = artifacts.require("GolemFarmingLPToken");
 const GolemGovernanceToken = artifacts.require("GolemGovernanceToken");
 const UniswapV2Factory = artifacts.require("IUniswapV2Factory");
+const UniswapV2Pair = artifacts.require("IUniswapV2Pair");
+const UniswapV2ERC20 = artifacts.require("IUniswapV2ERC20");
 const UniswapV2Router02 = artifacts.require("IUniswapV2Router02");
 const UniswapV2Helper = artifacts.require("UniswapV2Helper");
 const IERC20 = artifacts.require("IERC20");
@@ -28,8 +30,11 @@ let wETH;
 let dai;
 
 /// Deployed address
+let GLM_STAKE_POOL;
 let GLM_TOKEN;
 let GOLEM_FARMING_LP_TOKEN;
+let PAIR_GLM_ERC20;
+let PAIR_GLM_ETH;
 let WETH_TOKEN;
 let UNISWAP_V2_ROUTER_02 = contractAddressList["Mainnet"]["Uniswap"]["UniswapV2Router02"]; /// [Note]: common contract address on mainnet and testnet
 let UNISWAP_V2_FACTORY = contractAddressList["Mainnet"]["Uniswap"]["UniswapV2Factory"];   /// [Note]: common contract address on mainnet and testnet
@@ -50,9 +55,18 @@ contract("GLMStakePool", function(accounts) {
             console.log('\n=== accounts ===\n', accounts);
         });        
 
-        it("Setup GLMMockToken contract instance", async () => {
+        it("Setup GLMToken contract instance (by using GLMMockToken)", async () => {
             glmToken = await GLMMockToken.new({ from: accounts[0] });
             GLM_TOKEN = glmToken.address;
+        });
+
+        it("Mint 100000 GLMToken to user1", async () => {
+            const mintAmount = web3.utils.toWei('100000', 'ether');     /// 100000 GLM
+            await glmToken.mint(user1, mintAmount, { from: user1 });
+            
+            let _glmBalance = await glmToken.balanceOf(user1, { from: user1 });
+            let glmBalance = parseFloat(web3.utils.fromWei(_glmBalance));
+            console.log('\n=== GLM balance of user1 ===', glmBalance);  /// [Result]: 100000 GLM         
         });
 
         it("Setup GolemFarmingLPToken contract instance", async () => {
@@ -77,6 +91,8 @@ contract("GLMStakePool", function(accounts) {
                                                   _uniswapV2Factory, 
                                                   _uniswapV2Router02,
                                                   { from: accounts[0] });
+
+            GLM_STAKE_POOL = glmStakePool.address;
         });
 
         it("Setup UniswapV2Factory contract instance", async () => {
@@ -137,21 +153,50 @@ contract("GLMStakePool", function(accounts) {
             let pair = await glmStakePool.createPairWithERC20(erc20, { from: user1 });
 
             /// Get created pair address
-            let pairAddress = await uniswapV2Factory.getPair(GLM_TOKEN, DAI_TOKEN, { from: user1 });
-            console.log('\n=== pair (GLM-ERC20)===', pairAddress);
+            PAIR_GLM_ERC20 = await uniswapV2Factory.getPair(GLM_TOKEN, DAI_TOKEN, { from: user1 });
+            console.log('\n=== pair (GLM-ERC20)===', PAIR_GLM_ERC20);
         });
 
         it("Create a pair (LP token) between the GLM tokens and ETH", async () => {
             let pair = await glmStakePool.createPairWithETH({ from: user1 });
 
             /// Get created pair address
-            let pairAddress = await uniswapV2Factory.getPair(GLM_TOKEN, WETH_TOKEN, { from: user1 });            
-            console.log('\n=== pair (GLM-ETH) ===', pairAddress);
+            PAIR_GLM_ETH = await uniswapV2Factory.getPair(GLM_TOKEN, WETH_TOKEN, { from: user1 });            
+            console.log('\n=== pair (GLM-ETH) ===', PAIR_GLM_ETH);
         }); 
     });
 
     describe("Add liquidity GLM tokens with ETH or ERC20 tokens", () => {
-        /// [Todo]: Prioritize AddLiquidityWithETH
+        it("Add liquidity GLM tokens with ERC20", async () => {
+            /// [Todo]: addLiquidityWithERC20()
+        });
+
+        it("Add liquidity GLM tokens with ETH", async () => {
+            /// [Note]: Exchange rate is "5 GLM per 0.1 ETH"
+            const GLMTokenAmountDesired = web3.utils.toWei('5', 'ether');   /// 5 GLM
+            const ETHAmountMin = `${ 1 * 1e17 }`;  /// 0.1 ETH
+            await glmToken.approve(GLM_STAKE_POOL, GLMTokenAmountDesired, { from: user1 });  /// Approve GLM tokens
+            await glmToken.approve(UNISWAP_V2_ROUTER_02, GLMTokenAmountDesired, { from: user1 });  /// Approve GLM tokens
+
+            /// [Note]: Using addLiquidityETH() method of the UniswapV2Router02 directly.
+            const GLMTokenMin = GLMTokenAmountDesired;
+            const now = Math.floor(new Date().getTime() / 1000);
+            const deadline = now + 18000;  /// 300 seconds
+            await uniswapV2Router02.addLiquidityETH(GLM_TOKEN, GLMTokenAmountDesired, GLMTokenMin, ETHAmountMin, user1, deadline,  { from: user1, value: ETHAmountMin });
+            //await glmStakePool.addLiquidityWithETH(PAIR_GLM_ETH, GLMTokenAmountDesired, { from: user1, value: ETHAmountMin });
+        });
+
+        it("Check uniswapV2 Pool balance of GLM-ETH (after addLiquidityETH)", async () => {
+            /// Check pair (GLM-ETH) balance
+            const _PAIR_GLM_ETH = await uniswapV2Factory.getPair(GLM_TOKEN, WETH_TOKEN, { from: user1 });  
+            const uniswapV2Pair = UniswapV2Pair.at(_PAIR_GLM_ETH, { from: user1 });
+            let _pairBalance = await uniswapV2Pair.balanceOf(user1, { from: user1 });
+            let pairBalance = parseFloat(web3.utils.fromWei(_pairBalance));
+
+            console.log('\n=== pair (GLM-ETH) balance of user1 ===', pairBalance);
+            // assert.equal();
+        });
+
     });
 
 });
