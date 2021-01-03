@@ -178,8 +178,8 @@ contract("GLMStakePool", function(accounts) {
 
             /// [Note]: Using addLiquidityETH() method of the UniswapV2Router02 directly.
             const GLMTokenMin = GLMTokenAmountDesired;
-            await uniswapV2Router02.addLiquidityETH(GLM_TOKEN, GLMTokenAmountDesired, GLMTokenMin, ETHAmountMin, user1, 360,  { from: user1, value: ETHAmountDesired });
-            //await glmStakePool.addLiquidityWithETH(PAIR_GLM_ETH, GLMTokenAmountDesired, { from: user1, value: ETHAmountDesired });
+            await uniswapV2Router02.addLiquidityETH(GLM_TOKEN, GLMTokenAmountDesired, GLMTokenMin, ETHAmountMin, user1, 360,  { from: user1, value: ETHAmountMin });
+            //await glmStakePool.addLiquidityWithETH(PAIR_GLM_ETH, GLMTokenAmountDesired, { from: user1, value: ETHAmountMin });
 
             /// Check pair (GLM-ETH) balance
             const uniswapV2Pair = UniswapV2Pair.at(PAIR_GLM_ETH, { from: user1 });
