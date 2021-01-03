@@ -205,7 +205,10 @@ contract("GLMStakePool", function(accounts) {
 
     describe("Stake LP tokens (GLM/ERC20 or GLM/ETH)", () => {
         it("Stake LP tokens (GLM/ETH)", async () => {
+            const uniswapV2Pair = await UniswapV2Pair.at(PAIR_GLM_ETH, { from: user1 });
+
             const lpTokenAmount = web3.utils.toWei(`${ 5 * 1e17 }`, 'wei');  /// 0.5 that is amount of LP token (GLM/ETH)
+            await uniswapV2Pair.approve(GLM_STAKE_POOL, lpTokenAmount, { from: user1 });
             await glmStakePool.stakeLPToken(PAIR_GLM_ETH, lpTokenAmount, { from: user1 });
         });
     });
