@@ -170,9 +170,9 @@ contract GLMStakePool is GLMStakePoolStorages {
         uint ERC20Amount;
         uint liquidity;
 
-        /// Define each minimum amounts (range of slippage)
-        uint GLMTokenMin = GLMTokenAmountDesired.sub(1 * 1e18);  /// Slippage is allowed until -1 GLM desired
-        uint ERC20AmountMin = ERC20AmountDesired.sub(1 * 1e18);  /// Slippage is allowed until -1 DAI desired 
+        /// Define each minimum amounts
+        uint GLMTokenMin;
+        uint ERC20AmountMin;
 
         address to = msg.sender;
         uint deadline = now.add(15 seconds);
