@@ -317,6 +317,7 @@ contract GLMStakePool is GLMStakePoolStorages {
 
     /***
      * @notice - Stake LP tokens (GLM/ERC20 or GLM/ETH)
+     * @param lpTokenAmount - Staked LP tokens amount
      **/
     function stakeLPToken(IUniswapV2Pair pair, uint lpTokenAmount) public returns (bool) {
         /// Stake LP tokens into this pool contract

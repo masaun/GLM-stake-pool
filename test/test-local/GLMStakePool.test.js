@@ -181,8 +181,14 @@ contract("GLMStakePool", function(accounts) {
             /// [Note]: Using addLiquidityETH() method of the UniswapV2Router02 directly.
             const GLMTokenMin = GLMTokenAmountDesired;
             const now = Math.floor(new Date().getTime() / 1000);
-            const deadline = now + 18000;  /// 300 seconds
-            await uniswapV2Router02.addLiquidityETH(GLM_TOKEN, GLMTokenAmountDesired, GLMTokenMin, ETHAmountMin, user1, deadline,  { from: user1, value: ETHAmountMin });
+            const deadline = now + 18000;  /// [Note]: Current timestamp + 300 seconds
+            await uniswapV2Router02.addLiquidityETH(GLM_TOKEN, 
+                                                    GLMTokenAmountDesired, 
+                                                    GLMTokenMin, 
+                                                    ETHAmountMin, 
+                                                    user1, 
+                                                    deadline, 
+                                                    { from: user1, value: ETHAmountMin });
             //await glmStakePool.addLiquidityWithETH(PAIR_GLM_ETH, GLMTokenAmountDesired, { from: user1, value: ETHAmountMin });
         });
 
@@ -195,7 +201,14 @@ contract("GLMStakePool", function(accounts) {
             console.log('\n=== pair (GLM-ETH) balance of user1 (after addLiquidityETH) ===', pairBalance);
             // assert.equal();
         });
-
     });
+
+    describe("Stake LP tokens (GLM/ERC20 or GLM/ETH)", () => {
+        it("Check pair (GLM-ETH) balance", async () => {
+            const lpTokenAmount = web3.utils.toWei(`${ 5 * 1e17 }`, 'wei');  /// 0.5 that is amount of LP token (GLM-ETH)
+            await glmStakePool.stakeLPToken(PAIR_GLM_ETH, lpTokenAmount, { from: user1 });
+        });
+    });
+
 
 });
