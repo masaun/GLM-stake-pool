@@ -175,6 +175,7 @@ contract("GLMStakePool", function(accounts) {
             const GLMTokenAmountDesired = web3.utils.toWei('5', 'ether');   /// 5 GLM
             const ETHAmountMin = `${ 1 * 1e17 }`;  /// 0.1 ETH
             await glmToken.approve(GLM_STAKE_POOL, GLMTokenAmountDesired, { from: user1 });  /// Approve GLM tokens
+            await glmToken.approve(UNISWAP_V2_ROUTER_02, GLMTokenAmountDesired, { from: user1 });  /// Approve GLM tokens
 
             /// [Note]: Using addLiquidityETH() method of the UniswapV2Router02 directly.
             const GLMTokenMin = GLMTokenAmountDesired;
