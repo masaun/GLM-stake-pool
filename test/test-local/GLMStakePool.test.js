@@ -171,8 +171,9 @@ contract("GLMStakePool", function(accounts) {
         });
 
         it("Add liquidity GLM tokens with ETH", async () => {
+            /// [Note]: Exchange rate is "5 GLM per 0.1 ETH"
             const GLMTokenAmountDesired = web3.utils.toWei('5', 'ether');   /// 5 GLM
-            const ETHAmountDesired = web3.utils.toWei(`${1e17}`, 'ether');  /// 0.1 ETH
+            const ETHAmountDesired = `${ 1 * 1e17 }`;  /// 0.1 ETH
             await glmToken.approve(GLM_STAKE_POOL, GLMTokenAmountDesired, { from: user1 });  /// Approve GLM tokens
             await glmStakePool.addLiquidityWithETH(PAIR_GLM_ETH, GLMTokenAmountDesired, { from: user1, value: ETHAmountDesired });
 

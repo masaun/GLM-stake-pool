@@ -233,10 +233,9 @@ contract GLMStakePool is GLMStakePoolStorages {
         uint ETHAmount;
         uint liquidity;
 
-        /// Define each minimum amounts (range of slippage)
-        uint GLMTokenMin = GLMTokenAmountDesired;                  /// Slippage is 0 (if it's the first time to addLiquidity)
-        //uint GLMTokenMin = GLMTokenAmountDesired.sub(1 * 1e17);  /// Slippage is allowed until -0.1 GLM desired
-        uint ETHAmountMin = ETHAmountDesired.sub(1 * 1e17);        /// Slippage is allowed until -0.1 ETH desired 
+        /// Define each minimum amounts
+        uint GLMTokenMin = GLMTokenAmountDesired;  /// [Note]: 5 GLM will be set as the initial addLiquidity.
+        uint ETHAmountMin = 1 * 1e17;              /// [Note]: Because 0.1 ETH per 5 GLM in the initial addLiquidity
 
         address to = msg.sender;
         uint deadline = now.add(300 seconds);
