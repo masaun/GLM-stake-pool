@@ -184,15 +184,19 @@ contract("GLMStakePool", function(accounts) {
             const deadline = now + 18000;  /// 300 seconds
             await uniswapV2Router02.addLiquidityETH(GLM_TOKEN, GLMTokenAmountDesired, GLMTokenMin, ETHAmountMin, user1, deadline,  { from: user1, value: ETHAmountMin });
             //await glmStakePool.addLiquidityWithETH(PAIR_GLM_ETH, GLMTokenAmountDesired, { from: user1, value: ETHAmountMin });
+        });
 
+        it("Check uniswapV2 Pool balance of GLM-ETH (after addLiquidityETH)", async () => {
             /// Check pair (GLM-ETH) balance
-            // const uniswapV2Pair = UniswapV2Pair.at(PAIR_GLM_ETH, { from: user1 });
-            // let _pairBalance = await uniswapV2ERC20.balanceOf(user1, { from: user1 });
-            // let pairBalance = parseFloat(web3.utils.fromWei(_pairBalance));
-            // console.log('\n=== pair (GLM-ETH) balance of user1 ===', pairBalance);
+            const _PAIR_GLM_ETH = await uniswapV2Factory.getPair(GLM_TOKEN, WETH_TOKEN, { from: user1 });  
+            const uniswapV2Pair = UniswapV2Pair.at(_PAIR_GLM_ETH, { from: user1 });
+            let _pairBalance = await uniswapV2Pair.balanceOf(user1, { from: user1 });
+            let pairBalance = parseFloat(web3.utils.fromWei(_pairBalance));
 
+            console.log('\n=== pair (GLM-ETH) balance of user1 ===', pairBalance);
             // assert.equal();
         });
+
     });
 
 });
