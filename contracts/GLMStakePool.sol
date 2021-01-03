@@ -234,11 +234,12 @@ contract GLMStakePool is GLMStakePoolStorages {
         uint liquidity;
 
         /// Define each minimum amounts (range of slippage)
-        uint GLMTokenMin = GLMTokenAmountDesired.sub(1 * 1e17);  /// Slippage is allowed until -0.1 GLM desired
-        uint ETHAmountMin = ETHAmountDesired.sub(1 * 1e17);      /// Slippage is allowed until -0.1 ETH desired 
+        uint GLMTokenMin = GLMTokenAmountDesired;                  /// Slippage is 0 (if it's the first time to addLiquidity)
+        //uint GLMTokenMin = GLMTokenAmountDesired.sub(1 * 1e17);  /// Slippage is allowed until -0.1 GLM desired
+        uint ETHAmountMin = ETHAmountDesired.sub(1 * 1e17);        /// Slippage is allowed until -0.1 ETH desired 
 
         address to = msg.sender;
-        uint deadline = now.add(15 seconds);
+        uint deadline = now.add(300 seconds);
         (GLMTokenAmount, ETHAmount, liquidity) = uniswapV2Router02.addLiquidityETH(GLM_TOKEN,
                                                                                    GLMTokenAmountDesired,
                                                                                    GLMTokenMin,
