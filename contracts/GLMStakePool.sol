@@ -39,7 +39,7 @@ contract GLMStakePool is GLMStakePoolStorages {
     IUniswapV2Router02 public uniswapV2Router02;
 
     address GLM_TOKEN;
-    address GLM_POOL_TOKEN;
+    address GLM_FARMING_LP_TOKEN;
     address GG_TOKEN;
     address WETH_TOKEN;
     address UNISWAP_V2_FACTORY;
@@ -75,7 +75,7 @@ contract GLMStakePool is GLMStakePoolStorages {
         wETH = IWETH(uniswapV2Router02.WETH());
 
         GLM_TOKEN = address(_GLMToken);
-        GLM_POOL_TOKEN = address(_golemFarmingLPToken);
+        GLM_FARMING_LP_TOKEN = address(_golemFarmingLPToken);
         GG_TOKEN = address(_golemGovernanceToken);
         UNISWAP_V2_FACTORY = address(_uniswapV2Factory);
         UNISWAP_V2_ROUTOR_02 = address(_uniswapV2Router02);
@@ -170,9 +170,9 @@ contract GLMStakePool is GLMStakePoolStorages {
         uint ERC20Amount;
         uint liquidity;
 
-        /// Define each minimum amounts (range of slippage)
-        uint GLMTokenMin = GLMTokenAmountDesired.sub(1 * 1e18);  /// Slippage is allowed until -1 GLM desired
-        uint ERC20AmountMin = ERC20AmountDesired.sub(1 * 1e18);  /// Slippage is allowed until -1 DAI desired 
+        /// Define each minimum amounts
+        uint GLMTokenMin;
+        uint ERC20AmountMin;
 
         address to = msg.sender;
         uint deadline = now.add(15 seconds);
@@ -317,6 +317,7 @@ contract GLMStakePool is GLMStakePoolStorages {
 
     /***
      * @notice - Stake LP tokens (GLM/ERC20 or GLM/ETH)
+     * @param lpTokenAmount - Staked LP tokens amount
      **/
     function stakeLPToken(IUniswapV2Pair pair, uint lpTokenAmount) public returns (bool) {
         /// Stake LP tokens into this pool contract
