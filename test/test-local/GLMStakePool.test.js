@@ -245,6 +245,13 @@ contract("GLMStakePool", function(accounts) {
             console.log('\n=== totalStakedGLMAmount ===', totalStakedGLMAmount);
         });
 
+        it("Check the total individual staked GLM amount", async () => {
+            const stakeId = 1;
+            let _totalIndividualStakedGLMAmount = await glmStakePool.getTotalIndividualStakedGLMAmount(stakeId, { from: user1 });
+            let totalIndividualStakedGLMAmount = parseFloat(web3.utils.fromWei(_totalIndividualStakedGLMAmount));
+            console.log('\n=== totalIndividualStakedGLMAmount ===', totalIndividualStakedGLMAmount);
+        });
+
         it("Claim rewards (Do not un-stake LP tokens (GLM-ETH)", async () => {
             await glmStakePool.claimEarnedReward(PAIR_GLM_ETH, { from: user1 });
         });

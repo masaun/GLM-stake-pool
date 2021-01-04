@@ -489,6 +489,11 @@ contract GLMStakePool is GLMStakePoolStorages {
         return totalStakedGLMAmount;
     }
 
+    function getTotalIndividualStakedGLMAmount(uint8 stakeId) public view returns (uint _totalIndividualStakedGLMAmount) {
+        StakeData memory stakeData = stakeDatas[stakeId];
+        return stakeData.stakedGLMAmount;
+    }
+
 
     ///-------------------
     /// Private methods
