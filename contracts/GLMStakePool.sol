@@ -328,7 +328,7 @@ contract GLMStakePool is GLMStakePoolStorages {
         golemFarmingLPToken.mint(msg.sender, lpTokenAmount);
 
         /// Add new staked UNI-LP token amount to the total staked UNI-LP token amount
-        totalStakedLPTokenAmount.add(stakedLPTokenAmount);
+        totalStakedLPTokenAmount.add(lpTokenAmount);
 
         /// Register staker's data
         uint8 newStakeId = getNextStakeId();
