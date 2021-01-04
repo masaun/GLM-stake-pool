@@ -327,24 +327,8 @@ contract GLMStakePool is GLMStakePoolStorages {
         /// Mint the Golem Farming LP tokens
         golemFarmingLPToken.mint(msg.sender, lpTokenAmount);
 
-        /// Get reserve0 and reserve1
-        uint112 reserve0;  /// GLM token amount
-        uint112 reserve1;  /// ERC20 token or ETH (WETH) amount
-        uint32 blockTimestampLast;
-        (reserve0, reserve1, blockTimestampLast) = pair.getReserves();
-
-        /// Add LP token amount to the total GLM token amount
-        //uint stakedLPTokenAmount = reserve0;
-        uint stakedLPTokenAmount = uint256(reserve0);
+        /// Add new staked UNI-LP token amount to the total staked UNI-LP token amount
         totalStakedLPTokenAmount.add(stakedLPTokenAmount);
-
-        uint stakedERC20Amount;        /// reserve1 (ERC20 token) from UniswapV2
-        uint stakedETHAmount;          /// reserve1 (ETH == WETH) from UniswapV2
-        if (pair.token0() == WETH_TOKEN || pair.token1() == WETH_TOKEN) {
-            stakedETHAmount = uint256(reserve1);
-        } else {
-            stakedERC20Amount = uint256(reserve1);
-        }
 
         /// Register staker's data
         uint8 newStakeId = getNextStakeId();
