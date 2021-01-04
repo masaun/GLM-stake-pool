@@ -232,5 +232,11 @@ contract("GLMStakePool", function(accounts) {
         });        
     });
 
+    describe("Update pool status weekly (every week)", () => {
+        it("Pool status should be updated", async () => {
+            await glmStakePool.weeklyPoolStatusUpdate({ from: user1 });
+        });
+    });
+
 
 });
