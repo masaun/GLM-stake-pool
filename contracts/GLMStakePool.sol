@@ -39,8 +39,8 @@ contract GLMStakePool is GLMStakePoolStorages {
     IUniswapV2Router02 public uniswapV2Router02;
 
     address GLM_TOKEN;
-    address GLM_FARMING_LP_TOKEN;
-    address GG_TOKEN;
+    address GOLEM_FARMING_LP_TOKEN;
+    address GOLEM_GOVERNANCE_TOKEN;
     address WETH_TOKEN;
     address UNISWAP_V2_FACTORY;
     address UNISWAP_V2_ROUTOR_02;
@@ -75,8 +75,8 @@ contract GLMStakePool is GLMStakePoolStorages {
         wETH = IWETH(uniswapV2Router02.WETH());
 
         GLM_TOKEN = address(_GLMToken);
-        GLM_FARMING_LP_TOKEN = address(_golemFarmingLPToken);
-        GG_TOKEN = address(_golemGovernanceToken);
+        GOLEM_FARMING_LP_TOKEN = address(_golemFarmingLPToken);
+        GOLEM_GOVERNANCE_TOKEN = address(_golemGovernanceToken);
         UNISWAP_V2_FACTORY = address(_uniswapV2Factory);
         UNISWAP_V2_ROUTOR_02 = address(_uniswapV2Router02);
         WETH_TOKEN = address(uniswapV2Router02.WETH());
