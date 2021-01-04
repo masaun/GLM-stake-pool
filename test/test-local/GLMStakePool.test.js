@@ -239,6 +239,11 @@ contract("GLMStakePool", function(accounts) {
     });
 
     describe("Withdraw only earned rewards", () => {
+        it("Check the total staked GLM amount", async () => {
+            let totalStakedGLMAmount = await glmStakePool.getTotalStakedGLMAmount({ from: user1 });
+            console.log('\n=== totalStakedGLMAmount ===', totalStakedGLMAmount);
+        });
+
         it("Claim rewards (Do not un-stake LP tokens (GLM-ETH)", async () => {
             await glmStakePool.claimEarnedReward(PAIR_GLM_ETH, { from: user1 });
         });

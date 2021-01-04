@@ -436,7 +436,6 @@ contract GLMStakePool is GLMStakePoolStorages {
     }
 
 
-
     ///--------------------------------------------------------
     /// Golem Governance Token is given to stakers as rewards
     ///--------------------------------------------------------
@@ -480,13 +479,20 @@ contract GLMStakePool is GLMStakePoolStorages {
     function _updateLastTotalStakedGLMAmount() internal returns (bool) {
         lastTotalStakedGLMAmount = totalStakedGLMAmount;
     }
-    
-    
+
+
+    ///-------------------
+    /// Other getter methods
+    ///-------------------
+
+    function getTotalStakedGLMAmount() public view returns (uint _totalStakedGLMAmount) {
+        return totalStakedGLMAmount;
+    }
 
 
     ///-------------------
     /// Private methods
-    ///--------------------
+    ///-------------------
 
     function getNextStakeId() private view returns (uint8 nextStakeId) {
         return currentStakeId + 1;
