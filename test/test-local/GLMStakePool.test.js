@@ -204,6 +204,10 @@ contract("GLMStakePool", function(accounts) {
     });
 
     describe("Stake LP tokens (GLM/ERC20 or GLM/ETH)", () => {
+        it("Stake LP tokens (GLM/ERC20)", async () => {
+            /// [Todo]: Add code next time
+        });
+
         it("Stake LP tokens (GLM/ETH)", async () => {
             const uniswapV2Pair = await UniswapV2Pair.at(PAIR_GLM_ETH, { from: user1 });
 
@@ -211,6 +215,14 @@ contract("GLMStakePool", function(accounts) {
             await uniswapV2Pair.approve(GLM_STAKE_POOL, lpTokenAmount, { from: user1 });
             await glmStakePool.stakeLPToken(PAIR_GLM_ETH, lpTokenAmount, { from: user1 });
         });
+
+        it("Check the GLM Farming LP Token balance (after user1 stake LP tokens)", async () => {
+            let _golemFarmingLPTokenBalance = await golemFarmingLPToken.balanceOf(user1, { from: user1 });
+            let golemFarmingLPTokenBalance = parseFloat(web3.utils.fromWei(_golemFarmingLPTokenBalance));
+
+            console.log('\n=== GLM Farming LP Token balance of user1 ===', golemFarmingLPTokenBalance);
+            // assert.equal();
+        });        
     });
 
 
