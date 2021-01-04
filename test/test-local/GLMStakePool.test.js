@@ -240,7 +240,8 @@ contract("GLMStakePool", function(accounts) {
 
     describe("Withdraw only earned rewards", () => {
         it("Check the total staked GLM amount", async () => {
-            let totalStakedGLMAmount = await glmStakePool.getTotalStakedGLMAmount({ from: user1 });
+            let _totalStakedGLMAmount = await glmStakePool.getTotalStakedGLMAmount({ from: user1 });
+            let totalStakedGLMAmount = parseFloat(web3.utils.fromWei(_totalStakedGLMAmount));
             console.log('\n=== totalStakedGLMAmount ===', totalStakedGLMAmount);
         });
 
