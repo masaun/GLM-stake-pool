@@ -246,9 +246,9 @@ contract("GLMStakePool", function(accounts) {
             let _blockTimestampLast;
             _reserve0, _reserve1, _blockTimestampLast = await uniswapV2Pair.getReserves({ from: user1 });
 
-            const reserve0 = parseFloat(web3.utils.fromWei(_reserve0));
-            const reserve1 = parseFloat(web3.utils.fromWei(_reserve1));
-            const blockTimestampLast = parseFloat(web3.utils.fromWei(_blockTimestampLast));
+            const reserve0 = parseFloat(web3.utils.fromWei(web3.utils.toBN(_reserve0)));
+            const reserve1 = parseFloat(web3.utils.fromWei(web3.utils.toBN(_reserve1)));
+            const blockTimestampLast = parseFloat(web3.utils.fromWei(web3.utils.toBN(_blockTimestampLast)));
             console.log('\n=== reserve0, reserve1, blockTimestampLast ===', reserve0, reserve1, blockTimestampLast);
         });
 
