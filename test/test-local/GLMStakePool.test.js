@@ -239,6 +239,15 @@ contract("GLMStakePool", function(accounts) {
     });
 
     describe("Withdraw only earned rewards", () => {
+        it("Check reserves of staked UNI-LP tokens (GLM-ETH)", async () => {
+            const uniswapV2Pair = await UniswapV2Pair.at(PAIR_GLM_ETH, { from: user1 });
+            let reserve0;
+            let reserve1;
+            let blockTimestampLast;
+            reserve0, reserve1, blockTimestampLast = await uniswapV2Pair.getReserves({ from: user1 });
+            console.log('\n=== reserve0, reserve1, blockTimestampLast ===', reserve0, reserve1, blockTimestampLast);
+        });
+
         it("Check the total staked GLM amount", async () => {
             let _totalStakedGLMAmount = await glmStakePool.getTotalStakedGLMAmount({ from: user1 });
             let totalStakedGLMAmount = parseFloat(web3.utils.fromWei(_totalStakedGLMAmount));
