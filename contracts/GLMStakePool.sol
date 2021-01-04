@@ -14,7 +14,7 @@ import { GLMMockToken } from "./GLMMockToken/GLMMockToken.sol";  /// [Note]: Thi
 /// GLM Pool Token
 import { GolemFarmingLPToken } from "./GolemFarmingLPToken.sol";
 
-/// GGT (Golem Governance Token)
+/// Golem Governance Token
 import { GolemGovernanceToken } from "./GolemGovernanceToken.sol";
 
 /// WETH
@@ -33,7 +33,7 @@ contract GLMStakePool is GLMStakePoolStorages {
     //NewGolemNetworkToken public GLMToken;
     GLMMockToken public GLMToken;  /// [Note]: This is mock token of the NewGolemNetworkToken (GLM token)
     GolemFarmingLPToken public golemFarmingLPToken;
-    GolemGovernanceToken public GGToken;
+    GolemGovernanceToken public golemGovernanceToken;
     IWETH public wETH;
     IUniswapV2Factory public uniswapV2Factory;
     IUniswapV2Router02 public uniswapV2Router02;
@@ -69,7 +69,7 @@ contract GLMStakePool is GLMStakePoolStorages {
     ) public {
         GLMToken = _GLMToken;
         golemFarmingLPToken = _golemFarmingLPToken;
-        GGToken = _golemGovernanceToken;
+        golemGovernanceToken = _golemGovernanceToken;
         uniswapV2Factory = _uniswapV2Factory;
         uniswapV2Router02 = _uniswapV2Router02;
         wETH = IWETH(uniswapV2Router02.WETH());
@@ -401,11 +401,11 @@ contract GLMStakePool is GLMStakePoolStorages {
      * @dev - Caller (msg.sender) is a staker
      **/
     function claimEarnedReward(IUniswapV2Pair pair) public returns (bool res) {
-        /// Compute earned rewards (GGT tokens) and Distribute them into a staker
+        /// Compute earned rewards (GolemGovernanceToken) and Distribute them into a staker
         uint earnedReward = _computeEarnedReward(pair);
 
-        /// Mint GGTokens as rewards for a staker
-        GGToken.mint(msg.sender, earnedReward);
+        /// Mint GolemGovernanceToken as rewards for a staker
+        golemGovernanceToken.mint(msg.sender, earnedReward);
     }
 
 
@@ -414,7 +414,7 @@ contract GLMStakePool is GLMStakePoolStorages {
     ///---------------------------------------------------
     
     /***
-     * @notice - un-stake LP tokens with earned rewards (GGTokens)
+     * @notice - un-stake LP tokens with earned rewards (GolemGovernanceToken)
      * @dev - Caller (msg.sender) is a staker
      **/
     function unStakeLPToken(IUniswapV2Pair pair, uint lpTokenAmountUnStaked) public returns (bool) {
@@ -423,7 +423,7 @@ contract GLMStakePool is GLMStakePoolStorages {
         /// Burn GLM Pool Token and Transfer un-staked LP tokens
         _redeemWithUnStakedLPToken(msg.sender, pair, lpTokenAmountUnStaked);
         
-        /// Compute earned reward (GGT tokens) and Distribute them into staker
+        /// Compute earned reward (GolemGovernanceToken) and Distribute them into staker
         claimEarnedReward(pair);
     }
 
@@ -438,11 +438,11 @@ contract GLMStakePool is GLMStakePoolStorages {
 
 
     ///--------------------------------------------------------
-    /// GGT (Golem Reward Token) is given to stakers
+    /// Golem Governance Token is given to stakers as rewards
     ///--------------------------------------------------------
 
     /***
-     * @notice - Compute earned rewards that is GGTokens (Golem Governance Token)
+     * @notice - Compute earned rewards that is GolemGovernanceTokens
      * @dev - [idea v1]: Reward is given to each stakers every block (every 15 seconds) and depends on share of pool
      * @dev - [idea v2]: Reward is given to each stakers by using the fixed-rewards-rate (10%)
      *                   => There is the locked-period (7 days) as minimum staking-term.
@@ -469,7 +469,7 @@ contract GLMStakePool is GLMStakePoolStorages {
         /// Compute total staked GLM tokens amount per a week (7days)
         weeklyTotalStakedGLMAmount = totalStakedGLMAmount.sub(lastTotalStakedGLMAmount);
 
-        /// Formula for computing earned rewards (GGTokens)
+        /// Formula for computing earned rewards (GolemGovernanceTokens)
         uint earnedReward = weeklyTotalStakedGLMAmount.mul(REWARD_RATE).div(100).mul(SHARE_OF_POOL).div(100);
 
         return earnedReward;
