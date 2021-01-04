@@ -452,12 +452,11 @@ contract GLMStakePool is GLMStakePoolStorages {
         uint8[] memory _stakeIds = staker.stakeIds;
         uint totalIndividualStakedGLMAmount;
 
-        for (uint8 i=0; i < _stakeIds.length; i++) {
+        for (uint8 i=1; i < _stakeIds.length; i++) {
             uint8 stakeId = i;
 
             StakeData memory stakeData = stakeDatas[stakeId];
             IUniswapV2Pair _pair = stakeData.lpToken; 
-            //uint _stakedLPTokenAmount = stakeData.stakedLPTokenAmount;  /// [Note]: But, this amount is "LP tokens amount". Not "GLM tokens" amount. Therefore, I need to extract only staked GLM tokens amount
             uint stakedGLMAmount = stakeData.stakedGLMAmount;
 
             totalIndividualStakedGLMAmount.add(stakedGLMAmount);
