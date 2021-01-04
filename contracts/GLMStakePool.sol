@@ -312,12 +312,13 @@ contract GLMStakePool is GLMStakePoolStorages {
 
 
     ///--------------------------------------------------------
-    /// Stake LP tokens of GLM/ERC20 or GLM/ETH into GLM pool
+    /// Stake UNI-LP tokens of GLM/ERC20 or GLM/ETH into GLM pool
     ///--------------------------------------------------------
 
     /***
-     * @notice - Stake LP tokens (GLM/ERC20 or GLM/ETH)
-     * @param lpTokenAmount - Staked LP tokens amount
+     * @notice - Stake UNI-LP tokens (GLM/ERC20 or GLM/ETH)
+     * @param pair - Staked UNI-LP token
+     * @param lpTokenAmount - Staked UNI-LP tokens amount
      **/
     function stakeLPToken(IUniswapV2Pair pair, uint lpTokenAmount) public returns (bool) {
         /// Stake LP tokens into this pool contract
@@ -392,11 +393,11 @@ contract GLMStakePool is GLMStakePoolStorages {
 
 
     ///---------------------------------------------------
-    /// Withdraw LP tokens with earned rewards
+    /// Withdraw only earned rewards
     ///---------------------------------------------------
 
     /***
-     * @notice - Claim rewards (Not un-stake LP tokens. Only earned rewards is claimed and distributed)
+     * @notice - Claim rewards (Do not un-stake LP tokens (GLM-ETH)
      * @dev - Caller (msg.sender) is a staker
      **/
     function claimEarnedReward(IUniswapV2Pair pair) public returns (bool res) {
@@ -406,6 +407,11 @@ contract GLMStakePool is GLMStakePoolStorages {
         /// Mint GGTokens as rewards for a staker
         GGToken.mint(msg.sender, earnedReward);
     }
+
+
+    ///---------------------------------------------------
+    /// Withdraw UNI-LP tokens with earned rewards
+    ///---------------------------------------------------
     
     /***
      * @notice - un-stake LP tokens with earned rewards (GGTokens)

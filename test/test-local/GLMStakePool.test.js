@@ -238,5 +238,11 @@ contract("GLMStakePool", function(accounts) {
         });
     });
 
+    describe("Withdraw only earned rewards", () => {
+        it("Claim rewards (Do not un-stake LP tokens (GLM-ETH)", async () => {
+            await glmStakePool.claimEarnedReward(PAIR_GLM_ETH, { from: user1 });
+        });
+    });
+
 
 });
