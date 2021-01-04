@@ -241,15 +241,26 @@ contract("GLMStakePool", function(accounts) {
     describe("Withdraw only earned rewards", () => {
         it("Check reserves of staked UNI-LP tokens (GLM-ETH)", async () => {
             const uniswapV2Pair = await UniswapV2Pair.at(PAIR_GLM_ETH, { from: user1 });
-            let _reserve0;
-            let _reserve1;
-            let _blockTimestampLast;
-            _reserve0, _reserve1, _blockTimestampLast = await uniswapV2Pair.getReserves({ from: user1 });
 
-            const reserve0 = parseFloat(web3.utils.fromWei(web3.utils.toBN(_reserve0)));
-            const reserve1 = parseFloat(web3.utils.fromWei(web3.utils.toBN(_reserve1)));
-            const blockTimestampLast = parseFloat(web3.utils.fromWei(web3.utils.toBN(_blockTimestampLast)));
-            console.log('\n=== reserve0, reserve1, blockTimestampLast ===', reserve0, reserve1, blockTimestampLast);
+            const _totalSupply = await uniswapV2Pair.totalSupply();            
+            const totalSupply = parseFloat(web3.utils.fromWei(`${ _totalSupply }`));
+            console.log('\n=== totalSupply ===', totalSupply); 
+
+            const reserves = await uniswapV2Pair.getReserves({ from: user1 }); /// [Note]: Returned value is array
+            const _reserve0 = reserves[0];
+            const _reserve1 = reserves[1];
+            const _blockTimestampLast = reserves[2];
+            console.log('\n=== _reserve0 ===', _reserve0);
+            console.log('=== _reserve1 ===', _reserve1);
+            console.log('=== _blockTimestampLast ===', _blockTimestampLast);
+
+            const reserve0 = parseFloat(web3.utils.fromWei(_reserve0));
+            const reserve1 = parseFloat(web3.utils.fromWei(_reserve1));
+            const blockTimestampLast = parseFloat(web3.utils.fromWei(_blockTimestampLast));
+            console.log('\n=== reserve0 ===', reserve0);
+            console.log('=== reserve1 ===', reserve1);
+            console.log('=== blockTimestampLast ===', blockTimestampLast);
+
         });
 
         it("Check the total staked GLM amount", async () => {
