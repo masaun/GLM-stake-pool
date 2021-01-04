@@ -216,7 +216,7 @@ contract("GLMStakePool", function(accounts) {
             await uniswapV2Pair.approve(GLM_STAKE_POOL, lpTokenAmount, { from: user1 });
             await glmStakePool.stakeLPToken(PAIR_GLM_ETH, lpTokenAmount, { from: user1 });
 
-            STAKED_UNI_LP_TOKENS_AMOUNT = lpTokenAmount;
+            STAKED_UNI_LP_TOKENS_AMOUNT = parseFloat(web3.utils.fromWei(lpTokenAmount));
         });
 
         it("Check the GLM Farming LP Token balance (after user1 stake UNI-LP tokens)", async () => {
