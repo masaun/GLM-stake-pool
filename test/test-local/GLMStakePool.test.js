@@ -219,15 +219,15 @@ contract("GLMStakePool", function(accounts) {
             STAKED_UNI_LP_TOKENS_AMOUNT = parseFloat(web3.utils.fromWei(lpTokenAmount));
         });
 
-        it("Check the GLM Farming LP Token balance (after user1 stake UNI-LP tokens)", async () => {
+        it("Check the Golem Farming LP Token balance (after user1 stake UNI-LP tokens)", async () => {
             let _golemFarmingLPTokenBalance = await golemFarmingLPToken.balanceOf(user1, { from: user1 });
             let golemFarmingLPTokenBalance = parseFloat(web3.utils.fromWei(_golemFarmingLPTokenBalance));
-            console.log('\n=== GLM Farming LP Token balance of user1 ===', golemFarmingLPTokenBalance);
+            console.log('\n=== Golem Farming LP Token balance of user1 ===', golemFarmingLPTokenBalance);
 
             assert.equal(
                 golemFarmingLPTokenBalance,
                 STAKED_UNI_LP_TOKENS_AMOUNT,
-                "GLM Farming LP Token balance of user1 should be 0.5"
+                "Golem Farming LP Token balance of user1 should be 0.5"
             );
         });        
     });
@@ -252,7 +252,7 @@ contract("GLMStakePool", function(accounts) {
             console.log('\n=== totalIndividualStakedGLMAmount ===', totalIndividualStakedGLMAmount);
         });
 
-        it("Claim rewards (Do not un-stake LP tokens (GLM-ETH)", async () => {
+        it("Claim rewards", async () => {
             await glmStakePool.claimEarnedReward(PAIR_GLM_ETH, { from: user1 });
         });
     });
