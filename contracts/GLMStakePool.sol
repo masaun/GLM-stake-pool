@@ -47,9 +47,9 @@ contract GLMStakePool is GLMStakePoolStorages {
 
     uint8 public currentStakeId;
 
-    uint totalStakedGLMAmount;        /// Total staked GLM tokens amount during whole period
-    uint lastTotalStakedGLMAmount;    /// Total staked GLM tokens amount until last week
-    uint weeklyTotalStakedGLMAmount;  /// Total staked GLM tokens amount during recent week
+    uint totalStakedLPTokenAmount;        /// Total staked UNI-LP tokens (GLM-ETH) amount during whole period
+    uint lastTotalStakedLPTokenAmount;    /// Total staked UNI-LP tokens (GLM-ETH) amount until last week
+    uint weeklyTotalStakedLPTokenAmount;  /// Total staked UNI-LP tokens (GLM-ETH) amount during recent week
 
     uint public startBlock;
     uint public lastBlock;
@@ -334,9 +334,9 @@ contract GLMStakePool is GLMStakePoolStorages {
         (reserve0, reserve1, blockTimestampLast) = pair.getReserves();
 
         /// Add LP token amount to the total GLM token amount
-        //uint stakedGLMAmount = reserve0;
-        uint stakedGLMAmount = uint256(reserve0);
-        totalStakedGLMAmount.add(stakedGLMAmount);
+        //uint stakedLPTokenAmount = reserve0;
+        uint stakedLPTokenAmount = uint256(reserve0);
+        totalStakedLPTokenAmount.add(stakedLPTokenAmount);
 
         uint stakedERC20Amount;        /// reserve1 (ERC20 token) from UniswapV2
         uint stakedETHAmount;          /// reserve1 (ETH == WETH) from UniswapV2
@@ -353,9 +353,6 @@ contract GLMStakePool is GLMStakePoolStorages {
         stakeData.staker = msg.sender;
         stakeData.lpToken = pair;
         stakeData.stakedLPTokenAmount = lpTokenAmount;
-        stakeData.stakedGLMAmount = stakedGLMAmount;       /// reserve0 (GLM token)   from UniswapV2
-        stakeData.stakedERC20Amount = stakedERC20Amount;   /// reserve1 (ERC20 token) from UniswapV2
-        stakeData.stakedETHAmount = stakedETHAmount;       /// reserve1 (ETH == WETH) from UniswapV2
         stakeData.startBlock = block.number;
 
         /// Staker is added into stakers list
@@ -385,7 +382,7 @@ contract GLMStakePool is GLMStakePoolStorages {
             nextBlock = currentBlock.add(604800);  /// Plus 1 week (604800 seconds)
 
             /// Update total staked amount until last week
-            _updateLastTotalStakedGLMAmount();
+            _updateLastTotalStakedLPTokenAmount();
         }
 
     }
@@ -448,26 +445,26 @@ contract GLMStakePool is GLMStakePoolStorages {
     function _computeEarnedReward(IUniswapV2Pair pair) internal returns (uint _earnedReward) {
         Staker memory staker = stakers[msg.sender];
         uint8[] memory _stakeIds = staker.stakeIds;
-        uint totalIndividualStakedGLMAmount;
+        uint totalIndividualStakedLPTokenAmount;
 
         for (uint8 i=1; i < _stakeIds.length; i++) {
             uint8 stakeId = i;
 
             StakeData memory stakeData = stakeDatas[stakeId];
             IUniswapV2Pair _pair = stakeData.lpToken; 
-            uint stakedGLMAmount = stakeData.stakedGLMAmount;
+            uint stakedLPTokenAmount = stakeData.stakedLPTokenAmount;
 
-            totalIndividualStakedGLMAmount.add(stakedGLMAmount);
+            totalIndividualStakedLPTokenAmount.add(stakedLPTokenAmount);
         }
 
         /// Identify each staker's share of pool
-        uint SHARE_OF_POOL = totalIndividualStakedGLMAmount.div(totalStakedGLMAmount);
+        uint SHARE_OF_POOL = totalIndividualStakedLPTokenAmount.div(totalStakedLPTokenAmount);
 
         /// Compute total staked GLM tokens amount per a week (7days)
-        weeklyTotalStakedGLMAmount = totalStakedGLMAmount.sub(lastTotalStakedGLMAmount);
+        weeklyTotalStakedLPTokenAmount = totalStakedLPTokenAmount.sub(lastTotalStakedLPTokenAmount);
 
         /// Formula for computing earned rewards (GolemGovernanceTokens)
-        uint earnedReward = weeklyTotalStakedGLMAmount.mul(REWARD_RATE).div(100).mul(SHARE_OF_POOL).div(100);
+        uint earnedReward = weeklyTotalStakedLPTokenAmount.mul(REWARD_RATE).div(100).mul(SHARE_OF_POOL).div(100);
 
         return earnedReward;
     }
@@ -475,8 +472,8 @@ contract GLMStakePool is GLMStakePoolStorages {
     /***
      * @notice - Update total staked amount until last week
      **/
-    function _updateLastTotalStakedGLMAmount() internal returns (bool) {
-        lastTotalStakedGLMAmount = totalStakedGLMAmount;
+    function _updateLastTotalStakedLPTokenAmount() internal returns (bool) {
+        lastTotalStakedLPTokenAmount = totalStakedLPTokenAmount;
     }
 
 
@@ -484,13 +481,13 @@ contract GLMStakePool is GLMStakePoolStorages {
     /// Other getter methods
     ///-------------------
 
-    function getTotalStakedGLMAmount() public view returns (uint _totalStakedGLMAmount) {
-        return totalStakedGLMAmount;
+    function getTotalStakedLPTokenAmount() public view returns (uint _totalStakedLPTokenAmount) {
+        return totalStakedLPTokenAmount;
     }
 
-    function getTotalIndividualStakedGLMAmount(uint8 stakeId) public view returns (uint _totalIndividualStakedGLMAmount) {
+    function getTotalIndividualStakedLPTokenAmount(uint8 stakeId) public view returns (uint _totalIndividualStakedLPTokenAmount) {
         StakeData memory stakeData = stakeDatas[stakeId];
-        return stakeData.stakedGLMAmount;
+        return stakeData.stakedLPTokenAmount;
     }
 
 

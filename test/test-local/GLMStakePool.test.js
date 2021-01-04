@@ -257,20 +257,19 @@ contract("GLMStakePool", function(accounts) {
             console.log('\n=== reserve0 ===', reserve0);
             console.log('=== reserve1 ===', reserve1);
             console.log('=== blockTimestampLast ===', blockTimestampLast);
-
         });
 
-        it("Check the total staked GLM amount", async () => {
-            let _totalStakedGLMAmount = await glmStakePool.getTotalStakedGLMAmount({ from: user1 });
-            let totalStakedGLMAmount = parseFloat(web3.utils.fromWei(_totalStakedGLMAmount));
-            console.log('\n=== totalStakedGLMAmount ===', totalStakedGLMAmount);
+        it("Check the total staked LPToken amount", async () => {
+            let _totalStakedLPTokenAmount = await glmStakePool.getTotalStakedLPTokenAmount({ from: user1 });
+            let totalStakedLPTokenAmount = parseFloat(web3.utils.fromWei(_totalStakedLPTokenAmount));
+            console.log('\n=== totalStakedLPTokenAmount ===', totalStakedLPTokenAmount);
         });
 
-        it("Check the total individual staked GLM amount", async () => {
+        it("Check the total individual staked LPToken amount", async () => {
             const stakeId = 1;
-            let _totalIndividualStakedGLMAmount = await glmStakePool.getTotalIndividualStakedGLMAmount(stakeId, { from: user1 });
-            let totalIndividualStakedGLMAmount = parseFloat(web3.utils.fromWei(_totalIndividualStakedGLMAmount));
-            console.log('\n=== totalIndividualStakedGLMAmount ===', totalIndividualStakedGLMAmount);
+            let _totalIndividualStakedLPTokenAmount = await glmStakePool.getTotalIndividualStakedLPTokenAmount(stakeId, { from: user1 });
+            let totalIndividualStakedLPTokenAmount = parseFloat(web3.utils.fromWei(_totalIndividualStakedLPTokenAmount));
+            console.log('\n=== totalIndividualStakedLPTokenAmount ===', totalIndividualStakedLPTokenAmount);
         });
 
         it("Claim rewards", async () => {
