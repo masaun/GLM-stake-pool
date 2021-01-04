@@ -333,8 +333,10 @@ contract GLMStakePool is GLMStakePoolStorages {
         uint32 blockTimestampLast;
         (reserve0, reserve1, blockTimestampLast) = pair.getReserves();
 
+        /// Add LP token amount to the total GLM token amount
+        //uint stakedGLMAmount = reserve0;
         uint stakedGLMAmount = uint256(reserve0);
-        totalStakedGLMAmount.add(stakedGLMAmount); 
+        totalStakedGLMAmount.add(stakedGLMAmount);
 
         uint stakedERC20Amount;        /// reserve1 (ERC20 token) from UniswapV2
         uint stakedETHAmount;          /// reserve1 (ETH == WETH) from UniswapV2
@@ -362,9 +364,6 @@ contract GLMStakePool is GLMStakePoolStorages {
         /// Save stake ID
         Staker storage staker = stakers[msg.sender];
         staker.stakeIds.push(newStakeId);
-
-        /// Add LP token amount to the total GLM token amount
-        totalStakedGLMAmount.add(uint256(reserve0)); 
     }
 
 

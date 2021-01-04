@@ -250,9 +250,6 @@ contract("GLMStakePool", function(accounts) {
             const _reserve0 = reserves[0];
             const _reserve1 = reserves[1];
             const _blockTimestampLast = reserves[2];
-            console.log('\n=== _reserve0 ===', _reserve0);
-            console.log('=== _reserve1 ===', _reserve1);
-            console.log('=== _blockTimestampLast ===', _blockTimestampLast);
 
             const reserve0 = parseFloat(web3.utils.fromWei(_reserve0));
             const reserve1 = parseFloat(web3.utils.fromWei(_reserve1));
