@@ -91,13 +91,30 @@ $ npm run test:stake
 ***
 
 ## 【References】
-- Golem
-  - Golem Network Hackathon：
-    https://gitcoin.co/issue/golemfactory/hackathons/4/100024409
+- Golem  
+  - GLM contract  
+    https://github.com/golemfactory/gnt2/tree/master/gnt2-contracts/src/contracts/GNT2  
 
+  - ERC20 token migration（GNT -> GLM)  
+    https://blog.golemproject.net/glmupdate/  
+  
+  - GLM Migration Tracker  
+    https://glm.golem.network/  
+  
+  - Golem Hackathon resources  
+    https://github.com/golemfactory/hackathons  
+  
+  - Awesome Golem  
+    https://github.com/golemfactory/awesome-golem  
+  
+  - Doc  
+    https://handbook.golem.network/introduction/golem-overview#golem-architecture  
+  
+  - Golem Network Hackathon  
+    https://gitcoin.co/issue/golemfactory/hackathons/4/100024409  
 
 <br>
 
 - Test (Mainnet-fork approach with Ganache-CLI and Infura)  
 https://medium.com/@samajammin/how-to-interact-with-ethereums-mainnet-in-a-development-environment-with-ganache-3d8649df0876  
-(Current block number @ mainnet: https://etherscan.io/blocks )
+(Current block number @ mainnet: https://etherscan.io/blocks )  
