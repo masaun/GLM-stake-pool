@@ -20,4 +20,8 @@ contract GolemGovernanceToken is ERC20, ERC20Detailed {
         _burn(to, burnAmount);
     }
 
+    function vote() public returns (bool) {
+        /// [Todo]: Add logics for voting by GLM token holders 
+    }
+
 }
