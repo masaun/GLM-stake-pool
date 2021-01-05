@@ -328,7 +328,7 @@ contract GLMStakePool is GLMStakePoolStorages {
         golemFarmingLPToken.mint(msg.sender, lpTokenAmount);
 
         /// Add new staked UNI-LP token amount to the total staked UNI-LP token amount
-        totalStakedLPTokenAmount.add(lpTokenAmount);
+        totalStakedLPTokenAmount += lpTokenAmount;
 
         /// Register staker's data
         uint8 newStakeId = getNextStakeId();
@@ -400,7 +400,7 @@ contract GLMStakePool is GLMStakePoolStorages {
     function unStakeLPToken(IUniswapV2Pair pair, uint lpTokenAmountUnStaked) public returns (bool) {
         address PAIR = address(pair);
 
-        /// Burn GLM Pool Token and Transfer un-staked LP tokens
+        /// Burn the Golem Farming Tokens and transfer un-staked LP tokens
         _redeemWithUnStakedLPToken(msg.sender, pair, lpTokenAmountUnStaked);
         
         /// Compute earned reward (GolemGovernanceToken) and Distribute them into staker
@@ -411,7 +411,7 @@ contract GLMStakePool is GLMStakePoolStorages {
         /// Burn the Golem Farming LP tokens
         golemFarmingLPToken.burn(staker, lpTokenAmountUnStaked);
 
-        /// Transfer un-staked LP tokens
+        /// Transfer un-staked UNI-LP tokens
         pair.transfer(staker, lpTokenAmountUnStaked);
     }
 
