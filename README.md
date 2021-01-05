@@ -34,14 +34,19 @@ $ npm install
 
 <br>
 
-### ② Compile & migrate contracts (on Rinkeby testnet)
+### ② Add `.env` to the root directory. (Please reference `.env.example` to create `.env` )
+
+
+<br>
+
+### ③ Compile & migrate contracts (on Rinkeby testnet)
 ```
 $ npm run migrate:local
 ```
 
 <br>
 
-### ③ Test (Mainnet-fork approach with Ganache-CLI)
+### ④ Test (Mainnet-fork approach with Ganache-CLI)
 ```
 $ ganache-cli --fork https://mainnet.infura.io/v3/{YOUR INFURA KEY}
 ```
