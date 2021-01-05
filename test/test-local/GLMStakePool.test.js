@@ -66,7 +66,7 @@ contract("GLMStakePool", function(accounts) {
             
             let _glmBalance = await glmToken.balanceOf(user1, { from: user1 });
             let glmBalance = parseFloat(web3.utils.fromWei(_glmBalance));
-            console.log('\n=== GLM balance of user1 ===', glmBalance);  /// [Result]: 100000 GLM         
+            console.log('\n=== GLM balance of user1 ===', glmBalance);  /// [Result]: 100000 GLM
         });
 
         it("Setup GolemFarmingLPToken contract instance", async () => {
