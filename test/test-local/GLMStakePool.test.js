@@ -295,7 +295,7 @@ contract("GLMStakePool", function(accounts) {
         });
 
         it("Un-stake LP tokens (GLM/ETH) with earned rewards (Golem Governance Token)", async () => {
-            const unStakedLpTokenAmount = web3.utils.toWei(`${ 5 * 1e17 }`, 'ether');  /// 0.5
+            const unStakedLpTokenAmount = web3.utils.toWei(`${ 5 * 1e17 }`, 'wei');  /// 0.5
             await glmStakePool.unStakeLPToken(PAIR_GLM_ETH, unStakedLpTokenAmount, { from: user1 });
         });
     });
