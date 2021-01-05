@@ -397,22 +397,22 @@ contract GLMStakePool is GLMStakePoolStorages {
      * @notice - un-stake LP tokens with earned rewards (GolemGovernanceToken)
      * @dev - Caller (msg.sender) is a staker
      **/
-    function unStakeLPToken(IUniswapV2Pair pair, uint lpTokenAmountUnStaked) public returns (bool) {
+    function unStakeLPToken(IUniswapV2Pair pair, uint unStakedLpTokenAmount) public returns (bool) {
         address PAIR = address(pair);
 
         /// Burn the Golem Farming Tokens and transfer un-staked LP tokens
-        _redeemWithUnStakedLPToken(msg.sender, pair, lpTokenAmountUnStaked);
+        _redeemWithUnStakedLPToken(msg.sender, pair, unStakedLpTokenAmount);
         
         /// Compute earned reward (GolemGovernanceToken) and Distribute them into staker
         claimEarnedReward(pair);
     }
 
-    function _redeemWithUnStakedLPToken(address staker, IUniswapV2Pair pair, uint lpTokenAmountUnStaked) internal returns (bool) {
+    function _redeemWithUnStakedLPToken(address staker, IUniswapV2Pair pair, uint unStakedLpTokenAmount) internal returns (bool) {
         /// Burn the Golem Farming LP tokens
-        golemFarmingLPToken.burn(staker, lpTokenAmountUnStaked);
+        golemFarmingLPToken.burn(staker, unStakedLpTokenAmount);
 
         /// Transfer un-staked UNI-LP tokens
-        pair.transfer(staker, lpTokenAmountUnStaked);
+        pair.transfer(staker, unStakedLpTokenAmount);
     }
 
 

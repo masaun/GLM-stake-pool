@@ -276,10 +276,17 @@ contract("GLMStakePool", function(accounts) {
             await glmStakePool.claimEarnedReward(PAIR_GLM_ETH, { from: user1 });
         });
 
-        it("Received rewards (Golem Governance Token) balance of user1", async () => {
+        it("Check received rewards (Golem Governance Token) balance of user1", async () => {
             let _golemGovernanceTokenBalance = await golemGovernanceToken.balanceOf(user1, { from: user1 });
             let golemGovernanceTokenBalance = parseFloat(web3.utils.fromWei(_golemGovernanceTokenBalance));
-            console.log('\n=== Received rewards (Golem Governance Token) balance of user1 ===', pairBalance);
+            console.log('\n=== Received rewards (Golem Governance Token) balance of user1 ===', golemGovernanceTokenBalance);
+        });
+    });
+
+    describe("Un-Stake UNI-LP tokens (Withdraw UNI-LP tokens with earned rewards)", () => {
+        it("Un-stake LP tokens with earned rewards (Golem Governance Token)", async () => {
+            const unStakedLpTokenAmount = web3.utils.toWei(`${ 5 * 1e17 }`, 'ether');  /// 0.5
+            await glmStakePool.unStakeLPToken(PAIR_GLM_ETH, unStakedLpTokenAmount, { from: user1 });
         });
     });
 
