@@ -14,7 +14,7 @@ import { GLMMockToken } from "./GLMMockToken/GLMMockToken.sol";  /// [Note]: Thi
 /// GLM Pool Token
 import { GolemFarmingLPToken } from "./GolemFarmingLPToken.sol";
 
-/// GGT (Golem Governance Token)
+/// Golem Governance Token
 import { GolemGovernanceToken } from "./GolemGovernanceToken.sol";
 
 /// WETH
@@ -33,23 +33,23 @@ contract GLMStakePool is GLMStakePoolStorages {
     //NewGolemNetworkToken public GLMToken;
     GLMMockToken public GLMToken;  /// [Note]: This is mock token of the NewGolemNetworkToken (GLM token)
     GolemFarmingLPToken public golemFarmingLPToken;
-    GolemGovernanceToken public GGToken;
+    GolemGovernanceToken public golemGovernanceToken;
     IWETH public wETH;
     IUniswapV2Factory public uniswapV2Factory;
     IUniswapV2Router02 public uniswapV2Router02;
 
     address GLM_TOKEN;
-    address GLM_FARMING_LP_TOKEN;
-    address GG_TOKEN;
+    address GOLEM_FARMING_LP_TOKEN;
+    address GOLEM_GOVERNANCE_TOKEN;
     address WETH_TOKEN;
     address UNISWAP_V2_FACTORY;
     address UNISWAP_V2_ROUTOR_02;
 
     uint8 public currentStakeId;
 
-    uint totalStakedGLMAmount;        /// Total staked GLM tokens amount during whole period
-    uint lastTotalStakedGLMAmount;    /// Total staked GLM tokens amount until last week
-    uint weeklyTotalStakedGLMAmount;  /// Total staked GLM tokens amount during recent week
+    uint totalStakedLPTokenAmount;        /// Total staked UNI-LP tokens (GLM-ETH) amount during whole period
+    uint lastTotalStakedLPTokenAmount;    /// Total staked UNI-LP tokens (GLM-ETH) amount until last week
+    uint weeklyTotalStakedLPTokenAmount;  /// Total staked UNI-LP tokens (GLM-ETH) amount during recent week
 
     uint public startBlock;
     uint public lastBlock;
@@ -69,14 +69,14 @@ contract GLMStakePool is GLMStakePoolStorages {
     ) public {
         GLMToken = _GLMToken;
         golemFarmingLPToken = _golemFarmingLPToken;
-        GGToken = _golemGovernanceToken;
+        golemGovernanceToken = _golemGovernanceToken;
         uniswapV2Factory = _uniswapV2Factory;
         uniswapV2Router02 = _uniswapV2Router02;
         wETH = IWETH(uniswapV2Router02.WETH());
 
         GLM_TOKEN = address(_GLMToken);
-        GLM_FARMING_LP_TOKEN = address(_golemFarmingLPToken);
-        GG_TOKEN = address(_golemGovernanceToken);
+        GOLEM_FARMING_LP_TOKEN = address(_golemFarmingLPToken);
+        GOLEM_GOVERNANCE_TOKEN = address(_golemGovernanceToken);
         UNISWAP_V2_FACTORY = address(_uniswapV2Factory);
         UNISWAP_V2_ROUTOR_02 = address(_uniswapV2Router02);
         WETH_TOKEN = address(uniswapV2Router02.WETH());
@@ -312,12 +312,13 @@ contract GLMStakePool is GLMStakePoolStorages {
 
 
     ///--------------------------------------------------------
-    /// Stake LP tokens of GLM/ERC20 or GLM/ETH into GLM pool
+    /// Stake UNI-LP tokens of GLM/ERC20 or GLM/ETH into GLM pool
     ///--------------------------------------------------------
 
     /***
-     * @notice - Stake LP tokens (GLM/ERC20 or GLM/ETH)
-     * @param lpTokenAmount - Staked LP tokens amount
+     * @notice - Stake UNI-LP tokens (GLM/ERC20 or GLM/ETH)
+     * @param pair - Staked UNI-LP token
+     * @param lpTokenAmount - Staked UNI-LP tokens amount
      **/
     function stakeLPToken(IUniswapV2Pair pair, uint lpTokenAmount) public returns (bool) {
         /// Stake LP tokens into this pool contract
@@ -326,22 +327,8 @@ contract GLMStakePool is GLMStakePoolStorages {
         /// Mint the Golem Farming LP tokens
         golemFarmingLPToken.mint(msg.sender, lpTokenAmount);
 
-        /// Get reserve0 and reserve1
-        uint112 reserve0;  /// GLM token amount
-        uint112 reserve1;  /// ERC20 token or ETH (WETH) amount
-        uint32 blockTimestampLast;
-        (reserve0, reserve1, blockTimestampLast) = pair.getReserves();
-
-        uint stakedGLMAmount = uint256(reserve0);
-        totalStakedGLMAmount.add(stakedGLMAmount); 
-
-        uint stakedERC20Amount;        /// reserve1 (ERC20 token) from UniswapV2
-        uint stakedETHAmount;          /// reserve1 (ETH == WETH) from UniswapV2
-        if (pair.token0() == WETH_TOKEN || pair.token1() == WETH_TOKEN) {
-            stakedETHAmount = uint256(reserve1);
-        } else {
-            stakedERC20Amount = uint256(reserve1);
-        }
+        /// Add new staked UNI-LP token amount to the total staked UNI-LP token amount
+        totalStakedLPTokenAmount += lpTokenAmount;
 
         /// Register staker's data
         uint8 newStakeId = getNextStakeId();
@@ -350,9 +337,6 @@ contract GLMStakePool is GLMStakePoolStorages {
         stakeData.staker = msg.sender;
         stakeData.lpToken = pair;
         stakeData.stakedLPTokenAmount = lpTokenAmount;
-        stakeData.stakedGLMAmount = stakedGLMAmount;       /// reserve0 (GLM token)   from UniswapV2
-        stakeData.stakedERC20Amount = stakedERC20Amount;   /// reserve1 (ERC20 token) from UniswapV2
-        stakeData.stakedETHAmount = stakedETHAmount;       /// reserve1 (ETH == WETH) from UniswapV2
         stakeData.startBlock = block.number;
 
         /// Staker is added into stakers list
@@ -361,9 +345,6 @@ contract GLMStakePool is GLMStakePoolStorages {
         /// Save stake ID
         Staker storage staker = stakers[msg.sender];
         staker.stakeIds.push(newStakeId);
-
-        /// Add LP token amount to the total GLM token amount
-        totalStakedGLMAmount.add(uint256(reserve0)); 
     }
 
 
@@ -385,39 +366,44 @@ contract GLMStakePool is GLMStakePoolStorages {
             nextBlock = currentBlock.add(604800);  /// Plus 1 week (604800 seconds)
 
             /// Update total staked amount until last week
-            _updateLastTotalStakedGLMAmount();
+            _updateLastTotalStakedLPTokenAmount();
         }
 
     }
 
 
     ///---------------------------------------------------
-    /// Withdraw LP tokens with earned rewards
+    /// Withdraw only earned rewards
     ///---------------------------------------------------
 
     /***
-     * @notice - Claim rewards (Not un-stake LP tokens. Only earned rewards is claimed and distributed)
+     * @notice - Claim rewards (Do not un-stake LP tokens (GLM-ETH)
      * @dev - Caller (msg.sender) is a staker
      **/
     function claimEarnedReward(IUniswapV2Pair pair) public returns (bool res) {
-        /// Compute earned rewards (GGT tokens) and Distribute them into a staker
+        /// Compute earned rewards (GolemGovernanceToken) and Distribute them into a staker
         uint earnedReward = _computeEarnedReward(pair);
 
-        /// Mint GGTokens as rewards for a staker
-        GGToken.mint(msg.sender, earnedReward);
+        /// Mint GolemGovernanceToken as rewards for a staker
+        golemGovernanceToken.mint(msg.sender, earnedReward);
     }
+
+
+    ///---------------------------------------------------
+    /// Withdraw UNI-LP tokens with earned rewards
+    ///---------------------------------------------------
     
     /***
-     * @notice - un-stake LP tokens with earned rewards (GGTokens)
+     * @notice - un-stake LP tokens with earned rewards (GolemGovernanceToken)
      * @dev - Caller (msg.sender) is a staker
      **/
     function unStakeLPToken(IUniswapV2Pair pair, uint lpTokenAmountUnStaked) public returns (bool) {
         address PAIR = address(pair);
 
-        /// Burn GLM Pool Token and Transfer un-staked LP tokens
+        /// Burn the Golem Farming Tokens and transfer un-staked LP tokens
         _redeemWithUnStakedLPToken(msg.sender, pair, lpTokenAmountUnStaked);
         
-        /// Compute earned reward (GGT tokens) and Distribute them into staker
+        /// Compute earned reward (GolemGovernanceToken) and Distribute them into staker
         claimEarnedReward(pair);
     }
 
@@ -425,18 +411,17 @@ contract GLMStakePool is GLMStakePoolStorages {
         /// Burn the Golem Farming LP tokens
         golemFarmingLPToken.burn(staker, lpTokenAmountUnStaked);
 
-        /// Transfer un-staked LP tokens
+        /// Transfer un-staked UNI-LP tokens
         pair.transfer(staker, lpTokenAmountUnStaked);
     }
 
 
-
     ///--------------------------------------------------------
-    /// GGT (Golem Reward Token) is given to stakers
+    /// Golem Governance Token is given to stakers as rewards
     ///--------------------------------------------------------
 
     /***
-     * @notice - Compute earned rewards that is GGTokens (Golem Governance Token)
+     * @notice - Compute earned rewards that is GolemGovernanceTokens
      * @dev - [idea v1]: Reward is given to each stakers every block (every 15 seconds) and depends on share of pool
      * @dev - [idea v2]: Reward is given to each stakers by using the fixed-rewards-rate (10%)
      *                   => There is the locked-period (7 days) as minimum staking-term.
@@ -444,27 +429,26 @@ contract GLMStakePool is GLMStakePoolStorages {
     function _computeEarnedReward(IUniswapV2Pair pair) internal returns (uint _earnedReward) {
         Staker memory staker = stakers[msg.sender];
         uint8[] memory _stakeIds = staker.stakeIds;
-        uint totalIndividualStakedGLMAmount;
+        uint totalIndividualStakedLPTokenAmount;
 
-        for (uint8 i=0; i < _stakeIds.length; i++) {
+        for (uint8 i=1; i < _stakeIds.length; i++) {
             uint8 stakeId = i;
 
             StakeData memory stakeData = stakeDatas[stakeId];
             IUniswapV2Pair _pair = stakeData.lpToken; 
-            //uint _stakedLPTokenAmount = stakeData.stakedLPTokenAmount;  /// [Note]: But, this amount is "LP tokens amount". Not "GLM tokens" amount. Therefore, I need to extract only staked GLM tokens amount
-            uint stakedGLMAmount = stakeData.stakedGLMAmount;
+            uint stakedLPTokenAmount = stakeData.stakedLPTokenAmount;
 
-            totalIndividualStakedGLMAmount.add(stakedGLMAmount);
+            totalIndividualStakedLPTokenAmount.add(stakedLPTokenAmount);
         }
 
         /// Identify each staker's share of pool
-        uint SHARE_OF_POOL = totalIndividualStakedGLMAmount.div(totalStakedGLMAmount);
+        uint SHARE_OF_POOL = totalIndividualStakedLPTokenAmount.div(totalStakedLPTokenAmount);
 
         /// Compute total staked GLM tokens amount per a week (7days)
-        weeklyTotalStakedGLMAmount = totalStakedGLMAmount.sub(lastTotalStakedGLMAmount);
+        weeklyTotalStakedLPTokenAmount = totalStakedLPTokenAmount.sub(lastTotalStakedLPTokenAmount);
 
-        /// Formula for computing earned rewards (GGTokens)
-        uint earnedReward = weeklyTotalStakedGLMAmount.mul(REWARD_RATE).div(100).mul(SHARE_OF_POOL).div(100);
+        /// Formula for computing earned rewards (GolemGovernanceTokens)
+        uint earnedReward = weeklyTotalStakedLPTokenAmount.mul(REWARD_RATE).div(100).mul(SHARE_OF_POOL).div(100);
 
         return earnedReward;
     }
@@ -472,16 +456,28 @@ contract GLMStakePool is GLMStakePoolStorages {
     /***
      * @notice - Update total staked amount until last week
      **/
-    function _updateLastTotalStakedGLMAmount() internal returns (bool) {
-        lastTotalStakedGLMAmount = totalStakedGLMAmount;
+    function _updateLastTotalStakedLPTokenAmount() internal returns (bool) {
+        lastTotalStakedLPTokenAmount = totalStakedLPTokenAmount;
     }
-    
-    
+
+
+    ///-------------------
+    /// Other getter methods
+    ///-------------------
+
+    function getTotalStakedLPTokenAmount() public view returns (uint _totalStakedLPTokenAmount) {
+        return totalStakedLPTokenAmount;
+    }
+
+    function getTotalIndividualStakedLPTokenAmount(uint8 stakeId) public view returns (uint _totalIndividualStakedLPTokenAmount) {
+        StakeData memory stakeData = stakeDatas[stakeId];
+        return stakeData.stakedLPTokenAmount;
+    }
 
 
     ///-------------------
     /// Private methods
-    ///--------------------
+    ///-------------------
 
     function getNextStakeId() private view returns (uint8 nextStakeId) {
         return currentStakeId + 1;

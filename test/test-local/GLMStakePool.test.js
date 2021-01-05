@@ -219,15 +219,15 @@ contract("GLMStakePool", function(accounts) {
             STAKED_UNI_LP_TOKENS_AMOUNT = parseFloat(web3.utils.fromWei(lpTokenAmount));
         });
 
-        it("Check the GLM Farming LP Token balance (after user1 stake UNI-LP tokens)", async () => {
+        it("Check the Golem Farming LP Token balance (after user1 stake UNI-LP tokens)", async () => {
             let _golemFarmingLPTokenBalance = await golemFarmingLPToken.balanceOf(user1, { from: user1 });
             let golemFarmingLPTokenBalance = parseFloat(web3.utils.fromWei(_golemFarmingLPTokenBalance));
-            console.log('\n=== GLM Farming LP Token balance of user1 ===', golemFarmingLPTokenBalance);
+            console.log('\n=== Golem Farming LP Token balance of user1 ===', golemFarmingLPTokenBalance);
 
             assert.equal(
                 golemFarmingLPTokenBalance,
                 STAKED_UNI_LP_TOKENS_AMOUNT,
-                "GLM Farming LP Token balance of user1 should be 0.5"
+                "Golem Farming LP Token balance of user1 should be 0.5"
             );
         });        
     });
@@ -235,6 +235,45 @@ contract("GLMStakePool", function(accounts) {
     describe("Update pool status weekly (every week)", () => {
         it("Pool status should be updated", async () => {
             await glmStakePool.weeklyPoolStatusUpdate({ from: user1 });
+        });
+    });
+
+    describe("Withdraw only earned rewards", () => {
+        it("Check reserves of staked UNI-LP tokens (GLM-ETH)", async () => {
+            const uniswapV2Pair = await UniswapV2Pair.at(PAIR_GLM_ETH, { from: user1 });
+
+            const _totalSupply = await uniswapV2Pair.totalSupply();            
+            const totalSupply = parseFloat(web3.utils.fromWei(`${ _totalSupply }`));
+            console.log('\n=== totalSupply ===', totalSupply); 
+
+            const reserves = await uniswapV2Pair.getReserves({ from: user1 }); /// [Note]: Returned value is array
+            const _reserve0 = reserves[0];
+            const _reserve1 = reserves[1];
+            const _blockTimestampLast = reserves[2];
+
+            const reserve0 = parseFloat(web3.utils.fromWei(_reserve0));
+            const reserve1 = parseFloat(web3.utils.fromWei(_reserve1));
+            const blockTimestampLast = parseFloat(web3.utils.fromWei(_blockTimestampLast));
+            console.log('\n=== reserve0 ===', reserve0);
+            console.log('=== reserve1 ===', reserve1);
+            console.log('=== blockTimestampLast ===', blockTimestampLast);
+        });
+
+        it("Check the total staked LPToken amount", async () => {
+            let _totalStakedLPTokenAmount = await glmStakePool.getTotalStakedLPTokenAmount({ from: user1 });
+            let totalStakedLPTokenAmount = parseFloat(web3.utils.fromWei(_totalStakedLPTokenAmount));
+            console.log('\n=== totalStakedLPTokenAmount ===', totalStakedLPTokenAmount);
+        });
+
+        it("Check the total individual staked LPToken amount", async () => {
+            const stakeId = 1;
+            let _totalIndividualStakedLPTokenAmount = await glmStakePool.getTotalIndividualStakedLPTokenAmount(stakeId, { from: user1 });
+            let totalIndividualStakedLPTokenAmount = parseFloat(web3.utils.fromWei(_totalIndividualStakedLPTokenAmount));
+            console.log('\n=== totalIndividualStakedLPTokenAmount ===', totalIndividualStakedLPTokenAmount);
+        });
+
+        it("Claim rewards", async () => {
+            await glmStakePool.claimEarnedReward(PAIR_GLM_ETH, { from: user1 });
         });
     });
 
