@@ -272,8 +272,14 @@ contract("GLMStakePool", function(accounts) {
             console.log('\n=== totalIndividualStakedLPTokenAmount ===', totalIndividualStakedLPTokenAmount);
         });
 
-        it("Claim rewards", async () => {
+        it("Claim rewards (Then, user1 will receive the Golem Governance Token as rewards)", async () => {
             await glmStakePool.claimEarnedReward(PAIR_GLM_ETH, { from: user1 });
+        });
+
+        it("Received rewards (Golem Governance Token) balance of user1", async () => {
+            let _golemGovernanceTokenBalance = await golemGovernanceToken.balanceOf(user1, { from: user1 });
+            let golemGovernanceTokenBalance = parseFloat(web3.utils.fromWei(_golemGovernanceTokenBalance));
+            console.log('\n=== Received rewards (Golem Governance Token) balance of user1 ===', pairBalance);
         });
     });
 
