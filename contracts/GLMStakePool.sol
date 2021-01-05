@@ -438,7 +438,7 @@ contract GLMStakePool is GLMStakePoolStorages {
             IUniswapV2Pair _pair = stakeData.lpToken; 
             uint stakedLPTokenAmount = stakeData.stakedLPTokenAmount;
 
-            totalIndividualStakedLPTokenAmount.add(stakedLPTokenAmount);
+            totalIndividualStakedLPTokenAmount += stakedLPTokenAmount;
         }
 
         /// Identify each staker's share of pool
