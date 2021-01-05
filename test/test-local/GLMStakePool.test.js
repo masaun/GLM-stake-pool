@@ -284,7 +284,17 @@ contract("GLMStakePool", function(accounts) {
     });
 
     describe("Un-Stake UNI-LP tokens (Withdraw UNI-LP tokens with earned rewards)", () => {
-        it("Un-stake LP tokens with earned rewards (Golem Governance Token)", async () => {
+        it("Stake UNI-LP tokens (GLM/ETH)", async () => {
+            const uniswapV2Pair = await UniswapV2Pair.at(PAIR_GLM_ETH, { from: user1 });
+
+            const lpTokenAmount = web3.utils.toWei(`${ 5 * 1e17 }`, 'wei');  /// 0.5 that is amount of LP token (GLM/ETH)
+            await uniswapV2Pair.approve(GLM_STAKE_POOL, lpTokenAmount, { from: user1 });
+            await glmStakePool.stakeLPToken(PAIR_GLM_ETH, lpTokenAmount, { from: user1 });
+
+            STAKED_UNI_LP_TOKENS_AMOUNT = parseFloat(web3.utils.fromWei(lpTokenAmount));
+        });
+
+        it("Un-stake LP tokens (GLM/ETH) with earned rewards (Golem Governance Token)", async () => {
             const unStakedLpTokenAmount = web3.utils.toWei(`${ 5 * 1e17 }`, 'ether');  /// 0.5
             await glmStakePool.unStakeLPToken(PAIR_GLM_ETH, unStakedLpTokenAmount, { from: user1 });
         });
