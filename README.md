@@ -2,7 +2,7 @@
 
 ***
 ## 【Introduction of GLM Stake Pool】
-- This is a smart contract for ...
+- This is a smart contract in order to provide the opportunity of yield farming for Golem's GLM token holders. (By staking uniswap-LP tokens that is a pair between GLM and ETH into the stake pool)
 
 &nbsp;
 
@@ -14,11 +14,14 @@
 
 ***
 
-## 【Remarks】
-- Version
-  - Solidity (Solc): v0.5.16
+## 【Technical Stack】
+- Solidity (Solc): v0.5.16
+- Truffle: v5.1.60
+- web3.js: v1.2.9
+- Node.js: v11.15.0
+- Libraries
   - @openzeppelin/contracts: v2.5.1
-
+    etc,...
 &nbsp;
 
 ***
@@ -31,16 +34,14 @@ $ npm install
 
 <br>
 
-### ② Compile & migrate contracts (on Rinkeby testnet)
-```
-$ npm run migrate:rinkeby
-```
+### ② Add `.env` to the root directory. (Please reference `.env.example` to create `.env` )
+
 
 <br>
 
-### ③ Execute script (it's instead of testing)
+### ③ Compile & migrate contracts (on Rinkeby testnet)
 ```
-$ npm run script:rinkeby
+$ npm run migrate:local
 ```
 
 <br>
@@ -51,6 +52,18 @@ $ ganache-cli --fork https://mainnet.infura.io/v3/{YOUR INFURA KEY}
 ```
 (Ref：https://medium.com/@samajammin/how-to-interact-with-ethereums-mainnet-in-a-development-environment-with-ganache-3d8649df0876 ）  
 (Current block number @ mainnet: https://etherscan.io/blocks )
+
+Then,  
+
+- All of tests
+```
+$ npm run test
+```
+
+- Only test of the Stake Pool contract
+```
+$ npm run test:stake
+```
 
 &nbsp;
 

@@ -7,6 +7,7 @@
   },
   "scripts": {
     "test": "truffle test ./test/test-local/*",
+    "test:stake": "truffle test ./test/test-local/GLMStakePool.test.js",
     "compile:local": "truffle compile --reset --network local",
     "migrate:local": "truffle migrate --reset --network local",
     "console:ropsten": "truffle console --network ropsten",
