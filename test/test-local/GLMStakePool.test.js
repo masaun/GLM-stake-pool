@@ -196,7 +196,8 @@ contract("GLMStakePool", function(accounts) {
             const uniswapV2Pair = await UniswapV2Pair.at(PAIR_GLM_ETH, { from: user1 });
             let _pairBalance = await uniswapV2Pair.balanceOf(user1, { from: user1 });
             let pairBalance = parseFloat(web3.utils.fromWei(_pairBalance));
-            console.log('\n=== pair (GLM-ETH) balance of user1 (after addLiquidityETH) ===', pairBalance);
+            console.log(`\n=== pair (GLM-ETH) balance of user1 (after addLiquidityETH): ${ pairBalance } UNI-V2 (GLM-ETH) ===`);
+
             // assert.equal();
         });
     });
@@ -221,7 +222,7 @@ contract("GLMStakePool", function(accounts) {
         it("Check the Golem Farming LP Token balance (after user1 stake UNI-LP tokens)", async () => {
             let _golemFarmingLPTokenBalance = await golemFarmingLPToken.balanceOf(user1, { from: user1 });
             let golemFarmingLPTokenBalance = parseFloat(web3.utils.fromWei(_golemFarmingLPTokenBalance));
-            console.log('\n=== Golem Farming LP Token balance of user1 ===', golemFarmingLPTokenBalance);
+            console.log(`\n=== Golem Farming LP Token balance of user1: ${ golemFarmingLPTokenBalance } GFLP ===`);
 
             assert.equal(
                 golemFarmingLPTokenBalance,
@@ -243,7 +244,7 @@ contract("GLMStakePool", function(accounts) {
 
             const _totalSupply = await uniswapV2Pair.totalSupply();            
             const totalSupply = parseFloat(web3.utils.fromWei(`${ _totalSupply }`));
-            console.log('\n=== totalSupply ===', totalSupply); 
+            console.log(`\n=== totalSupply: ${ totalSupply } UNI-V2 (GLM-ETH) ===`);
 
             const reserves = await uniswapV2Pair.getReserves({ from: user1 }); /// [Note]: Returned value is array
             const _reserve0 = reserves[0];
@@ -253,22 +254,22 @@ contract("GLMStakePool", function(accounts) {
             const reserve0 = parseFloat(web3.utils.fromWei(_reserve0));
             const reserve1 = parseFloat(web3.utils.fromWei(_reserve1));
             const blockTimestampLast = parseFloat(web3.utils.fromWei(_blockTimestampLast));
-            console.log('\n=== reserve0 ===', reserve0);
-            console.log('=== reserve1 ===', reserve1);
+            console.log(`\n=== reserve0: ${ reserve0 } GLM ===`);
+            console.log(`\n=== reserve1: ${ reserve1 } ETH ===`);
             console.log('=== blockTimestampLast ===', blockTimestampLast);
         });
 
         it("Check the total staked LPToken amount", async () => {
             let _totalStakedLPTokenAmount = await glmStakePool.getTotalStakedLPTokenAmount({ from: user1 });
             let totalStakedLPTokenAmount = parseFloat(web3.utils.fromWei(_totalStakedLPTokenAmount));
-            console.log('\n=== totalStakedLPTokenAmount ===', totalStakedLPTokenAmount);
+            console.log(`\n=== totalStakedLPTokenAmount: ${ totalStakedLPTokenAmount } UNI-V2 (GLM-ETH) ===`);
         });
 
         it("Check the total individual staked LPToken amount", async () => {
             const stakeId = 1;
             let _totalIndividualStakedLPTokenAmount = await glmStakePool.getTotalIndividualStakedLPTokenAmount(stakeId, { from: user1 });
             let totalIndividualStakedLPTokenAmount = parseFloat(web3.utils.fromWei(_totalIndividualStakedLPTokenAmount));
-            console.log('\n=== totalIndividualStakedLPTokenAmount ===', totalIndividualStakedLPTokenAmount);
+            console.log(`\n=== totalIndividualStakedLPTokenAmount: ${ totalIndividualStakedLPTokenAmount } UNI-V2 (GLM-ETH) ===`);
         });
 
         it("Claim rewards (Then, user1 will receive the Golem Governance Token as rewards)", async () => {
@@ -278,7 +279,7 @@ contract("GLMStakePool", function(accounts) {
         it("Check received rewards (Golem Governance Token) balance of user1", async () => {
             let _golemGovernanceTokenBalance = await golemGovernanceToken.balanceOf(user1, { from: user1 });
             let golemGovernanceTokenBalance = parseFloat(web3.utils.fromWei(_golemGovernanceTokenBalance));
-            console.log('\n=== Received rewards (Golem Governance Token) balance of user1 ===', golemGovernanceTokenBalance);
+            console.log(`\n=== Received rewards (Golem Governance Token) balance of user1: ${ golemGovernanceTokenBalance } GGC ===`);
         });
     });
 
@@ -301,12 +302,12 @@ contract("GLMStakePool", function(accounts) {
         it("Check received rewards (Golem Governance Token) balance and un-staked UNI-LP tokens of user1", async () => {
             let _golemGovernanceTokenBalance = await golemGovernanceToken.balanceOf(user1, { from: user1 });
             let golemGovernanceTokenBalance = parseFloat(web3.utils.fromWei(_golemGovernanceTokenBalance));
-            console.log('\n=== Received rewards (Golem Governance Token) balance of user1 ===', golemGovernanceTokenBalance);
+            console.log(`\n=== Received rewards (Golem Governance Token) balance of user1: ${ golemGovernanceTokenBalance } GGC ===`);
 
             const uniswapV2Pair = await UniswapV2Pair.at(PAIR_GLM_ETH, { from: user1 });
             let _pairBalance = await uniswapV2Pair.balanceOf(user1, { from: user1 });
             let pairBalance = parseFloat(web3.utils.fromWei(_pairBalance));
-            console.log('\n=== pair (GLM-ETH) balance of user1 (after addLiquidityETH) ===', pairBalance);
+            console.log(`\n=== pair (GLM-ETH) balance of user1: ${ pairBalance } UNI-V2 (GLM-ETH) ===`);
         });
     });
 
