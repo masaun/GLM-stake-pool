@@ -22,6 +22,10 @@
 
 &nbsp;
 
+![【Diagram】GLM Stake Pool](https://user-images.githubusercontent.com/19357502/103907871-2a58fb80-5145-11eb-8e79-6f6603b8576a.png)
+
+&nbsp;
+
 ***
 
 ## 【Technical Stack】
@@ -84,6 +88,7 @@ $ npm run test:stake
 - Replace GLMMockToken contract (GLMMockToken.sol) with official GLM token contract (NewGolemNetworkToken.sol).
 - Additional implementation of GLM stake pool between GLM-ERC20. (Currently, this is in progress)
 - Additional implementation of the Golem Governance Token (GGC) and governance structures (e.g. Community voting function by GLM token holders)
+- Add liquidity pool of the Golem Governance Token (GGC).
 - Implement the front-end (UI).
 
 
