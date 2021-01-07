@@ -22,6 +22,7 @@
 
 &nbsp;
 
+- Diagram of workflow.
 ![【Diagram】GLM Stake Pool](https://user-images.githubusercontent.com/19357502/103907871-2a58fb80-5145-11eb-8e79-6f6603b8576a.png)
 
 &nbsp;
